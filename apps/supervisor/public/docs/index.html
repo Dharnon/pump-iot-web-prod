@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Style Audit Hub - Pump IoT</title>
+    <!-- Marked para Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- GitHub Markdown CSS -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-dark.min.css">
+    <!-- Highlight.js para sintaxis de código -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Mermaid para diagramas -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+            background-color: #0d1117;
+            color: #c9d1d9;
+        }
+
+        .markdown-body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 1012px;
+            margin: 0 auto;
+            padding: 45px;
+            background-color: #0d1117 !important;
+        }
+
+        @media (max-width: 767px) {
+            .markdown-body {
+                padding: 15px;
+            }
+        }
+
+        .glass-sidebar {
+            background: #161b22;
+            border-right: 1px solid #30363d;
+            overflow-y: auto;
+        }
+
+        .nav-item {
+            transition: all 0.2s;
+            border-radius: 6px;
+            margin: 1px 0;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: #21262d;
+        }
+
+        .nav-item.active {
+            background: #0d1117;
+            color: #f0f6fc !important;
+            border: 1px solid #30363d;
+            border-right-color: transparent;
+            position: relative;
+            z-index: 2;
+        }
+
+        .nav-item.active::before {
+            content: "";
+            position: absolute;
+            left: -8px;
+            top: 4px;
+            bottom: 4px;
+            width: 3px;
+            background: #fd8c06;
+            border-radius: 3px;
+        }
+
+        .nav-item.active svg {
+            color: #fd8c06 !important;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484f58;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 12px 12px 6px;
+        }
+
+        .sidebar-header {
+            background: #161b22;
+            border-bottom: 1px solid #30363d;
+        }
+
+        header.sticky {
+            background: #0d1117;
+            border-bottom: 1px solid #30363d;
+        }
+
+        /* Mermaid Dark Fix */
+        .mermaid {
+            background: #161b22;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex">
+    <!-- Sidebar estilo GitHub Repo -->
+    <aside class="w-80 glass-sidebar flex flex-col fixed h-full z-50">
+        <div class="p-6 sidebar-header sticky top-0 z-10">
+            <div class="flex items-center gap-2 mb-1">
+                <svg class="w-5 h-5 text-slate-400" viewBox="0 0 16 16" fill="currentColor">
+                    <path
+                        d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z">
+                    </path>
+                </svg>
+                <span class="font-semibold text-slate-200">Dharnon / <span class="text-white">plc</span></span>
+            </div>
+            <div
+                class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-800 text-slate-400 border border-slate-700">
+                Public/Monorepo
+            </div>
+        </div>
+
+        <nav class="flex-1 p-2" id="doc-nav">
+            <!-- Core Docs -->
+            <div class="section-title">Core Docs</div>
+            <button onclick="loadDoc('README.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                    </path>
+                </svg>
+                <span class="text-sm">README.md</span>
+            </button>
+            <button onclick="loadDoc('ARCHITECTURE.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                    </path>
+                </svg>
+                <span class="text-sm">ARCHITECTURE.md</span>
+            </button>
+            <button onclick="loadDoc('MONOREPO_PLAN.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
+                    </path>
+                </svg>
+                <span class="text-sm">MONOREPO_PLAN.md</span>
+            </button>
+
+            <!-- Audit & Reports -->
+            <div class="section-title">Audit & Reports</div>
+            <button onclick="loadDoc('ADVANCED_ARCH_AUDIT.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                    </path>
+                </svg>
+                <span class="text-sm font-semibold text-amber-400/80">SOLID & CLEAN CODE.md</span>
+            </button>
+            <button onclick="loadDoc('TECHNICAL_AUDIT_IT_COMMITTEE.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                    </path>
+                </svg>
+                <span class="text-sm">IT_COMMITTEE_AUDIT.md</span>
+            </button>
+            <button onclick="loadDoc('TELERIK_MIGRATION_REPORT.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                    </path>
+                </svg>
+                <span class="text-sm">TELERIK_MIGRATION.md</span>
+            </button>
+            <button onclick="loadDoc('CODE_VALIDATION_REPORT.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                </svg>
+                <span class="text-sm">CODE_VALIDATION.md</span>
+            </button>
+            <button onclick="loadDoc('TECHNICAL_AUDIT_OPERATOR.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                <span class="text-sm">OPERATOR_AUDIT.md</span>
+            </button>
+            <button onclick="loadDoc('TECHNICAL_AUDIT_v1.1.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="text-sm">AUDIT_v1.1_ARCHIVE.md</span>
+            </button>
+
+            <!-- Developer Guides -->
+            <div class="section-title">Developer Guides</div>
+            <button onclick="loadDoc('COMPONENTS.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z">
+                    </path>
+                </svg>
+                <span class="text-sm">COMPONENTS_LIST.md</span>
+            </button>
+            <button onclick="loadDoc('README_PDF_WORKER_FIX.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z">
+                    </path>
+                </svg>
+                <span class="text-sm">PDF_WORKER_FIX.md</span>
+            </button>
+            <button onclick="loadDoc('OPERATOR_README.md')"
+                class="nav-item w-full text-left px-3 py-2 flex items-center gap-2 text-slate-400 hover:text-white">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z">
+                    </path>
+                </svg>
+                <span class="text-sm">OPERATOR_APP_README.md</span>
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800 bg-[#161b22] sticky bottom-0">
+            <div class="flex items-center gap-2 text-xs text-slate-500 font-medium tracking-tight">
+                <div class="w-2 h-2 rounded-full bg-green-500 shadow-sm shadow-green-500/50"></div>
+                Knowledge Hub v1.2.1 Stable
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 ml-80">
+        <!-- Header estilo GitHub -->
+        <header
+            class="h-16 border-b border-slate-800 flex items-center px-10 sticky top-0 z-40 justify-between bg-[#0d1117]">
+            <nav class="flex gap-6 text-sm">
+                <a href="#"
+                    class="text-white font-semibold border-b-2 border-orange-500 pb-[1.4rem] pt-5 -mb-px">README.md</a>
+                <a href="#" class="text-slate-400 hover:text-white transition-colors">Code</a>
+                <a href="#" class="text-slate-400 hover:text-white transition-colors">Actions</a>
+                <a href="#" class="text-slate-400 hover:text-white transition-colors">Infrastructure</a>
+            </nav>
+            <div class="flex items-center gap-3">
+                <button
+                    class="bg-[#21262d] border border-[#30363d] rounded-md px-3 py-1 text-xs font-semibold hover:border-[#8b949e]">Star
+                    Repository</button>
+                <div
+                    class="w-7 h-7 bg-blue-500/20 border border-blue-500/40 rounded-full flex items-center justify-center text-[10px] font-bold text-blue-400">
+                    AI</div>
+            </div>
+        </header>
+
+        <!-- Markdown Paper -->
+        <div class="bg-[#0d1117] min-h-[calc(100vh-64px)]">
+            <article id="content-container" class="markdown-body">
+                <div class="flex flex-col items-center justify-center py-24 text-center">
+                    <svg class="w-16 h-16 text-slate-700 mb-6" fill="currentColor" viewBox="0 0 16 16">
+                        <path
+                            d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z">
+                        </path>
+                    </svg>
+                    <h1 class="border-none text-slate-300">Pump IoT Knowledge Hub</h1>
+                    <p class="text-slate-500 max-w-md mx-auto">Selecciona uno de los 10 documentos de la barra lateral
+                        para visualizar el historial completo de migración y auditorías.</p>
+                    <button onclick="loadDoc('README.md')"
+                        class="mt-8 px-6 py-2.5 bg-[#1f6feb] text-white rounded-md text-sm font-semibold hover:bg-blue-600 transition-colors shadow-lg shadow-blue-500/10">Explorar
+                        Documentación</button>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <script>
+        // Configurar Mermaid
+        mermaid.initialize({
+            startOnLoad: false,
+            theme: 'dark',
+            securityLevel: 'loose',
+            themeVariables: {
+                darkMode: true,
+                background: '#161b22',
+                primaryColor: '#1f6feb',
+                secondaryColor: '#238636',
+                tertiaryColor: '#161b22',
+                mainBkg: '#161b22',
+                nodeBorder: '#30363d',
+                lineColor: '#8b949e',
+                fontFamily: 'Inter'
+            }
+        });
+
+        // Configurar Marked
+        marked.setOptions({
+            highlight: function (code, lang) {
+                if (lang === 'mermaid') {
+                    return `<div class="mermaid">${code}</div>`;
+                }
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
+            },
+            langPrefix: 'hljs language-',
+            gfm: true,
+            breaks: true
+        });
+
+        async function loadDoc(name) {
+            // Update UI Active State
+            document.querySelectorAll('.nav-item').forEach(btn => {
+                const btnText = btn.querySelector('span').innerText;
+                const map = {
+                    'README.md': 'README.md',
+                    'ARCHITECTURE.md': 'ARCHITECTURE.md',
+                    'MONOREPO_PLAN.md': 'MONOREPO_PLAN.md',
+                    'ADVANCED_ARCH_AUDIT.md': 'SOLID & CLEAN CODE.md',
+                    'TECHNICAL_AUDIT_IT_COMMITTEE.md': 'IT_COMMITTEE_AUDIT.md',
+                    'TELERIK_MIGRATION_REPORT.md': 'TELERIK_MIGRATION.md',
+                    'CODE_VALIDATION_REPORT.md': 'CODE_VALIDATION.md',
+                    'TECHNICAL_AUDIT_OPERATOR.md': 'OPERATOR_AUDIT.md',
+                    'TECHNICAL_AUDIT_v1.1.md': 'AUDIT_v1.1_ARCHIVE.md',
+                    'COMPONENTS.md': 'COMPONENTS_LIST.md',
+                    'README_PDF_WORKER_FIX.md': 'PDF_WORKER_FIX.md',
+                    'OPERATOR_README.md': 'OPERATOR_APP_README.md'
+                };
+
+                if (map[name] === btnText) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            const contentArea = document.getElementById('content-container');
+            contentArea.innerHTML = '<div class="flex justify-center py-20"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div></div>';
+
+            try {
+                const response = await fetch(name);
+                if (!response.ok) throw new Error('No se pudo encontrar el archivo: ' + name);
+                const text = await response.text();
+
+                // Renderizar Markdown
+                let html = marked.parse(text);
+
+                // Hack para Mermaid: Marked lo envuelve en <pre><code...>. 
+                // Lo sacamos para que Mermaid pueda renderizarlo correctamente.
+                const temp = document.createElement('div');
+                temp.innerHTML = html;
+                temp.querySelectorAll('pre code.language-mermaid').forEach(code => {
+                    const mermaidDiv = document.createElement('div');
+                    mermaidDiv.className = 'mermaid';
+                    mermaidDiv.textContent = code.textContent;
+                    code.parentElement.replaceWith(mermaidDiv);
+                });
+
+                contentArea.innerHTML = temp.innerHTML;
+
+                // Resaltar Código
+                contentArea.querySelectorAll('pre code').forEach((block) => {
+                    if (!block.classList.contains('language-mermaid')) {
+                        hljs.highlightElement(block);
+                    }
+                });
+
+                // Renderizar Mermaid
+                await mermaid.run();
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } catch (err) {
+                contentArea.innerHTML = `<h1 style="color: #f85149">Error de carga</h1><p>${err.message}</p>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auditoría Técnica - Módulo Operador</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --primary: #3b82f6;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            border-radius: 1rem;
+        }
+        header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        header p { color: rgba(255,255,255,0.8); }
+        .meta { display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
+        .meta span { background: rgba(255,255,255,0.1); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; }
+        
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--success);
+        }
+        .summary-card h2 { margin-bottom: 1rem; color: var(--success); }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-4px); }
+        .card h3 { color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .card ul { list-style: none; }
+        .card li { padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 0.5rem; }
+        .card li:last-child { border-bottom: none; }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success { background: var(--success); color: #0f172a; }
+        .badge-warning { background: var(--warning); color: #0f172a; }
+        .badge-danger { background: var(--danger); color: white; }
+        .badge-info { background: var(--primary); color: white; }
+
+        .icon { width: 20px; height: 20px; }
+        
+        section { margin-bottom: 3rem; }
+        section > h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+        }
+        
+        .tree {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+        .tree-item { padding: 0.25rem 0; }
+        .tree-folder { color: var(--primary); }
+        .tree-file { color: var(--text-muted); }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-card);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+        th, td { padding: 1rem; text-align: left; }
+        th { background: rgba(59, 130, 246, 0.1); color: var(--primary); }
+        tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+        
+        .recommendations {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+        .recommendations ol { margin-left: 1.5rem; }
+        .recommendations li { margin-bottom: 1rem; }
+        .recommendations strong { color: var(--primary); }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔧 Auditoría Técnica</h1>
+            <p>Módulo Operador (Banco de Pruebas)</p>
+            <div class="meta">
+                <span>📅 21 Enero 2026</span>
+                <span>📁 src/features/operator</span>
+                <span>v1.0</span>
+            </div>
+        </header>
+
+        <div class="summary-card">
+            <h2>✅ Resumen Ejecutivo</h2>
+            <p>El módulo <strong>Operator</strong> implementa una interfaz de banco de pruebas industrial simulado. Sigue una arquitectura <strong>Feature-Driven</strong> estricta, excelente para escalabilidad. Actualmente opera 100% en cliente con <strong>Mock Data</strong>, listo para demos pero requiere integración backend para producción.</p>
+        </div>
+
+        <section>
+            <h2>📊 Puntuación por Área</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>🏗️ Arquitectura</h3>
+                    <ul>
+                        <li><span class="badge badge-success">EXCELENTE</span> Feature-Driven Structure</li>
+                        <li><span class="badge badge-success">✓</span> Separación de Concerns</li>
+                        <li><span class="badge badge-success">✓</span> Context API bien usado</li>
+                        <li><span class="badge badge-warning">⚠</span> Sin deep-linking (URL)</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🔐 Seguridad</h3>
+                    <ul>
+                        <li><span class="badge badge-info">INFO</span> Solo Mock Data (sin API)</li>
+                        <li><span class="badge badge-warning">⚠</span> Validación en frontend</li>
+                        <li><span class="badge badge-success">✓</span> No hay tokens expuestos</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>🛠️ Mantenibilidad</h3>
+                    <ul>
+                        <li><span class="badge badge-success">✓</span> TypeScript estricto</li>
+                        <li><span class="badge badge-success">✓</span> Hooks modernos</li>
+                        <li><span class="badge badge-warning">⚠</span> Analytics.tsx complejo</li>
+                        <li><span class="badge badge-success">✓</span> Nombres descriptivos</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>⚡ Rendimiento</h3>
+                    <ul>
+                        <li><span class="badge badge-success">✓</span> Ventana deslizante (20pts)</li>
+                        <li><span class="badge badge-success">✓</span> useMemo / useCallback</li>
+                        <li><span class="badge badge-info">3D</span> Three.js aislado</li>
+                        <li><span class="badge badge-success">✓</span> 500ms refresh rate</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>📁 Estructura del Módulo</h2>
+            <div class="tree">
+                <div class="tree-item"><span class="tree-folder">📂 src/features/operator/</span></div>
+                <div class="tree-item" style="padding-left: 1.5rem;"><span class="tree-folder">📂 components/</span></div>
+                <div class="tree-item" style="padding-left: 3rem;"><span class="tree-file">Analytics.tsx</span> · Gráficos Q-H y reportes</div>
+                <div class="tree-item" style="padding-left: 3rem;"><span class="tree-file">Cockpit.tsx</span> · Panel control + 3D</div>
+                <div class="tree-item" style="padding-left: 3rem;"><span class="tree-file">Dashboard.tsx</span> · Lista de trabajos</div>
+                <div class="tree-item" style="padding-left: 3rem;"><span class="tree-file">OperatorView.tsx</span> · Container + Router</div>
+                <div class="tree-item" style="padding-left: 3rem;"><span class="tree-folder">📂 testing/</span> · Componentes atómicos</div>
+                <div class="tree-item" style="padding-left: 1.5rem;"><span class="tree-folder">📂 context/</span></div>
+                <div class="tree-item" style="padding-left: 3rem;"><span class="tree-file">TestingContext.tsx</span> · State global</div>
+                <div class="tree-item" style="padding-left: 1.5rem;"><span class="tree-file">index.ts</span> · Public API</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>⚠️ Hallazgos Clave</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Área</th>
+                        <th>Hallazgo</th>
+                        <th>Severidad</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Navegación</td>
+                        <td>El botón "atrás" del navegador saca del módulo</td>
+                        <td><span class="badge badge-warning">Media</span></td>
+                        <td>Sincronizar con query params</td>
+                    </tr>
+                    <tr>
+                        <td>Validación</td>
+                        <td>Tolerancia ±5% hardcodeada en frontend</td>
+                        <td><span class="badge badge-danger">Alta</span></td>
+                        <td>Mover a backend para certificados</td>
+                    </tr>
+                    <tr>
+                        <td>Código</td>
+                        <td>Analytics.tsx tiene alta complejidad</td>
+                        <td><span class="badge badge-warning">Media</span></td>
+                        <td>Extraer a hook useChartData</td>
+                    </tr>
+                    <tr>
+                        <td>UX</td>
+                        <td>No hay confirmación al abandonar prueba</td>
+                        <td><span class="badge badge-warning">Media</span></td>
+                        <td>Añadir dialog de confirmación</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>🚀 Recomendaciones para Producción</h2>
+            <div class="recommendations">
+                <ol>
+                    <li><strong>Integración API:</strong> Reemplazar mockJobs por llamadas a lib/api.ts</li>
+                    <li><strong>Refactor:</strong> Extraer generateTheoreticalCurve a math-utils.ts con tests</li>
+                    <li><strong>Deep Linking:</strong> Sincronizar currentView con ?view=analytics</li>
+                    <li><strong>Confirmación:</strong> Implementar beforeunload para pruebas en curso</li>
+                    <li><strong>Validación Server-Side:</strong> APROBADO/RECHAZADO debe decidirse en backend</li>
+                </ol>
+            </div>
+        </section>
+
+        <footer>
+            <p>Auditoría generada por Antigravity AI · pump-iot-web</p>
+        </footer>
+    </div>
+</body>
+</html>
