@@ -3,62 +3,59 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, CircleDashed, Loader2, AlertCircle, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { CheckCircle2, Loader2, ChevronRight, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 
-export interface TestItem {
+export interface ProtocolItem {
     id: string;
     status: string;
     numeroSerie?: string;
+    fecha: string;
     generalInfo: {
         pedido: string;
-        posicion?: string;
         cliente: string;
         modeloBomba?: string;
         ordenTrabajo?: string;
         numeroBombas: number;
     };
+    bomba?: {
+        tipo?: string;
+        diametroRodete?: string;
+    };
 }
 
-// Helper for status config (moved to function for translation)
 const getStatusConfig = (status: string, t: (key: string) => string) => {
-    const baseStatusClass = "border-slate-200 dark:border-slate-700 bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors";
-
+    const baseClass = "border-slate-200 dark:border-slate-700 bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors";
+    
     const config: Record<string, { label: string; icon: React.ElementType; className: string; iconClassName: string }> = {
-        PENDING: {
-            label: t("status.PENDING"),
-            icon: CircleDashed,
-            className: baseStatusClass,
-            iconClassName: "text-orange-500 dark:text-orange-400"
-        },
-        IN_PROGRESS: {
-            label: t("status.IN_PROGRESS"),
-            icon: Loader2,
-            className: baseStatusClass,
-            iconClassName: "text-blue-500 dark:text-blue-400 animate-spin"
+        GENERADO: {
+            label: t("status.GENERATED"),
+            icon: CheckCircle2,
+            className: baseClass,
+            iconClassName: "text-green-500 dark:text-green-400"
         },
         GENERATED: {
             label: t("status.GENERATED"),
             icon: CheckCircle2,
-            className: baseStatusClass,
+            className: baseClass,
             iconClassName: "text-green-500 dark:text-green-400"
+        },
+        IN_PROGRESS: {
+            label: t("status.IN_PROGRESS"),
+            icon: Loader2,
+            className: baseClass,
+            iconClassName: "text-blue-500 dark:text-blue-400 animate-spin"
         },
         COMPLETED: {
             label: t("status.COMPLETED"),
             icon: CheckCircle2,
-            className: baseStatusClass,
+            className: baseClass,
             iconClassName: "text-green-500 dark:text-green-400"
         },
     };
 
-    return config[status] || {
-        label: status,
-        icon: AlertCircle,
-        className: baseStatusClass,
-        iconClassName: "text-slate-400"
-    };
+    return config[status] || config["GENERADO"];
 };
 
-// Simple sortable header
 function SortableHeader({ column, title }: { column: any; title: string }) {
     return (
         <Button
@@ -79,7 +76,14 @@ function SortableHeader({ column, title }: { column: any; title: string }) {
     );
 }
 
-export const getColumns = (t: (key: string) => string): ColumnDef<TestItem>[] => [
+export const getProtocolColumns = (t: (key: string) => string): ColumnDef<ProtocolItem>[] => [
+    {
+        accessorKey: "id",
+        header: ({ column }) => <SortableHeader column={column} title="Nº Protocolo" />,
+        cell: ({ row }) => {
+            return <span className="font-mono font-bold text-primary">{row.getValue("id")}</span>;
+        },
+    },
     {
         accessorKey: "status",
         header: ({ column }) => <SortableHeader column={column} title={t("col.status")} />,
@@ -96,57 +100,49 @@ export const getColumns = (t: (key: string) => string): ColumnDef<TestItem>[] =>
         },
     },
     {
-        accessorKey: "generalInfo.pedido",
-        id: "pedido",
-        header: ({ column }) => <SortableHeader column={column} title={t("col.order")} />,
-        cell: ({ row }) => {
-            const pedido = row.original.generalInfo.pedido;
-            return <span className="font-mono font-medium text-primary">{pedido}</span>;
-        },
-    },
-    {
-        accessorKey: "generalInfo.posicion",
-        id: "posicion",
-        header: t("col.position"),
-        cell: ({ row }) => {
-            const posicion = row.original.generalInfo.posicion;
-            return <span className="font-mono text-muted-foreground">{posicion || "-"}</span>;
-        },
-    },
-    {
         accessorKey: "generalInfo.cliente",
         id: "cliente",
         header: ({ column }) => <SortableHeader column={column} title={t("col.client")} />,
         cell: ({ row }) => {
-            const cliente = row.original.generalInfo.cliente;
-            return <span className="font-medium truncate max-w-[200px] block">{cliente}</span>;
+            const cliente = row.original.generalInfo?.cliente;
+            return <span className="font-medium truncate max-w-[200px] block">{cliente || "-"}</span>;
+        },
+    },
+    {
+        accessorKey: "generalInfo.pedido",
+        id: "pedido",
+        header: ({ column }) => <SortableHeader column={column} title={t("col.order")} />,
+        cell: ({ row }) => {
+            const pedido = row.original.generalInfo?.pedido;
+            return <span className="font-mono text-sm">{pedido || "-"}</span>;
         },
     },
     {
         accessorKey: "generalInfo.modeloBomba",
         id: "modelo",
-        header: t("col.model"),
+        header: "Modelo",
         cell: ({ row }) => {
-            const modelo = row.original.generalInfo.modeloBomba;
-            return <span className="font-mono text-sm text-muted-foreground">{modelo || "-"}</span>;
+            const modelo = row.original.generalInfo?.modeloBomba;
+            return <span className="font-mono text-sm text-muted-foreground truncate max-w-[200px] block">{modelo || "-"}</span>;
         },
     },
     {
         accessorKey: "generalInfo.ordenTrabajo",
-        id: "orden",
-        header: t("col.workOrder"),
+        id: "ordenTrabajo",
+        header: "Orden Trabajo",
         cell: ({ row }) => {
-            const orden = row.original.generalInfo.ordenTrabajo;
+            const orden = row.original.generalInfo?.ordenTrabajo;
             return <span className="font-mono text-sm text-muted-foreground">{orden || "-"}</span>;
         },
     },
     {
-        accessorKey: "generalInfo.numeroBombas",
-        id: "numero",
-        header: ({ column }) => <SortableHeader column={column} title={t("col.qty")} />,
+        accessorKey: "fecha",
+        header: ({ column }) => <SortableHeader column={column} title="Fecha" />,
         cell: ({ row }) => {
-            const numero = row.original.generalInfo.numeroBombas;
-            return <span className="font-mono text-sm text-center block">{numero}</span>;
+            const fecha = row.original.fecha;
+            if (!fecha) return <span className="text-muted-foreground">-</span>;
+            const date = new Date(fecha);
+            return <span className="text-sm text-muted-foreground">{date.toLocaleDateString()}</span>;
         },
     },
     {

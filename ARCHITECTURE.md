@@ -12,16 +12,16 @@ Plataforma industrial para pruebas de bombas hidráulicas. Arquitectura **monore
 
 ### Stack Tecnológico
 
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| **PNPM** | 9.x | Package Manager + Workspaces |
-| **Turbo** | 2.x | Build System / Dev orchestration |
-| **Next.js** | 16.1.1 | Supervisor App (SSR) |
-| **Vite** | 6.x | Operator App (SPA) |
-| **React** | 19.x | UI Library |
-| **TypeScript** | 5.x | Tipado estático |
-| **Tailwind CSS** | 4.x | Utilidades CSS |
-| **Shadcn UI** | latest | Componentes UI |
+| Tecnología       | Versión | Propósito                        |
+| ---------------- | ------- | -------------------------------- |
+| **PNPM**         | 9.x     | Package Manager + Workspaces     |
+| **Turbo**        | 2.x     | Build System / Dev orchestration |
+| **Next.js**      | 16.1.1  | Supervisor App (SSR)             |
+| **Vite**         | 6.x     | Operator App (SPA)               |
+| **React**        | 19.x    | UI Library                       |
+| **TypeScript**   | 5.x     | Tipado estático                  |
+| **Tailwind CSS** | 4.x     | Utilidades CSS                   |
+| **Shadcn UI**    | latest  | Componentes UI                   |
 
 ---
 
@@ -89,6 +89,7 @@ flowchart LR
 ```
 
 ### Mecanismo de Proxy
+
 - Next.js sirve en `localhost:3000`
 - Vite sirve en `localhost:8080` con `base: "/operator/"`
 - Next.js `rewrites` redirige `/operator/**` → Vite
@@ -99,20 +100,26 @@ flowchart LR
 
 ### Antes vs Después (Operator App)
 
-| Aspecto | Antes | Después |
-|---------|-------|---------|
-| **Contextos** | 1 "God Object" (TestingContext) | 3 providers especializados |
-| **Re-renders** | 2/s en toda la app | 0/s fuera del cockpit |
-| **Business Logic** | Mezclada en componentes | Hooks dedicados (`useCaptureLogic`) |
-| **Imports** | Directos a archivos | Features con public API |
+| Aspecto            | Antes                           | Después                             |
+| ------------------ | ------------------------------- | ----------------------------------- |
+| **Contextos**      | 1 "God Object" (TestingContext) | 3 providers especializados          |
+| **Re-renders**     | 2/s en toda la app              | 0/s fuera del cockpit               |
+| **Business Logic** | Mezclada en componentes         | Hooks dedicados (`useCaptureLogic`) |
+| **Imports**        | Directos a archivos             | Features con public API             |
 
 ### Provider Composition
 
 ```tsx
 // apps/operator/src/pages/Index.tsx
-<NavigationProvider>        {/* Vista actual */}
-  <JobProvider>             {/* Trabajo seleccionado */}
-    <TelemetryProvider>     {/* Datos 500ms (aislado) */}
+<NavigationProvider>
+  {" "}
+  {/* Vista actual */}
+  <JobProvider>
+    {" "}
+    {/* Trabajo seleccionado */}
+    <TelemetryProvider>
+      {" "}
+      {/* Datos 500ms (aislado) */}
       <AppContent />
     </TelemetryProvider>
   </JobProvider>
@@ -153,11 +160,11 @@ graph TB
 
 ### Optimizaciones Aplicadas
 
-| Regla Vercel | Implementación |
-|--------------|----------------|
-| `bundle-dynamic-imports` | `ImportModal` cargado con `next/dynamic` |
-| `rerender-memo` | `useMemo` para columnas y filtros |
-| `rendering-hydration-no-flicker` | `middleware.ts` para auth |
+| Regla Vercel                     | Implementación                           |
+| -------------------------------- | ---------------------------------------- |
+| `bundle-dynamic-imports`         | `ImportModal` cargado con `next/dynamic` |
+| `rerender-memo`                  | `useMemo` para columnas y filtros        |
+| `rendering-hydration-no-flicker` | `middleware.ts` para auth                |
 
 ---
 
@@ -185,9 +192,12 @@ graph LR
 
 ```typescript
 // features/testing/index.ts
-export { Cockpit } from '../../../views/Cockpit';
-export { useCaptureLogic } from './hooks/useCaptureLogic';
-export { TelemetryProvider, useTelemetry } from '../../../contexts/TelemetryProvider';
+export { Cockpit } from "../../../views/Cockpit";
+export { useCaptureLogic } from "./hooks/useCaptureLogic";
+export {
+  TelemetryProvider,
+  useTelemetry,
+} from "../../../contexts/TelemetryProvider";
 ```
 
 ---
@@ -195,16 +205,19 @@ export { TelemetryProvider, useTelemetry } from '../../../contexts/TelemetryProv
 ## 7. Decisiones Arquitectónicas
 
 ### ¿Por qué Monorepo?
+
 - **Desarrollo unificado**: `pnpm dev` levanta ambas apps
 - **Compartir código**: Futuro `packages/shared` para utilidades
 - **Despliegue independiente**: Cada app puede desplegarse por separado
 
 ### ¿Por qué Vite para Operator?
+
 - **React Three Fiber**: Mejor compatibilidad con Vite
 - **SPA pura**: No necesita SSR
 - **HMR más rápido**: Ideal para desarrollo de UI 3D
 
 ### ¿Por qué Next.js para Supervisor?
+
 - **SEO/SSR**: Posible portal público en futuro
 - **Middleware**: Auth server-side nativo
 - **API Routes**: Posible BFF (Backend for Frontend)
@@ -234,6 +247,7 @@ pnpm --filter @pump-iot/operator dev
 La implementación de **Turbo** es crítica para garantizar la operación en entornos industriales sin conexión a internet (Air-Gapped).
 
 ### Beneficios Clave
+
 1.  **Caché Local Persistente**: Turbo almacena los artefactos de compilación en `node_modules/.cache/turbo`. Esto significa que si el sistema se reinicia, no es necesario recompilar todo desde cero.
 2.  **Zero Network Dependencies**: Una vez instaladas las dependencias (pnpm), el proceso de build es 100% offline. No requiere llamadas a servidores de vercel, npm registry, ni validaciones externas.
 3.  **Recuperación Rápida**: En caso de fallo de un contenedor o servicio, el rebuild tarda milisegundos ("Full Turbo") para los componentes que no han cambiado, minimizando el tiempo de inactividad (Downtime).
@@ -245,7 +259,7 @@ sequenceDiagram
     participant S as Sistema
     participant T as Turbo Cache
     participant B as Build Process
-    
+
     Note over S: Caída del servicio
     S->>B: Trigger Restart (pnpm dev/build)
     B->>T: ¿Hash de archivos cambiado?
@@ -267,62 +281,110 @@ Este reporte detalla la cadena de suministro de software (Software Supply Chain)
 
 ### 10.1 Infraestructura Crítica (Core)
 
-| Tecnología | Paquete | Backing / Empresa | Uso en Proyecto | Estado & Longevidad |
-|------------|---------|-------------------|-----------------|---------------------|
-| **Turbo** | `turbo` | **Vercel** | Sistema de Build | **Estándar Industrial**. Escrito en Rust. Vercel ha levantado $313M+ en financiación, garantizando soporte a largo plazo. |
-| **PNPM** | `pnpm` | Comunidad (Zoltan Kochan) | Gestor de Paquetes | **Alta Eficiencia**. Usado por Microsoft (Rush Stack) y ByteDance. Mantiene la estructura `node_modules` estricta. |
-| **TypeScript** | `typescript` | **Microsoft** | Lenguaje | **Estándar Empresarial**. Soporte garantizado por Microsoft. Reduce deuda técnica y bugs en producción. |
+| Tecnología     | Paquete      | Backing / Empresa         | Uso en Proyecto    | Estado & Longevidad                                                                                                       |
+| -------------- | ------------ | ------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| **Turbo**      | `turbo`      | **Vercel**                | Sistema de Build   | **Estándar Industrial**. Escrito en Rust. Vercel ha levantado $313M+ en financiación, garantizando soporte a largo plazo. |
+| **PNPM**       | `pnpm`       | Comunidad (Zoltan Kochan) | Gestor de Paquetes | **Alta Eficiencia**. Usado por Microsoft (Rush Stack) y ByteDance. Mantiene la estructura `node_modules` estricta.        |
+| **TypeScript** | `typescript` | **Microsoft**             | Lenguaje           | **Estándar Empresarial**. Soporte garantizado por Microsoft. Reduce deuda técnica y bugs en producción.                   |
 
 ### 10.2 Apps y Frameworks
 
-| Tecnología | Paquete | Backing / Empresa | Uso en Proyecto | Estado & Longevidad |
-|------------|---------|-------------------|-----------------|---------------------|
-| **Next.js** | `next` | **Vercel** | Supervisor (App) | **Líder de Mercado** en React Frameworks. Soporte LTS. Ecosistema masivo. |
-| **Vite** | `vite` | Comunidad (Evan You) | Operator (Build) | **Estándar de Facto** para herramientas modernas (sustituye a Webpack). Backing de Google Chrome Labs y Open Source. |
-| **React** | `react`, `react-dom` | **Meta (Facebook)** | UI Library | **Omnipresente**. Meta lo usa en Facebook/Instagram. Retrocompatibilidad excepcional (v16 a v19). |
-| **React Router** | `react-router-dom` | **Shopify** (Remix Team) | Operator (Routing) | Adquirido por Shopify, garantizando recursos ilimitados para su mantenimiento. |
+| Tecnología       | Paquete              | Backing / Empresa        | Uso en Proyecto    | Estado & Longevidad                                                                                                  |
+| ---------------- | -------------------- | ------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| **Next.js**      | `next`               | **Vercel**               | Supervisor (App)   | **Líder de Mercado** en React Frameworks. Soporte LTS. Ecosistema masivo.                                            |
+| **Vite**         | `vite`               | Comunidad (Evan You)     | Operator (Build)   | **Estándar de Facto** para herramientas modernas (sustituye a Webpack). Backing de Google Chrome Labs y Open Source. |
+| **React**        | `react`, `react-dom` | **Meta (Facebook)**      | UI Library         | **Omnipresente**. Meta lo usa en Facebook/Instagram. Retrocompatibilidad excepcional (v16 a v19).                    |
+| **React Router** | `react-router-dom`   | **Shopify** (Remix Team) | Operator (Routing) | Adquirido por Shopify, garantizando recursos ilimitados para su mantenimiento.                                       |
 
 ### 10.3 Ecosistema UI (Headless & Componentes)
 
-*El proyecto utiliza una arquitectura "Headless" basada en Radix UI, desacoplando la lógica de los estilos, lo que permite cambiar el diseño visual sin romper la funcionalidad.*
+_El proyecto utiliza una arquitectura "Headless" basada en Radix UI, desacoplando la lógica de los estilos, lo que permite cambiar el diseño visual sin romper la funcionalidad._
 
-| Tecnología | Paquete | Backing / Empresa | Propósito |
-|------------|---------|-------------------|-----------|
-| **Radix UI** | `@radix-ui/*` | **WorkOS** | Primitivas de UI accesibles (Dialog, Popover, Switch) que cumplen WCAG 2.1. |
-| **Tailwind CSS** | `tailwindcss`, `clsx`, `tailwind-merge` | **Tailwind Labs** | Motor de estilos atómicos. Negocio rentable ($10m+/año), muy bajo riesgo de abandono. |
-| **Framer Motion** | `framer-motion` | **Framer** | Librería de animación estándar en React. Usada en producción por Framer.com. |
-| **Lucide Icons** | `lucide-react` | Comunidad | Set de iconos SVG moderno y ligero (sucesor de Feather Icons). |
-| **CMDK** | `cmdk` | **Vercel** (Paco Coursey) | Componente de "Command Palette" optimizado y accesible. |
-| **Sonner** | `sonner` | **Vercel** (Emil Kowalski) | Sistema de notificaciones (Toasts) de alto rendimiento. |
-| **Vaul** | `vaul` | **Vercel** (Emil Kowalski) | Componente de Drawer/Sheet nativo para móvil. |
+| Tecnología        | Paquete                                 | Backing / Empresa          | Propósito                                                                             |
+| ----------------- | --------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------- |
+| **Radix UI**      | `@radix-ui/*`                           | **WorkOS**                 | Primitivas de UI accesibles (Dialog, Popover, Switch) que cumplen WCAG 2.1.           |
+| **Tailwind CSS**  | `tailwindcss`, `clsx`, `tailwind-merge` | **Tailwind Labs**          | Motor de estilos atómicos. Negocio rentable ($10m+/año), muy bajo riesgo de abandono. |
+| **Framer Motion** | `framer-motion`                         | **Framer**                 | Librería de animación estándar en React. Usada en producción por Framer.com.          |
+| **Lucide Icons**  | `lucide-react`                          | Comunidad                  | Set de iconos SVG moderno y ligero (sucesor de Feather Icons).                        |
+| **CMDK**          | `cmdk`                                  | **Vercel** (Paco Coursey)  | Componente de "Command Palette" optimizado y accesible.                               |
+| **Sonner**        | `sonner`                                | **Vercel** (Emil Kowalski) | Sistema de notificaciones (Toasts) de alto rendimiento.                               |
+| **Vaul**          | `vaul`                                  | **Vercel** (Emil Kowalski) | Componente de Drawer/Sheet nativo para móvil.                                         |
 
 ### 10.4 Visualización de Datos y 3D (Gemelo Digital)
 
-| Tecnología | Paquete | Backing / Empresa | Propósito |
-|------------|---------|-------------------|-----------|
-| **Three.js** | `three` | Comunidad (Mr.doob) | Motor 3D WebGL. La base de todo el 3D en la web desde 2010. |
-| **R3F** | `@react-three/fiber`, `@react-three/drei` | **Poimandres** | Integración de Three.js en React. Colectivo open source más importante en gráficos web. |
-| **Recharts** | `recharts` | Recharts Group | Gráficos estadísticos (líneas, barras) basados en SVG/D3. Muy estable. |
+| Tecnología   | Paquete                                   | Backing / Empresa   | Propósito                                                                               |
+| ------------ | ----------------------------------------- | ------------------- | --------------------------------------------------------------------------------------- |
+| **Three.js** | `three`                                   | Comunidad (Mr.doob) | Motor 3D WebGL. La base de todo el 3D en la web desde 2010.                             |
+| **R3F**      | `@react-three/fiber`, `@react-three/drei` | **Poimandres**      | Integración de Three.js en React. Colectivo open source más importante en gráficos web. |
+| **Recharts** | `recharts`                                | Recharts Group      | Gráficos estadísticos (líneas, barras) basados en SVG/D3. Muy estable.                  |
 
 ### 10.5 Gestión de Estado y Formularios
 
-| Tecnología | Paquete | Backing / Empresa | Propósito |
-|------------|---------|-------------------|-----------|
-| **React Hook Form** | `react-hook-form` | **Beetle** | Gestión de formularios performante (sin re-renders). Estándar actual sobre Formik. |
-| **Zod** | `zod` | Colin McDonnell | Validación de esquemas en tiempo de ejecución. |
-| **TanStack Query** | `@tanstack/react-query` | **TanStack** (Tanner Linsley) | Gestión de estado asíncrono y caché de servidor. Backing corporativo mediante patrocinadores (Ag Grid, nozzle.io). |
-| **TanStack Table** | `@tanstack/react-table` | **TanStack** | Lógica compleja para tablas de datos (ordenación, filtos). |
-| **DnD Kit** | `@dnd-kit/*` | Clauderic | Librería moderna y accesible para Drag & Drop. |
+| Tecnología          | Paquete                 | Backing / Empresa             | Propósito                                                                                                          |
+| ------------------- | ----------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **React Hook Form** | `react-hook-form`       | **Beetle**                    | Gestión de formularios performante (sin re-renders). Estándar actual sobre Formik.                                 |
+| **Zod**             | `zod`                   | Colin McDonnell               | Validación de esquemas en tiempo de ejecución.                                                                     |
+| **TanStack Query**  | `@tanstack/react-query` | **TanStack** (Tanner Linsley) | Gestión de estado asíncrono y caché de servidor. Backing corporativo mediante patrocinadores (Ag Grid, nozzle.io). |
+| **TanStack Table**  | `@tanstack/react-table` | **TanStack**                  | Lógica compleja para tablas de datos (ordenación, filtos).                                                         |
+| **DnD Kit**         | `@dnd-kit/*`            | Clauderic                     | Librería moderna y accesible para Drag & Drop.                                                                     |
 
 ### 10.6 Utilidades y Helpers
 
-| Paquete | Propósito | Estatus |
-|---------|-----------|---------|
-| `date-fns` | Manipulación de fechas (inmutable) | Estándar moderno (vs Moment.js que está legado). |
-| `pdfjs-dist` | Renderizado de PDFs | **Mozilla Foundation**. El motor que usa Firefox. |
-| `input-otp` | Inputs de código único | Componente ligero y específico. |
+| Paquete      | Propósito                          | Estatus                                           |
+| ------------ | ---------------------------------- | ------------------------------------------------- |
+| `date-fns`   | Manipulación de fechas (inmutable) | Estándar moderno (vs Moment.js que está legado).  |
+| `pdfjs-dist` | Renderizado de PDFs                | **Mozilla Foundation**. El motor que usa Firefox. |
+| `input-otp`  | Inputs de código único             | Componente ligero y específico.                   |
 
 ---
+
+```mermaid
+
+flowchart TD
+    %% Nodos de Inicio
+    Excel[📂 Importar Excel/CSV] -->|Puebla la tabla| Listados(BBDD: ListadosProduccion)
+
+    %% SUBGRAFO 1: INGENIERÍA / OFICINA
+    subgraph OFICINA ["1. FASE DE PREPARACIÓN (Ingeniero)"]
+        style OFICINA fill:#f9f9f9,stroke:#333,stroke-width:2px
+
+        Listados -->|Selecciona fila 'Pendiente'| VistaDetalle[🖥️ Vista Detalle Importación]
+        VistaDetalle -->|Sube Archivo| PDF[📄 PDF Especificaciones]
+        PDF -->|OCR / Parsing| Extraccion[⚙️ Extracción de Datos]
+        Extraccion -->|Rellena Formulario| Validacion{¿Datos Correctos?}
+
+        Validacion -- NO --> Correccion[📝 Corregir manualmente en UI]
+        Correccion --> Validacion
+
+        Validacion -- SÍ --> BtnGenerar[Botón: 'Generar Prueba']
+    end
+
+    %% TRANSICIÓN DE ESTADO
+    BtnGenerar -->|INSERT en Tbl Prueba + UPDATE Estado| DB_Generada[(BBDD: Estado 'GENERADA')]
+
+    %% SUBGRAFO 2: TALLER / OPERARIO
+    subgraph TALLER ["2. FASE DE EJECUCIÓN (Operario)"]
+        style TALLER fill:#e1f5fe,stroke:#333,stroke-width:2px
+
+        DB_Generada -->|Aparece en Lista Taller| VistaOperario[👀 Vista Lista 'Generadas']
+        VistaOperario -->|Selecciona Prueba| BancoPruebas[🔧 Ejecución en Banco de Pruebas]
+
+        BancoPruebas -->|Consulta| DatosTeoricos[Datos Teóricos (Solo Lectura)]
+        BancoPruebas -->|Introduce| DatosFaltantes[⌨️ Input: Caudal Real, Presión, etc.]
+
+        DatosFaltantes --> BtnFinalizar[Botón: 'Finalizar y Reporte']
+    end
+
+    %% FIN
+    BtnFinalizar -->|UPDATE Prueba + Generar PDF| DB_Completada[(BBDD: Estado 'COMPLETADA')]
+    DB_Completada --> Reporte[📄 PDF Reporte Final]
+
+    %% Estilos
+    style DB_Generada fill:#fff3cd,stroke:#ffc107,stroke-width:2px
+    style DB_Completada fill:#d4edda,stroke:#28a745,stroke-width:2px
+    style Validacion fill:#fff,stroke:#333
+
+```
 
 ## 11. Referencias
 

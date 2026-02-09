@@ -72,7 +72,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
  * });
  * ```
  */
-async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
+export async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
     // Construir URL completa combinando base + endpoint
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
@@ -92,6 +92,12 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> 
     // Parsear y retornar respuesta JSON
     return response.json();
 }
+
+/**
+ * Fetcher function for SWR
+ * @param url - The endpoint URL
+ */
+export const swrFetcher = (url: string) => fetchApi<any>(url);
 
 // =============================================================================
 // AUTENTICACIÓN
@@ -156,8 +162,9 @@ export async function login(username: string, password: string): Promise<LoginRe
  * @property createdAt - Fecha de creación (ISO 8601)
  */
 export interface Test {
-    id: string;
-    status: 'PENDING' | 'IN_PROGRESS' | 'GENERATED';
+    id: string; // This maps to NumeroProtocolo
+    status: 'PENDING' | 'IN_PROGRESS' | 'GENERATED' | 'COMPLETED';
+    numeroSerie?: string;
     generalInfo: {
         pedido: string;        // Número de pedido (ej: "PED-2024-001")
         cliente: string;       // Nombre del cliente
@@ -211,6 +218,41 @@ export async function patchTest(id: string, data: any): Promise<any> {
     });
 }
 
+/**
+ * Generate protocols from a ListadoProduccion entry.
+ * Creates N Prueba records (one per NumeroBombas) with empty related entities.
+ * 
+ * @param listadoId - ID of the ListadoProduccion entry
+ * @param bancoId - ID of the Banco where tests will be performed
+ * @param numeroSeriePrefix - Optional prefix for NumeroSerie (e.g., "C8r")
+ * @returns List of created NumeroProtocolo values
+ */
+export async function generateProtocols(
+    listadoId: number, 
+    bancoId: number, 
+    numeroSeriePrefix?: string
+): Promise<{ success: boolean; message: string; protocolos: number[] }> {
+    return fetchApi('/api/tests/generate', {
+        method: 'POST',
+        body: JSON.stringify({ listadoId, bancoId, numeroSeriePrefix })
+    });
+}
+
+/**
+ * Get all available Bancos (test benches).
+ * 
+ * @returns Array of Banco objects with id and nombre
+ */
+export interface Banco {
+    id: number;
+    nombre: string;
+    estado: boolean;
+}
+
+export async function getBancos(): Promise<Banco[]> {
+    return fetchApi<Banco[]>('/api/bancos');
+}
+
 // =============================================================================
 // LISTADOS (Datos CSV/Excel importados)
 // =============================================================================
@@ -222,6 +264,7 @@ export async function patchTest(id: string, data: any): Promise<any> {
  * Es una vista temporal de los datos antes de crear las pruebas.
  */
 export interface Listado {
+    id: number;
     pedido: string;
     cliente: string;
     tipoDeBomba: string;
