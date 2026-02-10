@@ -146,6 +146,97 @@ export async function login(username: string, password: string): Promise<LoginRe
     });
 }
 
+/**
+ * Valida un token JWT contra el backend.
+ * 
+ * Esta función es utilizada por el middleware de Next.js para verificar
+ * la autenticidad del token en cada petición a rutas protegidas.
+ * 
+ * SEGURIDAD OT:
+ * - Implementa el principio de "Zero Trust" (verificación continua)
+ * - Timeout corto (3s) para no bloquear el middleware en caso de latencia
+ * - Manejo explícito de errores de red (crítico en entornos industriales)
+ * 
+ * @param token - Token JWT a validar
+ * @returns Datos del usuario si el token es válido
+ * @throws Error si el token es inválido, expirado o el backend no responde
+ * 
+ * @example
+ * ```typescript
+ * try {
+ *     const user = await validateToken(token);
+ *     console.log(`Usuario válido: ${user.username}`);
+ * } catch (error) {
+ *     // Token inválido o backend no disponible
+ *     console.error('Validación fallida:', error.message);
+ * }
+ * ```
+ */
+export async function validateToken(token: string): Promise<{
+    valid: boolean;
+    user?: {
+        id: number;
+        username: string;
+        role: string;
+    };
+}> {
+    try {
+        // Timeout de 3 segundos para no bloquear el middleware
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+        const response = await fetch(`${API_BASE_URL}/api/auth/verify`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            throw new Error('Token validation failed');
+        }
+
+        return response.json();
+    } catch (error) {
+        // En caso de error de red o timeout, consideramos el token inválido
+        // (Fail-Safe Default - principio de seguridad OT)
+        throw new Error('Token validation failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
+    }
+}
+
+/**
+ * Cierra la sesión del usuario de forma segura.
+ * 
+ * Esta función:
+ * - Borra la cookie de autenticación
+ * - Limpia los datos de usuario del localStorage
+ * - Opcionalmente notifica al backend (para invalidar el token)
+ * 
+ * SEGURIDAD OT:
+ * - Limpieza completa de credenciales en el cliente
+ * - Previene reutilización de tokens después del logout
+ * 
+ * @example
+ * ```typescript
+ * logout();
+ * router.push('/login');
+ * ```
+ */
+export function logout(): void {
+    // Borrar cookie de token
+    document.cookie = 'token=; path=/; max-age=0; SameSite=Strict';
+    
+    // Limpiar localStorage
+    localStorage.removeItem('user');
+    
+    // TODO: Opcionalmente, llamar a un endpoint de logout en el backend
+    // para invalidar el token en una lista negra (blacklist)
+}
+
 // =============================================================================
 // TESTS (Pruebas de Bombas)
 // =============================================================================
@@ -446,4 +537,18 @@ export async function uploadPdf(numeroProtocolo: number, file: File): Promise<Pd
  */
 export async function checkHealth(): Promise<{ status: string; version: string }> {
     return fetchApi('/api/health');
+}
+
+/**
+ * Obtiene el archivo PDF de un protocolo.
+ * 
+ * @param id - ID del protocolo
+ * @returns Blob del archivo PDF
+ */
+export async function getTestPdf(id: number | string): Promise<Blob> {
+    const response = await fetch(`${API_BASE_URL}/api/pdf/${id}`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch PDF');
+    }
+    return response.blob();
 }

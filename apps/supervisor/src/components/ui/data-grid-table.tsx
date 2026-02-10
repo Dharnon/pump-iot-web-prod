@@ -88,7 +88,7 @@ function DataGridTableHeadRow<TData>({
     <tr
       key={headerGroup.id}
       className={cn(
-        'bg-muted/40',
+        'bg-transparent border-b border-border/50',
         props.tableLayout?.headerBorder && '[&>th]:border-b',
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'bg-transparent',
@@ -136,9 +136,9 @@ function DataGridTableHeadRowCell<TData>({
       data-pinned={isPinned || undefined}
       data-last-col={isLastLeftPinned ? 'left' : isFirstRightPinned ? 'right' : undefined}
       className={cn(
-        'relative h-10 text-left rtl:text-right align-middle font-normal text-secondary-foreground/80 [&:has([role=checkbox])]:pe-0',
+        'relative h-10 text-left rtl:text-right align-middle font-semibold text-xs text-muted-foreground uppercase tracking-wider [&:has([role=checkbox])]:pe-0',
         headerCellSpacing,
-        props.tableLayout?.cellBorder && 'border-e',
+        props.tableLayout?.cellBorder && 'border-e border-border/30',
         props.tableLayout?.columnsResizable && column.getCanResize() && 'truncate',
         props.tableLayout?.columnsPinnable &&
           column.getCanPin() &&
@@ -196,11 +196,11 @@ function DataGridTableBodyRowSkeleton({ children }: { children: ReactNode }) {
   return (
     <tr
       className={cn(
-        'hover:bg-muted/40 data-[state=selected]:bg-muted/50',
+        'hover:bg-black/[0.01] dark:hover:bg-white/[0.01] data-[state=selected]:bg-primary/5 transition-colors',
         props.onRowClick && 'cursor-pointer',
         !props.tableLayout?.stripped &&
           props.tableLayout?.rowBorder &&
-          'border-b border-border [&:not(:last-child)>td]:border-b',
+          'border-b border-border/50 [&:not(:last-child)>td]:border-b',
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'odd:bg-muted/90 hover:bg-transparent odd:hover:bg-muted',
         table.options.enableRowSelection && '[&_>:first-child]:relative',
@@ -259,11 +259,11 @@ function DataGridTableBodyRow<TData>({
       data-state={table.options.enableRowSelection && row.getIsSelected() ? 'selected' : undefined}
       onClick={() => props.onRowClick && props.onRowClick(row.original)}
       className={cn(
-        'hover:bg-muted/40 data-[state=selected]:bg-muted/50',
+        'hover:bg-black/[0.01] dark:hover:bg-white/[0.01] data-[state=selected]:bg-primary/5 transition-colors',
         props.onRowClick && 'cursor-pointer',
         !props.tableLayout?.stripped &&
           props.tableLayout?.rowBorder &&
-          'border-b border-border [&:not(:last-child)>td]:border-b',
+          'border-b border-border/50 [&:not(:last-child)>td]:border-b',
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'odd:bg-muted/90 hover:bg-transparent odd:hover:bg-muted',
         table.options.enableRowSelection && '[&_>:first-child]:relative',
@@ -323,9 +323,9 @@ function DataGridTableBodyRowCell<TData>({
       data-pinned={isPinned || undefined}
       data-last-col={isLastLeftPinned ? 'left' : isFirstRightPinned ? 'right' : undefined}
       className={cn(
-        'align-middle',
+        'align-middle text-sm',
         bodyCellSpacing,
-        props.tableLayout?.cellBorder && 'border-e',
+        props.tableLayout?.cellBorder && 'border-e border-border/30',
         props.tableLayout?.columnsResizable && column.getCanResize() && 'truncate',
         cell.column.columnDef.meta?.cellClassName,
         props.tableLayout?.columnsPinnable &&

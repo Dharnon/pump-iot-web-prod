@@ -3,7 +3,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useTests } from "@/hooks/useTests";
 
@@ -17,7 +16,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
     FileSpreadsheet, RefreshCw, Search,
-    Filter, Upload, ClipboardList, CheckSquare,
+    Filter, Upload, ClipboardList, CheckSquare, ChevronRight, TrendingUp, Clock, FileCheck
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -31,11 +30,13 @@ import { DataTable } from "@/components/supervisor/data-table";
 import { getColumns, TestItem } from "@/components/supervisor/columns";
 import { getProtocolColumns, ProtocolItem } from "@/components/supervisor/protocol-columns";
 import { useLanguage } from "@/lib/language-context";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 type ViewMode = "pending" | "protocols";
 
 /**
- * Dashboard - Fully Responsive with Data Table, Sticky Header, Sorting
+ * Dashboard - Firecrawl-inspired "Infinite Lines" Design
+ * Grid-based layout with subtle borders, asymmetric structure, and hover interactions
  */
 export default function DashboardPage() {
     const [globalFilter, setGlobalFilter] = useState("");
@@ -89,174 +90,242 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="h-full flex flex-col gap-4 sm:gap-6 p-6 overflow-y-auto md:overflow-hidden">
-            {/* Header - Responsive */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shrink-0">
-                <div className="flex items-center gap-2">
-                    <SidebarTrigger className="-ml-1" />
-                    <Separator orientation="vertical" className="mr-2 h-4" />
-                    <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t("dash.title")}</h1>
-                        <p className="text-sm sm:text-base text-muted-foreground">
-                            {t("dash.subtitle")}
-                        </p>
+        <div className="h-full flex flex-col overflow-hidden bg-background">
+            {/* Compact Header - Similar to test/:id */}
+            <header className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 py-2 border-b bg-background/50 backdrop-blur-sm shrink-0 gap-2">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                    <SidebarTrigger />
+                    <Separator orientation="vertical" className="h-4" />
+                    <div className="flex items-center gap-3 min-w-0 overflow-hidden">
+                        <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-medium shrink-0">
+                            <span>{t("dash.title")}</span>
+                            <ChevronRight className="w-3 h-3" />
+                            <span>{viewMode === "pending" ? "Pendientes" : "Protocolos"}</span>
+                        </div>
+                        <span className="text-muted-foreground/30 text-lg sm:text-xl font-light">/</span>
+                        <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground truncate">
+                            {filteredData.length} {t("table.records")}
+                        </h1>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 sm:gap-3">
-                    {lastImport && (
-                        <div className="text-right text-xs sm:text-sm hidden sm:block">
-                            <p className="text-muted-foreground">{t("dash.lastFile")}</p>
-                            <p className="font-medium text-primary">{lastImport.filename}</p>
-                        </div>
-                    )}
+                <div className="flex items-center gap-3">
                     <ImportModal onImportSuccess={handleImportSuccess} />
                 </div>
-            </div>
+            </header>
 
-            {/* Desktop Stats - Full Cards */}
-            <div className="hidden md:grid grid-cols-4 gap-4 shrink-0">
-                <Card className="cursor-pointer hover:border-primary/50 transition-colors sm:bg-card" onClick={() => { setViewMode("pending"); setStatusFilter("all"); }}>
-                    <div className="p-4 flex flex-col gap-1">
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-tight">{t("dash.stat.total")}</span>
-                        <span className="text-2xl font-bold text-slate-900">{tests.length}</span>
+            {/* Main Grid Layout - Asymmetric (Main + Sidebar) */}
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_420px] overflow-hidden">
+                
+                {/* Main Content Area */}
+                <div className="flex flex-col border-r overflow-hidden">
+                    
+                    {/* Stats Grid - Infinite Lines Style */}
+                    <div className="grid grid-cols-4 border-b">
+                        <StatCell
+                            label={t("dash.stat.total")}
+                            value={tests.length}
+                            icon={<FileSpreadsheet className="w-4 h-4" />}
+                            color="text-slate-900 dark:text-slate-100"
+                            onClick={() => { setViewMode("pending"); setStatusFilter("all"); }}
+                        />
+                        <StatCell
+                            label={t("dash.stat.pending")}
+                            value={pendingTests.length}
+                            icon={<Clock className="w-4 h-4" />}
+                            color="text-yellow-600"
+                            active={viewMode === "pending"}
+                            onClick={() => { setViewMode("pending"); setStatusFilter("all"); }}
+                        />
+                        <StatCell
+                            label={t("dash.stat.process")}
+                            value={tests.filter(t => t.status === "IN_PROGRESS").length}
+                            icon={<TrendingUp className="w-4 h-4" />}
+                            color="text-blue-600"
+                            onClick={() => { setViewMode("protocols"); setStatusFilter("IN_PROGRESS"); }}
+                        />
+                        <StatCell
+                            label={t("dash.stat.generated")}
+                            value={generatedTests.length}
+                            icon={<FileCheck className="w-4 h-4" />}
+                            color="text-green-600"
+                            active={viewMode === "protocols" && statusFilter === "all"}
+                            onClick={() => { setViewMode("protocols"); setStatusFilter("all"); }}
+                            noBorderRight
+                        />
                     </div>
-                </Card>
-                <Card className={`cursor-pointer hover:border-primary/50 transition-colors sm:bg-card ${viewMode === "pending" ? "ring-2 ring-primary" : ""}`} onClick={() => { setViewMode("pending"); setStatusFilter("all"); }}>
-                    <div className="p-4 flex flex-col gap-1">
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-tight">{t("dash.stat.pending")}</span>
-                        <span className="text-2xl font-bold text-yellow-600">{pendingTests.length}</span>
-                    </div>
-                </Card>
-                <Card className="cursor-pointer hover:border-primary/50 transition-colors sm:bg-card" onClick={() => { setViewMode("protocols"); setStatusFilter("IN_PROGRESS"); }}>
-                    <div className="p-4 flex flex-col gap-1">
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-tight">{t("dash.stat.process")}</span>
-                        <span className="text-2xl font-bold text-blue-600">
-                            {tests.filter(t => t.status === "IN_PROGRESS").length}
-                        </span>
-                    </div>
-                </Card>
-                <Card className={`cursor-pointer hover:border-primary/50 transition-colors sm:bg-card ${viewMode === "protocols" && statusFilter === "all" ? "ring-2 ring-primary" : ""}`} onClick={() => { setViewMode("protocols"); setStatusFilter("all"); }}>
-                    <div className="p-4 flex flex-col gap-1">
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-tight">{t("dash.stat.generated")}</span>
-                        <span className="text-2xl font-bold text-green-600">{generatedTests.length}</span>
-                    </div>
-                </Card>
-            </div>
 
-            {/* Data Table Section */}
-            <div className="flex-1 flex flex-col min-h-0 space-y-4">
-                {/* Section Header with View Toggle */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
-                    <div className="flex items-center gap-4">
-                        {/* View Mode Toggle - Tab Style */}
-                        <div className="flex items-center bg-muted rounded-lg p-1 gap-1">
-                            <Button
-                                variant={viewMode === "pending" ? "default" : "ghost"}
-                                size="sm"
-                                className="h-8 px-3 gap-2"
-                                onClick={() => setViewMode("pending")}
-                            >
-                                <ClipboardList className="w-4 h-4" />
-                                <span>Pendientes</span>
-                                <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-yellow-100 text-yellow-700">
-                                    {pendingTests.length}
-                                </span>
-                            </Button>
-                            <Button
-                                variant={viewMode === "protocols" ? "default" : "ghost"}
-                                size="sm"
-                                className="h-8 px-3 gap-2"
-                                onClick={() => setViewMode("protocols")}
-                            >
-                                <CheckSquare className="w-4 h-4" />
-                                <span>Protocolos</span>
-                                <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-green-100 text-green-700">
-                                    {generatedTests.length}
-                                </span>
+                    {/* Filters Bar */}
+                    <div className="flex items-center justify-end px-6 py-3 border-b bg-muted/5">
+                        <div className="flex items-center gap-2">
+                            {viewMode === "protocols" && (
+                                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                    <SelectTrigger className="w-36 h-8 text-xs border-border/50">
+                                        <Filter className="w-3 h-3 mr-2 opacity-70" />
+                                        <SelectValue placeholder={t("table.filter")} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">{t("status.all")}</SelectItem>
+                                        <SelectItem value="IN_PROGRESS">{t("status.IN_PROGRESS")}</SelectItem>
+                                        <SelectItem value="GENERATED">{t("status.GENERATED")}</SelectItem>
+                                        <SelectItem value="GENERADO">Generado</SelectItem>
+                                        <SelectItem value="COMPLETED">{t("status.COMPLETED")}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )}
+
+                            <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground opacity-70" />
+                                <Input
+                                    placeholder={t("table.search")}
+                                    value={globalFilter}
+                                    onChange={(e) => setGlobalFilter(e.target.value)}
+                                    className="pl-9 w-56 h-8 text-xs border-border/50"
+                                />
+                            </div>
+
+                            <Button variant="outline" size="icon" onClick={() => mutate()} disabled={isLoading} className="h-8 w-8 border-border/50">
+                                <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`} />
                             </Button>
                         </div>
-                        <div>
-                            <p className="text-xs text-muted-foreground">
-                                {filteredData.length} {t("table.records")}
-                            </p>
-                        </div>
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        {/* Status Filter - Only show for protocols view */}
-                        {viewMode === "protocols" && (
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                <SelectTrigger className="w-32 sm:w-40 text-xs sm:text-sm h-9">
-                                    <Filter className="w-3.5 h-3.5 mr-2 opacity-70" />
-                                    <SelectValue placeholder={t("table.filter")} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">{t("status.all")}</SelectItem>
-                                    <SelectItem value="IN_PROGRESS">{t("status.IN_PROGRESS")}</SelectItem>
-                                    <SelectItem value="GENERATED">{t("status.GENERATED")}</SelectItem>
-                                    <SelectItem value="GENERADO">Generado</SelectItem>
-                                    <SelectItem value="COMPLETED">{t("status.COMPLETED")}</SelectItem>
-                                </SelectContent>
-                            </Select>
+
+                    {/* Table Container */}
+                    <div className="flex-1 overflow-auto">
+                        {isLoading && !tests.length ? (
+                            <div className="flex-1 flex items-center justify-center h-full">
+                                <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+                            </div>
+                        ) : filteredData.length === 0 ? (
+                            <div className="flex-1 flex items-center justify-center p-8 h-full">
+                                <Empty className="max-w-md">
+                                    <EmptyHeader>
+                                        <EmptyMedia variant="icon" className="bg-primary/5 text-primary">
+                                            {viewMode === "pending" ? <Upload className="w-8 h-8" /> : <CheckSquare className="w-8 h-8" />}
+                                        </EmptyMedia>
+                                        <EmptyTitle>
+                                            {viewMode === "pending" ? t("empty.title") : "No hay protocolos"}
+                                        </EmptyTitle>
+                                        <EmptyDescription>
+                                            {viewMode === "pending" 
+                                                ? t("empty.desc") 
+                                                : "Genera protocolos desde los listados pendientes para verlos aquí"}
+                                        </EmptyDescription>
+                                    </EmptyHeader>
+                                    {viewMode === "pending" && (
+                                        <EmptyContent>
+                                            <ImportModal onImportSuccess={handleImportSuccess} />
+                                        </EmptyContent>
+                                    )}
+                                </Empty>
+                            </div>
+                        ) : (
+                            <DataTable
+                                columns={(viewMode === "pending" ? pendingColumns : protocolColumns) as any}
+                                data={filteredData}
+                                loading={isLoading}
+                                onRowClick={(row) => router.push(`/supervisor/test/${row.id}`)}
+                                globalFilter={globalFilter}
+                            />
+                        )}
+                    </div>
+                </div>
+
+                {/* Sidebar - Fixed Width Panel */}
+                <div className="hidden lg:flex flex-col border-l bg-background overflow-hidden">
+                    <div className="px-6 py-4 border-b">
+                        <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">Actividad Reciente</h2>
+                    </div>
+                    <div className="flex-1 overflow-auto p-6 space-y-4">
+                        {lastImport ? (
+                            <div className="space-y-3">
+                                <div className="p-4 border border-border/50 hover:border-primary/30 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-all cursor-pointer group">
+                                    <div className="flex items-start justify-between mb-2">
+                                        <div className="flex items-center gap-2">
+                                            <FileSpreadsheet className="w-4 h-4 text-primary" />
+                                            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Última Importación</span>
+                                        </div>
+                                        <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50 group-hover:translate-x-0.5 transition-transform" />
+                                    </div>
+                                    <p className="text-sm font-semibold text-foreground mb-1">{lastImport.filename}</p>
+                                    <p className="text-xs text-muted-foreground">{lastImport.count} registros importados</p>
+                                    <p className="text-[10px] text-muted-foreground/70 mt-2">
+                                        {new Date(lastImport.time).toLocaleString('es-ES')}
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center h-32 text-xs text-muted-foreground">
+                                No hay actividad reciente
+                            </div>
                         )}
 
-                        {/* Search */}
-                        <div className="relative flex-1 sm:flex-none">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-70" />
-                            <Input
-                                placeholder={t("table.search")}
-                                value={globalFilter}
-                                onChange={(e) => setGlobalFilter(e.target.value)}
-                                className="pl-9 w-full sm:w-48 lg:w-64 text-xs sm:text-sm h-9"
-                            />
+                        {/* Quick Stats */}
+                        <div className="space-y-2 pt-4 border-t">
+                            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Estadísticas</h3>
+                            <QuickStatRow label="Total de Pruebas" value={tests.length} />
+                            <QuickStatRow label="Pendientes" value={pendingTests.length} color="text-yellow-600" />
+                            <QuickStatRow label="En Proceso" value={tests.filter(t => t.status === "IN_PROGRESS").length} color="text-blue-600" />
+                            <QuickStatRow label="Completadas" value={generatedTests.length} color="text-green-600" />
                         </div>
-
-                        <Button variant="outline" size="icon" onClick={() => mutate()} disabled={isLoading} className="h-9 w-9">
-                            <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
-                        </Button>
                     </div>
                 </div>
-
-                {/* Table Container */}
-                <div className="flex-1 flex flex-col min-h-0">
-                    {isLoading && !tests.length ? (
-                        <div className="flex-1 flex items-center justify-center">
-                            <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
-                        </div>
-                    ) : filteredData.length === 0 ? (
-                        <div className="flex-1 flex items-center justify-center p-8">
-                            <Empty className="max-w-md">
-                                <EmptyHeader>
-                                    <EmptyMedia variant="icon" className="bg-primary/5 text-primary">
-                                        {viewMode === "pending" ? <Upload className="w-8 h-8" /> : <CheckSquare className="w-8 h-8" />}
-                                    </EmptyMedia>
-                                    <EmptyTitle>
-                                        {viewMode === "pending" ? t("empty.title") : "No hay protocolos"}
-                                    </EmptyTitle>
-                                    <EmptyDescription>
-                                        {viewMode === "pending" 
-                                            ? t("empty.desc") 
-                                            : "Genera protocolos desde los listados pendientes para verlos aquí"}
-                                    </EmptyDescription>
-                                </EmptyHeader>
-                                {viewMode === "pending" && (
-                                    <EmptyContent>
-                                        <ImportModal onImportSuccess={handleImportSuccess} />
-                                    </EmptyContent>
-                                )}
-                            </Empty>
-                        </div>
-                    ) : (
-                        <DataTable
-                            columns={viewMode === "pending" ? pendingColumns : protocolColumns}
-                            // @ts-ignore
-                            data={filteredData}
-                            loading={isLoading}
-                            onRowClick={(row) => router.push(`/supervisor/test/${row.id}`)}
-                            globalFilter={globalFilter}
-                        />
-                    )}
-                </div>
             </div>
+        </div>
+    );
+}
+
+// Stat Cell Component - Infinite Lines Style
+function StatCell({ 
+    label, 
+    value, 
+    icon, 
+    color, 
+    active, 
+    onClick, 
+    noBorderRight 
+}: { 
+    label: string; 
+    value: number; 
+    icon: React.ReactNode; 
+    color: string; 
+    active?: boolean; 
+    onClick?: () => void; 
+    noBorderRight?: boolean;
+}) {
+    return (
+        <div 
+            onClick={onClick}
+            className={`
+                relative p-4 border-r ${noBorderRight ? 'border-r-0' : ''} 
+                hover:bg-black/[0.02] dark:hover:bg-white/[0.02] 
+                cursor-pointer transition-all group
+                ${active ? 'bg-primary/5' : ''}
+            `}
+        >
+            <div className="flex items-center gap-2 mb-2">
+                <div className={`${color} opacity-70 group-hover:opacity-100 transition-opacity`}>
+                    {icon}
+                </div>
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    {label}
+                </span>
+            </div>
+            <div className={`text-2xl font-bold ${color}`}>
+                {value}
+            </div>
+            {active && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            )}
+        </div>
+    );
+}
+
+// Quick Stat Row Component
+function QuickStatRow({ label, value, color = "text-foreground" }: { label: string; value: number; color?: string }) {
+    return (
+        <div className="flex items-center justify-between py-2 px-3 border border-border/30 hover:border-border/50 hover:bg-black/[0.01] dark:hover:bg-white/[0.01] transition-all">
+            <span className="text-xs text-muted-foreground">{label}</span>
+            <span className={`text-sm font-bold ${color}`}>{value}</span>
         </div>
     );
 }

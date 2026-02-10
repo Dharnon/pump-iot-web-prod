@@ -26,7 +26,7 @@ const PumpModel: React.FC<{ isRunning?: boolean; motorSpeed?: number; motorPosit
   motorSpeed = 50, 
   motorPosition 
 }) => {
-  const { scene } = useGLTF('/models/zone1.glb');
+  const { scene } = useGLTF('/operator/models/zone1.glb');
   const clonedScene = React.useMemo(() => scene.clone(), [scene]);
   const rpm = Math.round((motorSpeed / 100) * 3000);
   const originalMaterialsRef = useRef<Map<string, THREE.Material | THREE.Material[]>>(new Map());
@@ -174,4 +174,4 @@ export const Scene3D: React.FC<Scene3DProps> = ({ isRunning = false, motorSpeed 
 };
 
 // Preload the model
-useGLTF.preload('/models/zone1.glb');
+useGLTF.preload('/operator/models/zone1.glb');

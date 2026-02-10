@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, RefreshCw, X, FileText, Upload } from 'lucide-react';
+import { Loader2, RefreshCw, X, FileText, Upload, Search } from 'lucide-react';
 
 interface PdfViewerProps {
     file: File | null;
@@ -11,6 +11,8 @@ interface PdfViewerProps {
     onDragOver: (e: React.DragEvent) => void;
     onDragLeave: (e: React.DragEvent) => void;
     isDragging: boolean;
+    onAnalyze?: () => void;
+    isAnalyzing?: boolean;
     t: (key: string) => string;
 }
 
@@ -23,6 +25,8 @@ export function PdfViewer({
     onDragOver,
     onDragLeave,
     isDragging,
+    onAnalyze,
+    isAnalyzing = false,
     t
 }: PdfViewerProps) {
     const [isLoading, setIsLoading] = useState(false);
@@ -44,8 +48,8 @@ export function PdfViewer({
                 {/* PDF Header - Full Width */}
                 <div className="flex flex-row items-center justify-between px-2 py-2 bg-background border-b shrink-0 gap-2">
                     <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-8 h-8 rounded bg-red-50 flex items-center justify-center shrink-0">
-                            <FileText className="w-4 h-4 text-red-500" />
+                        <div className="w-8 h-8 rounded bg-red-50 dark:bg-red-950/30 flex items-center justify-center shrink-0">
+                            <FileText className="w-4 h-4 text-red-500 dark:text-red-400" />
                         </div>
                         <div className="flex flex-col min-w-0">
                             <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider leading-none mb-1">{t("test.viewing")}</span>
@@ -58,7 +62,18 @@ export function PdfViewer({
                         <Button
                             size="sm"
                             variant="outline"
-                            className="h-8 py-0 px-3 text-[11px] font-semibold border-slate-200 hover:bg-slate-50 hover:text-red-600 transition-colors shadow-sm whitespace-nowrap"
+                            className="h-8 py-0 px-3 text-[11px] font-semibold border-primary/30 text-primary hover:bg-primary/10 shadow-sm whitespace-nowrap"
+                            onClick={onAnalyze}
+                            disabled={!file || isAnalyzing}
+                        >
+                            {isAnalyzing ? <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" /> : <Search className="w-3.5 h-3.5 mr-2" />}
+                            {isAnalyzing ? "Analizando..." : "Analizar PDF"}
+                        </Button>
+                        <div className="h-6 w-px bg-border/50" />
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 py-0 px-3 text-[11px] font-semibold border-border/50 hover:bg-muted hover:text-foreground transition-colors shadow-sm whitespace-nowrap"
                             onClick={() => document.getElementById('pdf-upload')?.click()}
                         >
                             <RefreshCw className="w-3.5 h-3.5 mr-2" />
@@ -67,7 +82,7 @@ export function PdfViewer({
                         <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                             onClick={onRemove}
                             title="Cerrar archivo"
                         >

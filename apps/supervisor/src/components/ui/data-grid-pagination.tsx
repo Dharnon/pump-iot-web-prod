@@ -76,8 +76,8 @@ function DataGridPagination(props: DataGridPaginationProps) {
           size="sm"
           mode="icon"
           variant="ghost"
-          className={cn(btnBaseClasses, 'text-muted-foreground', {
-            'bg-accent text-accent-foreground': pageIndex === i,
+          className={cn('h-7 w-7 text-xs text-muted-foreground', {
+            'bg-primary/10 text-primary border border-primary/30': pageIndex === i,
           })}
           onClick={() => {
             if (pageIndex !== i) {
@@ -99,7 +99,7 @@ function DataGridPagination(props: DataGridPaginationProps) {
         <Button
           size="sm"
           mode="icon"
-          className={btnBaseClasses}
+          className="h-7 w-7 text-xs"
           variant="ghost"
           onClick={() => table.setPageIndex(currentGroupStart - 1)}
         >
@@ -115,7 +115,7 @@ function DataGridPagination(props: DataGridPaginationProps) {
     if (currentGroupEnd < pageCount) {
       return (
         <Button
-          className={btnBaseClasses}
+          className="h-7 w-7 text-xs"
           variant="ghost"
           size="sm"
           mode="icon"
@@ -132,16 +132,17 @@ function DataGridPagination(props: DataGridPaginationProps) {
     <div
       data-slot="data-grid-pagination"
       className={cn(
-        'flex flex-wrap flex-col sm:flex-row justify-between items-center gap-2.5 py-2.5 sm:py-0 grow',
+        'grid grid-cols-2 border-x border-b border-border/50',
         mergedProps?.className,
       )}
     >
-      <div className="flex flex-wrap items-center space-x-2.5 pb-2.5 sm:pb-0 order-2 sm:order-1">
+      {/* Rows per page selector - Left cell */}
+      <div className="flex items-center justify-start gap-2 px-6 py-3 border-r border-border/50">
         {isLoading ? (
           mergedProps?.sizesSkeleton
         ) : (
           <>
-            <div className="text-sm text-muted-foreground">{mergedProps.rowsPerPageLabel}</div>
+            <div className="text-xs text-muted-foreground whitespace-nowrap">{mergedProps.rowsPerPageLabel}</div>
             <Select
               value={`${pageSize}`}
               indicatorPosition="right"
@@ -150,7 +151,7 @@ function DataGridPagination(props: DataGridPaginationProps) {
                 table.setPageSize(newPageSize);
               }}
             >
-              <SelectTrigger className="w-fit" size="sm">
+              <SelectTrigger className="w-16 h-8 text-xs border-border/50" size="sm">
                 <SelectValue placeholder={`${pageSize}`} />
               </SelectTrigger>
               <SelectContent side="top" className="min-w-[50px]">
@@ -164,24 +165,26 @@ function DataGridPagination(props: DataGridPaginationProps) {
           </>
         )}
       </div>
-      <div className="flex flex-col sm:flex-row justify-center sm:justify-end items-center gap-2.5 pt-2.5 sm:pt-0 order-1 sm:order-2">
+
+      {/* Pagination controls - Right cell */}
+      <div className="flex items-center justify-end gap-3 px-6 py-3">
         {isLoading ? (
           mergedProps?.infoSkeleton
         ) : (
           <>
-            <div className="text-sm text-muted-foreground text-nowrap order-2 sm:order-1">{paginationInfo}</div>
+            <div className="text-xs text-muted-foreground whitespace-nowrap">{paginationInfo}</div>
             {pageCount > 1 && (
-              <div className="flex items-center space-x-1 order-1 sm:order-2">
+              <div className="flex items-center gap-1">
                 <Button
                   size="sm"
                   mode="icon"
                   variant="ghost"
-                  className={btnArrowClasses}
+                  className={cn(btnArrowClasses, 'h-7 w-7')}
                   onClick={() => table.previousPage()}
                   disabled={!table.getCanPreviousPage()}
                 >
                   <span className="sr-only">{mergedProps.previousPageLabel}</span>
-                  <ChevronLeftIcon className="size-4" />
+                  <ChevronLeftIcon className="size-3.5" />
                 </Button>
 
                 {renderEllipsisPrevButton()}
@@ -194,12 +197,12 @@ function DataGridPagination(props: DataGridPaginationProps) {
                   size="sm"
                   mode="icon"
                   variant="ghost"
-                  className={btnArrowClasses}
+                  className={cn(btnArrowClasses, 'h-7 w-7')}
                   onClick={() => table.nextPage()}
                   disabled={!table.getCanNextPage()}
                 >
                   <span className="sr-only">{mergedProps.nextPageLabel}</span>
-                  <ChevronRightIcon className="size-4" />
+                  <ChevronRightIcon className="size-3.5" />
                 </Button>
               </div>
             )}

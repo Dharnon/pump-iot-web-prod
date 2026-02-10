@@ -35,7 +35,7 @@ export function DataTable<TData extends object, TValue>({
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [pagination, setPagination] = React.useState({
         pageIndex: 0,
-        pageSize: 10,
+        pageSize: 50,
     });
 
     const table = useReactTable({
@@ -64,7 +64,7 @@ export function DataTable<TData extends object, TValue>({
             onRowClick={onRowClick}
             tableLayout={{
                 headerSticky: true,
-                headerBackground: true,
+                headerBackground: false,
                 rowBorder: true,
                 cellBorder: false,
                 stripped: false,
@@ -72,9 +72,9 @@ export function DataTable<TData extends object, TValue>({
             }}
             className="flex-1 w-full"
         >
-            <div className="w-full space-y-2.5">
-                <DataGridContainer className="overflow-hidden">
-                    <ScrollArea className="max-h-[calc(100vh-360px)] border-none">
+            <div className="w-full flex flex-col h-full">
+                <DataGridContainer className="overflow-hidden border-x border-t border-border/50">
+                    <ScrollArea className="h-[calc(100vh-260px)]">
                         <DataGridTable />
                         <ScrollBar orientation="horizontal" />
                         <ScrollBar orientation="vertical" />
