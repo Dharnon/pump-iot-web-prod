@@ -582,7 +582,7 @@ export default function TestDetailPage() {
 
                                         {/* Section 2: Tests (Chips) */}
                                         <section className="space-y-2">
-                                            <Separator className="mb-4" />
+                                            <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
                                             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                                                 <Activity className="w-3.5 h-3.5" />
                                                 {t("test.testsToPerform")}
@@ -615,13 +615,13 @@ export default function TestDetailPage() {
 
                                         {/* Datos Bomba */}
                                         <section className="space-y-4">
-                                            <Separator className="mb-4" />
+                                            <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
                                             <div>
                                                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                                                     <Settings2 className="w-3.5 h-3.5 text-primary" /> Datos Bomba
                                                 </span>
                                             </div>
-                                            <div className="grid gap-3 grid-cols-2 md:grid-cols-4 lg:grid-cols-8">
+                                            <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                                                 <CleanInput label="Item" value={test.pdfData?.item || test.generalInfo?.item} onChange={(val) => handlePdfDataChange("item", val)} className="h-8 text-xs" />
                                                 <CleanInput label="Tipo Bomba" value={test.generalInfo?.modeloBomba || test.pdfData?.modeloBomba} className="h-8 text-xs" />
                                                 <CleanInput label="Orden Trabajo" value={test.generalInfo?.ordenTrabajo} className="h-8 text-xs" />
@@ -646,13 +646,13 @@ export default function TestDetailPage() {
 
                                         {/* Punto Garantizado H2O */}
                                         <section className="space-y-4">
-                                            <Separator className="mb-4" />
+                                            <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
                                             <div>
                                                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                                                     <Droplets className="w-3.5 h-3.5 text-blue-500" /> Punto Garantizado en Agua (H₂O)
                                                 </span>
                                             </div>
-                                            <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+                                            <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
                                                 <CleanInput label="Caudal" value={test.pdfData?.flowRate} unit="m³/h" onChange={(val) => handlePdfDataChange("flowRate", val)} className="h-8 text-xs" />
                                                 <CleanInput label="Altura" value={test.pdfData?.head} unit="m" onChange={(val) => handlePdfDataChange("head", val)} className="h-8 text-xs" />
                                                 <CleanInput label="Velocidad" value={test.pdfData?.rpm} unit="rpm" onChange={(val) => handlePdfDataChange("rpm", val)} className="h-8 text-xs" />
@@ -664,7 +664,7 @@ export default function TestDetailPage() {
 
                                         {/* Punto Garantizado en Fluido */}
                                         <section className="space-y-4">
-                                            <Separator className="mb-4" />
+                                            <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
                                             <div>
                                                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                                                     <Droplets className="w-3.5 h-3.5 text-orange-500" /> Punto Garantizado en Fluido
@@ -694,7 +694,7 @@ export default function TestDetailPage() {
                                             {/* Comentarios & Motor - Only show if not pending or if generated */}
                                             {test.status !== "PENDING" && (
                                                 <section className="space-y-4">
-                                                    <Separator className="mb-4" />
+                                                    <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
                                                     <div className="flex items-center justify-between pt-2">
                                                         <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                                                             <Settings2 className="w-4 h-4" />
@@ -723,7 +723,7 @@ export default function TestDetailPage() {
                                             {/* Detalles y Presiones - Only show if not pending */}
                                             {test.status !== "PENDING" && (
                                                 <section className="space-y-4">
-                                                    <Separator className="mb-4" />
+                                                    <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
                                                     <div className="flex items-center justify-between pt-2">
                                                         <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
                                                             <Gauge className="w-4 h-4" />
