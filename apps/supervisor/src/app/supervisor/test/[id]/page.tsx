@@ -548,11 +548,7 @@ export default function TestDetailPage() {
                                     <TabsTrigger value="data" className="px-0 py-3 text-xs uppercase tracking-widest">
                                         Datos
                                     </TabsTrigger>
-                                    {test.status !== "PENDING" && (
-                                        <TabsTrigger value="results" className="px-0 py-3 text-xs uppercase tracking-widest">
-                                            Resultados
-                                        </TabsTrigger>
-                                    )}
+
                                 </TabsList>
                             </div>
 
@@ -561,18 +557,7 @@ export default function TestDetailPage() {
                                     
                                     <TabsContent value="data" className="space-y-8 mt-0">
                                         {/* Header Actions - Show analyze button here as fallback or shortcut */}
-                                        <div className="flex items-center justify-end">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="h-7 text-[10px] px-3 border-primary/30 text-primary hover:bg-primary/10 shadow-sm"
-                                                onClick={handleAnalyze}
-                                                disabled={!pdfFile || extracting}
-                                            >
-                                                {extracting ? <Loader2 className="w-3 h-3 mr-2 animate-spin" /> : <Search className="w-3 h-3 mr-2" />}
-                                                {extracting ? t("test.analyzing") : t("test.analyze")}
-                                            </Button>
-                                        </div>
+
 
 
                                         {/* Section 1: Datos Cliente & General */}
@@ -706,129 +691,80 @@ export default function TestDetailPage() {
                                         </section>
 
                                         {/* Comentarios */}
-                                        <section className="space-y-4">
-                                            <Separator className="mb-4" />
-                                            <div>
-                                                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                                                    <FileText className="w-3.5 h-3.5 text-primary" /> Comentarios
-                                                </span>
-                                            </div>
-                                            <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-                                                <div className="space-y-1.5">
-                                                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Comentario (Tolerancia)</label>
-                                                    <textarea 
-                                                        className="w-full h-20 px-3 py-2 text-xs bg-muted/30 border border-transparent hover:bg-muted/50 focus:bg-background focus:border-primary/30 rounded-md resize-none transition-all placeholder:text-muted-foreground/50"
-                                                        value={test.pdfData?.tolerance || ""}
-                                                        onChange={(e) => handlePdfDataChange("tolerance", e.target.value)}
-                                                        placeholder="Ej: ISO 9906..."
-                                                    />
-                                                </div>
-                                                <div className="space-y-1.5">
-                                                    <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Comentario Interno</label>
-                                                    <textarea 
-                                                        className="w-full h-20 px-3 py-2 text-xs bg-muted/30 border border-transparent hover:bg-muted/50 focus:bg-background focus:border-primary/30 rounded-md resize-none transition-all placeholder:text-muted-foreground/50"
-                                                        value={test.pdfData?.internalComment || ""}
-                                                        onChange={(e) => handlePdfDataChange("internalComment", e.target.value)}
-                                                        placeholder="Notas internas..."
-                                                    />
-                                                </div>
-                                            </div>
-                                        </section>
-
-                                    </TabsContent>
-
-                                    {test.status !== "PENDING" && (
-                                        <TabsContent value="results" className="space-y-8 mt-0">
-                                            {/* Motor Section */}
-                                            <section className="space-y-4">
-                                                <Separator className="mb-4" />
-                                                <div className="flex items-center justify-between pt-2">
-                                                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                                                        <Settings2 className="w-4 h-4" />
-                                                        Motor
-                                                    </h3>
-                                                    <Badge variant="outline" className="text-[10px] bg-blue-50/50 text-blue-600 border-blue-200 uppercase tracking-widest font-bold">Operario</Badge>
-                                                </div>
-                                                <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-                                                    <CleanInput label="Marca" value={test.pdfData?.motorMarca} onChange={(val) => handlePdfDataChange("motorMarca", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="Tipo" value={test.pdfData?.motorTipo} onChange={(val) => handlePdfDataChange("motorTipo", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="Potencia" value={test.pdfData?.motorPotencia} unit="kW" onChange={(val) => handlePdfDataChange("motorPotencia", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="Velocidad" value={test.pdfData?.motorVelocidad} unit="rpm" onChange={(val) => handlePdfDataChange("motorVelocidad", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="Intensidad" value={test.pdfData?.motorIntensidad} unit="A" onChange={(val) => handlePdfDataChange("motorIntensidad", val)} className="h-8 text-xs" />
-                                                </div>
-                                                <div className="grid gap-3 grid-cols-2 lg:grid-cols-5 pt-2">
-                                                    <CleanInput label="η 25%" value={test.pdfData?.motorRendimiento25} unit="%" onChange={(val) => handlePdfDataChange("motorRendimiento25", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="η 50%" value={test.pdfData?.motorRendimiento50} unit="%" onChange={(val) => handlePdfDataChange("motorRendimiento50", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="η 75%" value={test.pdfData?.motorRendimiento75} unit="%" onChange={(val) => handlePdfDataChange("motorRendimiento75", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="η 100%" value={test.pdfData?.motorRendimiento100} unit="%" onChange={(val) => handlePdfDataChange("motorRendimiento100", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="η 125%" value={test.pdfData?.motorRendimiento125} unit="%" onChange={(val) => handlePdfDataChange("motorRendimiento125", val)} className="h-8 text-xs" />
-                                                </div>
-                                            </section>
-
-                                            {/* FluidoH2O (Calculated) */}
-                                            {test.fluidoH2O && (
+                                            {/* Comentarios & Motor - Only show if not pending or if generated */}
+                                            {test.status !== "PENDING" && (
                                                 <section className="space-y-4">
                                                     <Separator className="mb-4" />
                                                     <div className="flex items-center justify-between pt-2">
                                                         <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                                                            <Droplets className="w-4 h-4" />
-                                                            Punto Garantizado en Agua (Calculado)
+                                                            <Settings2 className="w-4 h-4" />
+                                                            Motor
                                                         </h3>
-                                                        <Badge variant="outline" className="text-[10px] bg-gray-50 text-muted-foreground border-border uppercase tracking-widest font-bold">Calculado</Badge>
                                                     </div>
-                                                    <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
-                                                        <CleanInput label="Caudal" value={test.pdfData?.flowRate} unit="m³/h" onChange={(val) => handlePdfDataChange("flowRate", val)} className="h-8 text-xs" />
-                                                        <CleanInput label="Altura" value={test.pdfData?.head} unit="m" onChange={(val) => handlePdfDataChange("head", val)} className="h-8 text-xs" />
-                                                        <CleanInput label="Velocidad" value={test.pdfData?.rpm} unit="rpm" onChange={(val) => handlePdfDataChange("rpm", val)} className="h-8 text-xs" />
-                                                        <CleanInput label="Potencia" value={test.pdfData?.maxPower} unit="kW" onChange={(val) => handlePdfDataChange("maxPower", val)} className="h-8 text-xs" />
-                                                        <CleanInput label="Rendimiento" value={test.pdfData?.efficiency} unit="%" onChange={(val) => handlePdfDataChange("efficiency", val)} className="h-8 text-xs" />
-                                                        <CleanInput label="NPSHr" value={test.pdfData?.npshr} unit="m" onChange={(val) => handlePdfDataChange("npshr", val)} className="h-8 text-xs" />
+                                                    <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                                                        <CleanInput label="Marca" value={test.pdfData?.motorMarca} onChange={(val) => handlePdfDataChange("motorMarca", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="Tipo" value={test.pdfData?.motorTipo} onChange={(val) => handlePdfDataChange("motorTipo", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="Potencia" value={test.pdfData?.motorPotencia} unit="kW" onChange={(val) => handlePdfDataChange("motorPotencia", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="Velocidad" value={test.pdfData?.motorVelocidad} unit="rpm" onChange={(val) => handlePdfDataChange("motorVelocidad", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="Intensidad" value={test.pdfData?.motorIntensidad} unit="A" onChange={(val) => handlePdfDataChange("motorIntensidad", val)} className="h-8 text-xs" />
+                                                    </div>
+                                                    <div className="grid gap-3 grid-cols-2 lg:grid-cols-5 pt-2">
+                                                        <CleanInput label="η 25%" value={test.pdfData?.motorRendimiento25} unit="%" onChange={(val) => handlePdfDataChange("motorRendimiento25", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="η 50%" value={test.pdfData?.motorRendimiento50} unit="%" onChange={(val) => handlePdfDataChange("motorRendimiento50", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="η 75%" value={test.pdfData?.motorRendimiento75} unit="%" onChange={(val) => handlePdfDataChange("motorRendimiento75", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="η 100%" value={test.pdfData?.motorRendimiento100} unit="%" onChange={(val) => handlePdfDataChange("motorRendimiento100", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="η 125%" value={test.pdfData?.motorRendimiento125} unit="%" onChange={(val) => handlePdfDataChange("motorRendimiento125", val)} className="h-8 text-xs" />
                                                     </div>
                                                 </section>
                                             )}
 
+
                                             {/* Detalles y Presiones */}
-                                            <section className="space-y-4">
-                                                <Separator className="mb-4" />
-                                                <div className="flex items-center justify-between pt-2">
-                                                    <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                                                        <Gauge className="w-4 h-4" />
-                                                        Detalles y Presiones
-                                                    </h3>
-                                                    <Badge variant="outline" className="text-[10px] bg-blue-50/50 text-blue-600 border-blue-200 uppercase tracking-widest font-bold">Operario</Badge>
-                                                </div>
-                                                <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                                                    <CleanInput label="Corrección Manom." value={test.pdfData?.detallesCorreccionManometrica} unit="m" onChange={(val) => handlePdfDataChange("detallesCorreccionManometrica", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="Presión Atmosf." value={test.pdfData?.detallesPresionAtmosferica} unit="mbar" onChange={(val) => handlePdfDataChange("detallesPresionAtmosferica", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="Temp. Agua" value={test.pdfData?.detallesTemperaturaAgua} unit="°C" onChange={(val) => handlePdfDataChange("detallesTemperaturaAgua", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="Temp. Ambiente" value={test.pdfData?.detallesTemperaturaAmbiente} unit="°C" onChange={(val) => handlePdfDataChange("detallesTemperaturaAmbiente", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="Temp. Lado Acopl." value={test.pdfData?.detallesTemperaturaLadoAcoplamiento} unit="°C" onChange={(val) => handlePdfDataChange("detallesTemperaturaLadoAcoplamiento", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="Temp. Lado Bomba" value={test.pdfData?.detallesTemperaturaLadoBomba} unit="°C" onChange={(val) => handlePdfDataChange("detallesTemperaturaLadoBomba", val)} className="h-8 text-xs" />
-                                                    <CleanInput label="Tiempo Func." value={test.pdfData?.detallesTiempoFuncionamientoBomba} unit="min" onChange={(val) => handlePdfDataChange("detallesTiempoFuncionamientoBomba", val)} className="h-8 text-xs" />
-                                                </div>
-                                                <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 pt-2">
-                                                    <div className="space-y-1.5">
-                                                        <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Comentario</label>
-                                                        <textarea 
-                                                            className="w-full h-20 px-3 py-2 text-xs bg-muted/30 border-transparent hover:bg-muted/50 focus:bg-background focus:border-primary/30 rounded-md resize-none transition-all placeholder:text-muted-foreground/50"
-                                                            value={test.pdfData?.tolerance || ""}
-                                                            onChange={(e) => handlePdfDataChange("tolerance", e.target.value)}
-                                                            placeholder="Comentario visible en protocolo..."
-                                                        />
+                                            {/* Detalles y Presiones - Only show if not pending */}
+                                            {test.status !== "PENDING" && (
+                                                <section className="space-y-4">
+                                                    <Separator className="mb-4" />
+                                                    <div className="flex items-center justify-between pt-2">
+                                                        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                                                            <Gauge className="w-4 h-4" />
+                                                            Detalles y Presiones
+                                                        </h3>
                                                     </div>
-                                                    <div className="space-y-1.5">
-                                                        <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Comentario Interno</label>
-                                                        <textarea 
-                                                            className="w-full h-20 px-3 py-2 text-xs bg-muted/30 border-transparent hover:bg-muted/50 focus:bg-background focus:border-primary/30 rounded-md resize-none transition-all placeholder:text-muted-foreground/50"
-                                                            value={test.pdfData?.internalComment || ""}
-                                                            onChange={(e) => handlePdfDataChange("internalComment", e.target.value)}
-                                                            placeholder="Notas internas (no se imprimen)..."
-                                                        />
+                                                    <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                                        <CleanInput label="Corrección Manom." value={test.pdfData?.detallesCorreccionManometrica} unit="m" onChange={(val) => handlePdfDataChange("detallesCorreccionManometrica", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="Presión Atmosf." value={test.pdfData?.detallesPresionAtmosferica} unit="mbar" onChange={(val) => handlePdfDataChange("detallesPresionAtmosferica", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="Temp. Agua" value={test.pdfData?.detallesTemperaturaAgua} unit="°C" onChange={(val) => handlePdfDataChange("detallesTemperaturaAgua", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="Temp. Ambiente" value={test.pdfData?.detallesTemperaturaAmbiente} unit="°C" onChange={(val) => handlePdfDataChange("detallesTemperaturaAmbiente", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="Temp. Lado Acopl." value={test.pdfData?.detallesTemperaturaLadoAcoplamiento} unit="°C" onChange={(val) => handlePdfDataChange("detallesTemperaturaLadoAcoplamiento", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="Temp. Lado Bomba" value={test.pdfData?.detallesTemperaturaLadoBomba} unit="°C" onChange={(val) => handlePdfDataChange("detallesTemperaturaLadoBomba", val)} className="h-8 text-xs" />
+                                                        <CleanInput label="Tiempo Func." value={test.pdfData?.detallesTiempoFuncionamientoBomba} unit="min" onChange={(val) => handlePdfDataChange("detallesTiempoFuncionamientoBomba", val)} className="h-8 text-xs" />
                                                     </div>
-                                                </div>
-                                            </section>
-                                        </TabsContent>
-                                    )}
+                                                    <div className="grid gap-4 grid-cols-1 lg:grid-cols-2 pt-2">
+                                                        <div className="space-y-1.5">
+                                                            <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Comentario</label>
+                                                            <textarea 
+                                                                className="w-full h-20 px-3 py-2 text-xs bg-muted/30 border-transparent hover:bg-muted/50 focus:bg-background focus:border-primary/30 rounded-md resize-none transition-all placeholder:text-muted-foreground/50"
+                                                                value={test.pdfData?.tolerance || ""}
+                                                                onChange={(e) => handlePdfDataChange("tolerance", e.target.value)}
+                                                                placeholder="Comentario visible en protocolo..."
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-1.5">
+                                                            <label className="text-[10px] text-muted-foreground uppercase tracking-wider">Comentario Interno</label>
+                                                            <textarea 
+                                                                className="w-full h-20 px-3 py-2 text-xs bg-muted/30 border-transparent hover:bg-muted/50 focus:bg-background focus:border-primary/30 rounded-md resize-none transition-all placeholder:text-muted-foreground/50"
+                                                                value={test.pdfData?.internalComment || ""}
+                                                                onChange={(e) => handlePdfDataChange("internalComment", e.target.value)}
+                                                                placeholder="Notas internas (no se imprimen)..."
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </section>
+                                            )}
+
+                                    </TabsContent>
+
+
                                 </div>
                             </ScrollArea>
                         </Tabs>
@@ -842,14 +778,20 @@ export default function TestDetailPage() {
 // Minimal Components
 
 function StatusBadge({ status }: { status: string }) {
-    const styles = {
-        SIN_PROCESAR: "bg-slate-100 text-slate-500 hover:bg-slate-100 border-slate-200",
-        EN_PROCESO: "bg-blue-50 text-blue-600 hover:bg-blue-50 border-blue-200",
-        GENERADO: "bg-green-50 text-green-600 hover:bg-green-50 border-green-200",
+    const styles: Record<string, string> = {
+        PENDING: "bg-yellow-500/15 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800",
+        SIN_PROCESAR: "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700",
+        EN_PROCESO: "bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800",
+        GENERADO: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800",
+        GENERATED: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800",
+        COMPLETED: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800",
     };
+
+    const statusStyle = styles[status] || styles["PENDING"];
+
     return (
-        <Badge variant="outline" className={`${styles[status as keyof typeof styles]} border px-3 py-1 font-normal`}>
-            {status.replace("_", " ")}
+        <Badge variant="outline" className={`${statusStyle} border px-3 py-1 font-medium capitalize`}>
+            {status.replace(/_/g, " ").toLowerCase()}
         </Badge>
     );
 }
