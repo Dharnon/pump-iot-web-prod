@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
     ArrowLeft,
@@ -19,7 +19,9 @@ import {
     Droplets,
     Ruler,
     Settings2,
-    Gauge
+    Gauge,
+    Eye,
+    EyeOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +29,8 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+// Use any for handle type as the specific export might vary between versions
+type PanelHandle = any; 
 import {
     ResizableHandle,
     ResizablePanel,
@@ -158,7 +162,8 @@ export default function TestDetailPage() {
     const [isDragging, setIsDragging] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [testsToPerform, setTestsToPerform] = useState<TestsToPerform>({});
-    const [isPdfOpen, setIsPdfOpen] = useState(false);
+    const [isPdfExpanded, setIsPdfExpanded] = useState(true);
+    const pdfPanelRef = useRef<PanelHandle>(null);
     const { t } = useLanguage();
 
     useEffect(() => {
@@ -440,6 +445,25 @@ export default function TestDetailPage() {
         }
     };
 
+    const togglePdf = useCallback(() => {
+        const panel = pdfPanelRef.current;
+        if (!panel) {
+            console.warn("PDF Panel Ref is still null. Retrying or ignoring.");
+            return;
+        }
+        
+        const isCollapsed = panel.isCollapsed();
+        console.log("Toggling PDF panel. Current state:", isCollapsed ? "collapsed" : "expanded");
+        
+        if (isCollapsed) {
+            panel.expand(45);
+            setIsPdfExpanded(true);
+        } else {
+            panel.collapse();
+            setIsPdfExpanded(false);
+        }
+    }, []);
+
     const handlePdfDataChange = (field: string, value: string) => {
         setTest((prev) => {
             if (!prev) return null;
@@ -519,7 +543,20 @@ export default function TestDetailPage() {
                 <ResizablePanelGroup direction={isMobile ? "vertical" : "horizontal"} key={isMobile ? "v" : "h"}>
 
                     {/* PDF Area - Minimalist & Resizable */}
-                    <ResizablePanel defaultSize={45} minSize={30} className="relative flex flex-col bg-background transition-colors">
+                    <ResizablePanel 
+                        id="pdf-panel"
+                        ref={pdfPanelRef}
+                        defaultSize={45} 
+                        minSize={0} 
+                        collapsible
+                        onResize={(size: any) => {
+                            // Sync state using percentage size
+                            const percentage = typeof size === 'number' ? size : size?.asPercentage;
+                            if (percentage > 0 && !isPdfExpanded) setIsPdfExpanded(true);
+                            if (percentage === 0 && isPdfExpanded) setIsPdfExpanded(false);
+                        }}
+                        className="relative flex flex-col bg-background transition-colors"
+                    >
                         <PdfViewer
                             file={pdfFile}
                             url={pdfUrl}
@@ -548,7 +585,31 @@ export default function TestDetailPage() {
                                     <TabsTrigger value="data" className="px-0 py-3 text-xs uppercase tracking-widest">
                                         Datos
                                     </TabsTrigger>
-
+                                    {(test.status === "GENERADO" || test.status === "GENERATED" || test.status === "COMPLETED") && (
+                                        <Button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                togglePdf();
+                                            }}
+                                            className="h-8 gap-2 text-muted-foreground hover:text-primary transition-colors ml-4"
+                                            title={isPdfExpanded ? "Colapsar PDF" : "Expandir PDF"}
+                                        >
+                                            {isPdfExpanded ? (
+                                                <>
+                                                    <EyeOff className="w-3.5 h-3.5" />
+                                                    <span className="text-[10px] uppercase tracking-widest font-bold">Ocultar PDF</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Eye className="w-3.5 h-3.5" />
+                                                    <span className="text-[10px] uppercase tracking-widest font-bold">Ver PDF</span>
+                                                </>
+                                            )}
+                                        </Button>
+                                    )}
                                 </TabsList>
                             </div>
 
