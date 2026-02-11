@@ -466,6 +466,10 @@ Set-Service -Name "PumpIoTWeb" -StartupType Automatic
 
 ## 🔍 Troubleshooting
 
+### Quick Fixes
+
+Below are the most common issues. For comprehensive troubleshooting including air-gapped specific issues, see **[AIRGAP_TROUBLESHOOTING.md](./AIRGAP_TROUBLESHOOTING.md)**
+
 ### Service Won't Start
 
 **1. Check Event Viewer**

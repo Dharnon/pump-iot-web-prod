@@ -450,6 +450,10 @@ REM C:\pump-iot-web\source\apps\supervisor\logs
 
 ## 🔧 Troubleshooting
 
+### Quick Fixes
+
+For common issues, see below. For comprehensive troubleshooting, refer to **[AIRGAP_TROUBLESHOOTING.md](./AIRGAP_TROUBLESHOOTING.md)**
+
 ### Issue: "Cannot find module"
 
 **Cause**: Dependencies not properly restored

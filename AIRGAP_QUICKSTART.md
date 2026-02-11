@@ -184,6 +184,8 @@ sudo ufw allow 3000/tcp
 | Service won't start | Check logs, verify paths, run manually first |
 | "Cannot find module" | Re-run `install-offline.sh` |
 
+**For detailed troubleshooting**: See [AIRGAP_TROUBLESHOOTING.md](./AIRGAP_TROUBLESHOOTING.md)
+
 ---
 
 ## 📞 Quick Commands
