@@ -223,7 +223,13 @@ export default function DashboardPage() {
                                 columns={(viewMode === "pending" ? pendingColumns : protocolColumns) as any}
                                 data={filteredData}
                                 loading={isLoading}
-                                onRowClick={(row) => router.push(`/supervisor/test/${row.id}`)}
+                                onRowClick={(row) => {
+                                    // Route to test page for pending, protocolo page for generated
+                                    const route = row.status === 'PENDING' 
+                                        ? `/supervisor/test/${row.id}` 
+                                        : `/supervisor/protocolo/${row.id}`;
+                                    router.push(route);
+                                }}
                                 globalFilter={globalFilter}
                             />
                         )}
