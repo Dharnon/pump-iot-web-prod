@@ -13,14 +13,19 @@ export interface UsePdfExtractionResult {
   extractPdfData: (file: File) => Promise<any>;
 }
 
+export interface PdfExtractionCallbacks {
+  onExtracted?: (specs: any) => void;
+  onAutoSetTests?: (specs: any) => void;
+}
+
 /**
  * Hook to manage PDF extraction functionality
  * 
- * @param onExtracted - Callback when extraction completes successfully
+ * @param callbacks - Optional callbacks for extraction events
  * @returns Extraction state and extract function
  */
 export function usePdfExtraction(
-  onExtracted?: (specs: any) => void
+  callbacks?: PdfExtractionCallbacks
 ): UsePdfExtractionResult {
   const [extracting, setExtracting] = useState(false);
 
@@ -34,8 +39,14 @@ export function usePdfExtraction(
       
       console.log("Specs extraídas:", specs);
       
-      if (onExtracted) {
-        onExtracted(specs);
+      // Call extraction callback
+      if (callbacks?.onExtracted) {
+        callbacks.onExtracted(specs);
+      }
+      
+      // Call auto-set tests callback
+      if (callbacks?.onAutoSetTests) {
+        callbacks.onAutoSetTests(specs);
       }
       
       toast.success("Datos extraídos correctamente");
@@ -47,10 +58,11 @@ export function usePdfExtraction(
     } finally {
       setExtracting(false);
     }
-  }, [onExtracted]);
+  }, [callbacks]);
 
   return {
     extracting,
     extractPdfData,
   };
 }
+
