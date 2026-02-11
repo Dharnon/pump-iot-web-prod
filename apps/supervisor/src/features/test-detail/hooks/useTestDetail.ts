@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { getTestById } from '@pump-iot/core/api';
+import { getTestById } from '@/lib/api';
 import { toast } from 'sonner';
 import { mapEntitiesToPdfData } from '../services/entityMapper';
 import type { TestPdfData } from '../services/dtoMapper';

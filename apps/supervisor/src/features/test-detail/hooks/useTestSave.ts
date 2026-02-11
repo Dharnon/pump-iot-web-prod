@@ -6,7 +6,7 @@
  */
 
 import { useState, useCallback } from 'react';
-import { patchTest, uploadPdf } from '@pump-iot/core/api';
+import { patchTest, uploadPdf } from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { mapTestToSaveDTO } from '../services/dtoMapper';
