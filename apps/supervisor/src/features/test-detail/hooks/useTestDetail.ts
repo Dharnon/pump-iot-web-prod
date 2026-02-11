@@ -97,11 +97,26 @@ export function useTestDetail(testId: string): UseTestDetailResult {
   }, [fetchTest]);
 
   /**
-   * Updates a specific field in the test's pdfData
+   * Updates a specific field in the test's pdfData or generalInfo
    */
   const updateTestData = useCallback((field: string, value: any) => {
     setTest((prev) => {
       if (!prev) return null;
+      
+      // Fields that belong to generalInfo
+      const generalInfoFields = ['pedido', 'cliente', 'pedidoCliente', 'fecha', 'numeroBombas', 'modeloBomba', 'ordenTrabajo'];
+      
+      if (generalInfoFields.includes(field)) {
+        return {
+          ...prev,
+          generalInfo: {
+            ...prev.generalInfo,
+            [field]: value
+          }
+        };
+      }
+      
+      // Default: update pdfData
       return {
         ...prev,
         pdfData: {

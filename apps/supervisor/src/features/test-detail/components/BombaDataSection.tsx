@@ -18,9 +18,10 @@ interface BombaDataSectionProps {
     ordenTrabajo?: string;
   };
   onDataChange: (field: string, value: string) => void;
+  allFieldsEditable?: boolean; // New prop for protocolo view
 }
 
-export function BombaDataSection({ pdfData, generalInfo, onDataChange }: BombaDataSectionProps) {
+export function BombaDataSection({ pdfData, generalInfo, onDataChange, allFieldsEditable = false }: BombaDataSectionProps) {
   return (
     <section className="space-y-4">
       <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
@@ -39,11 +40,13 @@ export function BombaDataSection({ pdfData, generalInfo, onDataChange }: BombaDa
         <CleanInput 
           label="Tipo Bomba" 
           value={generalInfo?.modeloBomba || pdfData?.modeloBomba} 
+          onChange={allFieldsEditable ? (val) => onDataChange("modeloBomba", val) : undefined}
           className="h-8 text-xs" 
         />
         <CleanInput 
           label="Orden Trabajo" 
           value={generalInfo?.ordenTrabajo} 
+          onChange={allFieldsEditable ? (val) => onDataChange("ordenTrabajo", val) : undefined}
           className="h-8 text-xs" 
         />
         <CleanInput 

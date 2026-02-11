@@ -212,7 +212,12 @@ export function DetailView({
                   <TabsContent value="data" className="space-y-8 mt-0">
                     
                     {/* General Info Section */}
-                    <GeneralInfoSection generalInfo={test.generalInfo} t={t} />
+                    <GeneralInfoSection 
+                      generalInfo={test.generalInfo} 
+                      t={t}
+                      onDataChange={handlePdfDataChange}
+                      allFieldsEditable={viewConfig.allFieldsEditable}
+                    />
                     
                     {/* Tests to Perform Section - Only in PENDING mode */}
                     {viewConfig.mode === 'PENDING' && (
@@ -227,7 +232,8 @@ export function DetailView({
                     <BombaDataSection 
                       pdfData={test.pdfData} 
                       generalInfo={test.generalInfo}
-                      onDataChange={handlePdfDataChange} 
+                      onDataChange={handlePdfDataChange}
+                      allFieldsEditable={viewConfig.allFieldsEditable}
                     />
                     
                     {/* Fluid H2O Section */}
