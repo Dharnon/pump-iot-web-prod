@@ -83,9 +83,11 @@ pm2 start "pnpm start" --name pump-iot
 - **[Checklist de Despliegue](./docs/DEPLOYMENT_CHECKLIST.md)** - Verificación paso a paso
 
 ### Despliegue en Entorno Aislado (Sin Internet)
+- **[📚 Índice de Despliegue Air-Gapped](./AIRGAP_DEPLOYMENT_INDEX.md)** - Índice completo de documentación
 - **[🔒 Inicio Rápido - Air-Gapped](./AIRGAP_QUICKSTART.md)** - Referencia rápida
 - **[🔒 Guía Completa - Despliegue Offline](./OFFLINE_DEPLOYMENT.md)** - Guía detallada para entornos sin internet
 - **[🪟 Configuración como Servicio de Windows](./WINDOWS_SERVICE_SETUP.md)** - Para ejecutar como servicio
+- **[🔧 Solución de Problemas](./AIRGAP_TROUBLESHOOTING.md)** - Guía completa de resolución de problemas
 
 ---
 

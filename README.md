@@ -10,9 +10,11 @@
 - **[Deployment Checklist](./docs/DEPLOYMENT_CHECKLIST.md)** - Verification checklist
 
 ### Air-Gapped / Offline Deployment
+- **[📚 Air-Gapped Deployment Index](./AIRGAP_DEPLOYMENT_INDEX.md)** - Complete documentation index
 - **[🔒 Air-Gapped Quick Start](./AIRGAP_QUICKSTART.md)** - Quick reference for offline deployment
 - **[🔒 Offline Deployment Guide](./OFFLINE_DEPLOYMENT.md)** - Complete guide for air-gapped environments
 - **[🪟 Windows Service Setup](./WINDOWS_SERVICE_SETUP.md)** - Run as Windows service
+- **[🔧 Troubleshooting](./AIRGAP_TROUBLESHOOTING.md)** - Comprehensive troubleshooting guide
 
 ---
 
