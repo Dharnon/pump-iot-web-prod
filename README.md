@@ -4,9 +4,15 @@
 
 ## Quick Links
 
+### General Deployment
 - **[Deployment Guide (Spanish)](./DESPLIEGUE.md)** - Complete deployment instructions
 - **[Quick Start](./LEEME.md)** - Get started in minutes
 - **[Deployment Checklist](./docs/DEPLOYMENT_CHECKLIST.md)** - Verification checklist
+
+### Air-Gapped / Offline Deployment
+- **[🔒 Air-Gapped Quick Start](./AIRGAP_QUICKSTART.md)** - Quick reference for offline deployment
+- **[🔒 Offline Deployment Guide](./OFFLINE_DEPLOYMENT.md)** - Complete guide for air-gapped environments
+- **[🪟 Windows Service Setup](./WINDOWS_SERVICE_SETUP.md)** - Run as Windows service
 
 ---
 
