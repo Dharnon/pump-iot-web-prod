@@ -13,9 +13,10 @@ import type { TestPdfData } from '../services/dtoMapper';
 interface FluidSectionProps {
   pdfData: TestPdfData | null | undefined;
   onDataChange: (field: string, value: string) => void;
+  allFieldsEditable?: boolean;
 }
 
-export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
+export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false }: FluidSectionProps) {
   return (
     <section className="space-y-4">
       <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />

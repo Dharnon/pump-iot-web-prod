@@ -157,11 +157,11 @@ export function DetailView({
             <PdfViewer
               file={pdfFile}
               url={pdfUrl}
-              onUpload={viewConfig.showPdfUpload ? handleFileUpload : undefined}
+              onUpload={viewConfig.showPdfUpload ? handleFileUpload : (_e) => {}}
               onRemove={() => {}}
-              onDrop={viewConfig.showPdfUpload ? handleDrop : undefined}
-              onDragOver={viewConfig.showPdfUpload ? handleDragOver : undefined}
-              onDragLeave={viewConfig.showPdfUpload ? handleDragLeave : undefined}
+              onDrop={viewConfig.showPdfUpload ? handleDrop : (_e) => {}}
+              onDragOver={viewConfig.showPdfUpload ? handleDragOver : (_e) => {}}
+              onDragLeave={viewConfig.showPdfUpload ? handleDragLeave : (_e) => {}}
               isDragging={isDragging}
               onAnalyze={viewConfig.showPdfUpload ? handleAnalyzePdf : undefined}
               isAnalyzing={extracting}
