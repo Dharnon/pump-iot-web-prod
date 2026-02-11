@@ -33,8 +33,8 @@ export const PENDING_VIEW_CONFIG: ViewConfig = {
   editable: true,
   showPdfUpload: true,
   showSaveButton: true,
-  showExtendedSections: false, // Don't show motor/details for pending
-  allFieldsEditable: false,
+  showExtendedSections: true, // Show all sections for manual entry if needed
+  allFieldsEditable: true,    // All fields can be edited
 };
 
 /**

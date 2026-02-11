@@ -240,12 +240,14 @@ export function DetailView({
                     <FluidH2OSection 
                       pdfData={test.pdfData} 
                       onDataChange={handlePdfDataChange} 
+                      allFieldsEditable={viewConfig.allFieldsEditable}
                     />
                     
                     {/* Fluid Section */}
                     <FluidSection 
                       pdfData={test.pdfData} 
                       onDataChange={handlePdfDataChange} 
+                      allFieldsEditable={viewConfig.allFieldsEditable}
                     />
                     
                     {/* Motor Data Section - Show if configured or if not pending */}
@@ -253,6 +255,7 @@ export function DetailView({
                       <MotorDataSection 
                         pdfData={test.pdfData} 
                         onDataChange={handlePdfDataChange} 
+                        allFieldsEditable={viewConfig.allFieldsEditable}
                       />
                     )}
                     
@@ -261,6 +264,7 @@ export function DetailView({
                       <DetailsSection 
                         pdfData={test.pdfData} 
                         onDataChange={handlePdfDataChange} 
+                        allFieldsEditable={viewConfig.allFieldsEditable}
                       />
                     )}
                     

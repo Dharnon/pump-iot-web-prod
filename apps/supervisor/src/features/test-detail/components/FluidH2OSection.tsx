@@ -13,9 +13,10 @@ import type { TestPdfData } from '../services/dtoMapper';
 interface FluidH2OSectionProps {
   pdfData: TestPdfData | null | undefined;
   onDataChange: (field: string, value: string) => void;
+  allFieldsEditable?: boolean;
 }
 
-export function FluidH2OSection({ pdfData, onDataChange }: FluidH2OSectionProps) {
+export function FluidH2OSection({ pdfData, onDataChange, allFieldsEditable = false }: FluidH2OSectionProps) {
   return (
     <section className="space-y-4">
       <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />

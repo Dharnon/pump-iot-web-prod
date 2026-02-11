@@ -4,11 +4,13 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 type Language = "en" | "es";
 
-interface LanguageContextType {
+export interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
 }
+
+export type UseLanguageReturn = LanguageContextType;
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 

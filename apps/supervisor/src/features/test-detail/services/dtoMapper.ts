@@ -77,75 +77,75 @@ export interface TestPdfData {
 }
 
 export interface TestSaveDTO {
-  Status?: string; // Optional, only set when finalizing from PENDING
-  BancoId: number;
-  GeneralInfo: {
-    Pedido: string;
-    Cliente: string;
-    ModeloBomba?: string;
-    OrdenTrabajo?: string;
-    NumeroBombas: number;
-    Fecha?: string;
-    Item?: string;
-    PedidoCliente?: string;
-    Posicion?: string;
+  status?: string; // Optional, only set when finalizing from PENDING
+  bancoId: number;
+  generalInfo: {
+    pedido: string;
+    cliente: string;
+    modeloBomba?: string;
+    ordenTrabajo?: string;
+    numeroBombas: number;
+    fecha?: string;
+    item?: string;
+    pedidoCliente?: string;
+    posicion?: string;
   };
-  PdfData?: {
-    // Bomba fields (PascalCase for backend)
-    Item?: string;
-    ModeloBomba?: string;
-    SuctionDiameter?: number;
-    DischargeDiameter?: number;
-    ImpellerDiameter?: string;
-    SealType?: string;
-    Vertical?: boolean | string;
+  pdfData?: {
+    // Bomba fields
+    item?: string;
+    modeloBomba?: string;
+    suctionDiameter?: string;
+    dischargeDiameter?: string;
+    impellerDiameter?: string;
+    sealType?: string;
+    vertical?: string;
     
     // H2O Point
-    FlowRate?: number;
-    Head?: number;
-    Rpm?: number;
-    MaxPower?: number;
-    Efficiency?: number;
-    Npshr?: number;
+    flowRate?: string;
+    head?: string;
+    rpm?: string;
+    maxPower?: string;
+    efficiency?: string;
+    npshr?: string;
 
     // Fluid Point
-    LiquidDescription?: string;
-    Temperature?: number;
-    Viscosity?: number;
-    Density?: number;
-    FluidFlowRate?: number;
-    FluidHead?: number;
-    FluidRpm?: number;
-    FluidPower?: number;
-    FluidEfficiency?: number;
-    Cq?: number;
-    Ch?: number;
-    Ce?: number;
+    liquidDescription?: string;
+    temperature?: string;
+    viscosity?: string;
+    density?: string;
+    fluidFlowRate?: string;
+    fluidHead?: string;
+    fluidRpm?: string;
+    fluidPower?: string;
+    fluidEfficiency?: string;
+    cq?: string;
+    ch?: string;
+    ce?: string;
 
     // Comments
-    Tolerance?: string;
-    InternalComment?: string;
+    tolerance?: string;
+    internalComment?: string;
     
     // Detailed Data
-    DetallesCorreccionManometrica?: number;
-    DetallesPresionAtmosferica?: number;
-    DetallesTemperaturaAgua?: number;
-    DetallesTemperaturaAmbiente?: number;
-    DetallesTemperaturaLadoAcoplamiento?: number;
-    DetallesTemperaturaLadoBomba?: number;
-    DetallesTiempoFuncionamientoBomba?: number;
+    detallesCorreccionManometrica?: string;
+    detallesPresionAtmosferica?: string;
+    detallesTemperaturaAgua?: string;
+    detallesTemperaturaAmbiente?: string;
+    detallesTemperaturaLadoAcoplamiento?: string;
+    detallesTemperaturaLadoBomba?: string;
+    detallesTiempoFuncionamientoBomba?: string;
 
     // Motor Data
-    MotorMarca?: string;
-    MotorTipo?: string;
-    MotorPotencia?: number;
-    MotorVelocidad?: number;
-    MotorIntensidad?: number;
-    MotorRendimiento25?: number;
-    MotorRendimiento50?: number;
-    MotorRendimiento75?: number;
-    MotorRendimiento100?: number;
-    MotorRendimiento125?: number;
+    motorMarca?: string;
+    motorTipo?: string;
+    motorPotencia?: string;
+    motorVelocidad?: string;
+    motorIntensidad?: string;
+    motorRendimiento25?: string;
+    motorRendimiento50?: string;
+    motorRendimiento75?: string;
+    motorRendimiento100?: string;
+    motorRendimiento125?: string;
   } | null;
 }
 
@@ -164,76 +164,79 @@ export function mapTestToSaveDTO(
   bancoId: number = 1,
   setStatusGenerated: boolean = true
 ): TestSaveDTO {
+  // Helper to safely convert any value to string or undefined
+  const toString = (val: any) => val !== undefined && val !== null ? String(val) : undefined;
+
   return {
-    Status: setStatusGenerated ? "GENERADO" : undefined, // Only set status when finalizing from PENDING
-    BancoId: bancoId,
-    GeneralInfo: {
-      Pedido: generalInfo.pedido,
-      Cliente: generalInfo.cliente,
-      ModeloBomba: generalInfo.modeloBomba,
-      OrdenTrabajo: generalInfo.ordenTrabajo,
-      NumeroBombas: generalInfo.numeroBombas,
-      Fecha: generalInfo.fecha,
-      Item: generalInfo.item,
-      PedidoCliente: generalInfo.pedidoCliente,
-      Posicion: generalInfo.posicion
+    status: setStatusGenerated ? "GENERADO" : undefined,
+    bancoId: bancoId,
+    generalInfo: {
+      pedido: generalInfo.pedido,
+      cliente: generalInfo.cliente,
+      modeloBomba: generalInfo.modeloBomba,
+      ordenTrabajo: generalInfo.ordenTrabajo,
+      numeroBombas: generalInfo.numeroBombas,
+      fecha: generalInfo.fecha,
+      item: generalInfo.item,
+      pedidoCliente: generalInfo.pedidoCliente,
+      posicion: generalInfo.posicion
     },
-    PdfData: pdfData ? {
+    pdfData: pdfData ? {
       // Bomba fields
-      Item: pdfData.item,
-      ModeloBomba: pdfData.modeloBomba,
-      SuctionDiameter: pdfData.suctionDiameter,
-      DischargeDiameter: pdfData.dischargeDiameter,
-      ImpellerDiameter: pdfData.impellerDiameter,
-      SealType: pdfData.sealType,
-      Vertical: pdfData.vertical,
+      item: pdfData.item,
+      modeloBomba: pdfData.modeloBomba,
+      suctionDiameter: toString(pdfData.suctionDiameter),
+      dischargeDiameter: toString(pdfData.dischargeDiameter),
+      impellerDiameter: toString(pdfData.impellerDiameter),
+      sealType: pdfData.sealType,
+      vertical: toString(pdfData.vertical),
       
       // H2O Point
-      FlowRate: pdfData.flowRate,
-      Head: pdfData.head,
-      Rpm: pdfData.rpm,
-      MaxPower: pdfData.maxPower,
-      Efficiency: pdfData.efficiency,
-      Npshr: pdfData.npshr,
+      flowRate: toString(pdfData.flowRate),
+      head: toString(pdfData.head),
+      rpm: toString(pdfData.rpm),
+      maxPower: toString(pdfData.maxPower),
+      efficiency: toString(pdfData.efficiency),
+      npshr: toString(pdfData.npshr),
 
       // Fluid Point
-      LiquidDescription: pdfData.liquidDescription,
-      Temperature: pdfData.temperature,
-      Viscosity: pdfData.viscosity,
-      Density: pdfData.density,
-      FluidFlowRate: pdfData.fluidFlowRate,
-      FluidHead: pdfData.fluidHead,
-      FluidRpm: pdfData.fluidRpm,
-      FluidPower: pdfData.fluidPower,
-      FluidEfficiency: pdfData.fluidEfficiency,
-      Cq: pdfData.cq,
-      Ch: pdfData.ch,
-      Ce: pdfData.ce,
+      liquidDescription: pdfData.liquidDescription,
+      temperature: toString(pdfData.temperature),
+      viscosity: toString(pdfData.viscosity),
+      density: toString(pdfData.density),
+      fluidFlowRate: toString(pdfData.fluidFlowRate),
+      fluidHead: toString(pdfData.fluidHead),
+      fluidRpm: toString(pdfData.fluidRpm),
+      fluidPower: toString(pdfData.fluidPower),
+      fluidEfficiency: toString(pdfData.fluidEfficiency),
+      cq: toString(pdfData.cq),
+      ch: toString(pdfData.ch),
+      ce: toString(pdfData.ce),
 
       // Comments
-      Tolerance: pdfData.tolerance,
-      InternalComment: pdfData.internalComment,
+      tolerance: pdfData.tolerance,
+      internalComment: pdfData.internalComment,
       
       // Detailed Data
-      DetallesCorreccionManometrica: pdfData.detallesCorreccionManometrica,
-      DetallesPresionAtmosferica: pdfData.detallesPresionAtmosferica,
-      DetallesTemperaturaAgua: pdfData.detallesTemperaturaAgua,
-      DetallesTemperaturaAmbiente: pdfData.detallesTemperaturaAmbiente,
-      DetallesTemperaturaLadoAcoplamiento: pdfData.detallesTemperaturaLadoAcoplamiento,
-      DetallesTemperaturaLadoBomba: pdfData.detallesTemperaturaLadoBomba,
-      DetallesTiempoFuncionamientoBomba: pdfData.detallesTiempoFuncionamientoBomba,
+      detallesCorreccionManometrica: toString(pdfData.detallesCorreccionManometrica),
+      detallesPresionAtmosferica: toString(pdfData.detallesPresionAtmosferica),
+      detallesTemperaturaAgua: toString(pdfData.detallesTemperaturaAgua),
+      detallesTemperaturaAmbiente: toString(pdfData.detallesTemperaturaAmbiente),
+      detallesTemperaturaLadoAcoplamiento: toString(pdfData.detallesTemperaturaLadoAcoplamiento),
+      detallesTemperaturaLadoBomba: toString(pdfData.detallesTemperaturaLadoBomba),
+      detallesTiempoFuncionamientoBomba: toString(pdfData.detallesTiempoFuncionamientoBomba),
 
       // Motor Data
-      MotorMarca: pdfData.motorMarca,
-      MotorTipo: pdfData.motorTipo,
-      MotorPotencia: pdfData.motorPotencia,
-      MotorVelocidad: pdfData.motorVelocidad,
-      MotorIntensidad: pdfData.motorIntensidad,
-      MotorRendimiento25: pdfData.motorRendimiento25,
-      MotorRendimiento50: pdfData.motorRendimiento50,
-      MotorRendimiento75: pdfData.motorRendimiento75,
-      MotorRendimiento100: pdfData.motorRendimiento100,
-      MotorRendimiento125: pdfData.motorRendimiento125
+      motorMarca: pdfData.motorMarca,
+      motorTipo: pdfData.motorTipo,
+      motorPotencia: toString(pdfData.motorPotencia),
+      motorVelocidad: toString(pdfData.motorVelocidad),
+      motorIntensidad: toString(pdfData.motorIntensidad),
+      motorRendimiento25: toString(pdfData.motorRendimiento25),
+      motorRendimiento50: toString(pdfData.motorRendimiento50),
+      motorRendimiento75: toString(pdfData.motorRendimiento75),
+      motorRendimiento100: toString(pdfData.motorRendimiento100),
+      motorRendimiento125: toString(pdfData.motorRendimiento125)
     } : null
   };
 }
