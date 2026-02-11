@@ -8,6 +8,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getTestById } from '@pump-iot/core/api';
 import { toast } from 'sonner';
+import { mapEntitiesToPdfData } from '../services/entityMapper';
+import type { TestPdfData } from '../services/dtoMapper';
 
 interface TestDetail {
   id: string;
@@ -33,7 +35,7 @@ interface TestDetail {
   fluidoH2O?: any;
   detalles?: any;
   hasPdf?: boolean;
-  pdfData?: any;
+  pdfData?: TestPdfData;
   testsToPerform?: any;
   createdAt?: string;
 }
@@ -68,65 +70,15 @@ export function useTestDetail(testId: string): UseTestDetailResult {
     try {
       const data = await getTestById(testId);
       
-      // If generated/completed, map entity data to pdfData for form editing
+      // If generated/completed, map entity data to pdfData for form editing using service layer
       if (data.status !== "PENDING") {
-        data.pdfData = {
-          // Bomba
-          item: data.bomba?.item,
-          modeloBomba: data.bomba?.tipo,
-          suctionDiameter: data.bomba?.diametroAspiracion,
-          dischargeDiameter: data.bomba?.diametroImpulsion,
-          impellerDiameter: data.bomba?.diametroRodete,
-          sealType: data.bomba?.tipoCierre,
-          vertical: data.bomba?.vertical,
-          
-          // H2O Point
-          flowRate: data.fluidoH2O?.caudal,
-          head: data.fluidoH2O?.altura,
-          rpm: data.fluidoH2O?.velocidad,
-          maxPower: data.fluidoH2O?.potencia,
-          efficiency: data.fluidoH2O?.rendimiento,
-          npshr: data.fluidoH2O?.npshRequerido,
-
-          // Fluid Point
-          liquidDescription: data.fluido?.nombre,
-          temperature: data.fluido?.temperatura,
-          viscosity: data.fluido?.viscosidad,
-          density: data.fluido?.densidad,
-          fluidFlowRate: data.fluido?.caudal,
-          fluidHead: data.fluido?.altura,
-          fluidRpm: data.fluido?.velocidad,
-          fluidPower: data.fluido?.potencia,
-          fluidEfficiency: data.fluido?.rendimiento,
-          cq: data.fluido?.caudalCoeficiente,
-          ch: data.fluido?.alturaCoeficiente,
-          ce: data.fluido?.rendimientoCoeficiente,
-
-          // Comments / Details
-          tolerance: data.detalles?.comentario,
-          internalComment: data.detalles?.comentarioInterno,
-          
-          // Detailed Data
-          detallesCorreccionManometrica: data.detalles?.correccionManometrica,
-          detallesPresionAtmosferica: data.detalles?.presionAtmosferica,
-          detallesTemperaturaAgua: data.detalles?.temperaturaAgua,
-          detallesTemperaturaAmbiente: data.detalles?.temperaturaAmbiente,
-          detallesTemperaturaLadoAcoplamiento: data.detalles?.temperaturaLadoAcoplamiento,
-          detallesTemperaturaLadoBomba: data.detalles?.temperaturaLadoBomba,
-          detallesTiempoFuncionamientoBomba: data.detalles?.tiempoFuncionamientoBomba,
-
-          // Motor Data
-          motorMarca: data.motor?.marca,
-          motorTipo: data.motor?.tipo,
-          motorPotencia: data.motor?.potencia,
-          motorVelocidad: data.motor?.velocidad,
-          motorIntensidad: data.motor?.intensidad,
-          motorRendimiento25: data.motor?.rendimiento25,
-          motorRendimiento50: data.motor?.rendimiento50,
-          motorRendimiento75: data.motor?.rendimiento75,
-          motorRendimiento100: data.motor?.rendimiento100,
-          motorRendimiento125: data.motor?.rendimiento125
-        };
+        data.pdfData = mapEntitiesToPdfData({
+          bomba: data.bomba,
+          fluidoH2O: data.fluidoH2O,
+          fluido: data.fluido,
+          detalles: data.detalles,
+          motor: data.motor
+        });
       }
       
       setTest(data);

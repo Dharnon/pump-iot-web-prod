@@ -10,3 +10,6 @@ export * from './hooks';
 
 // Components - UI elements
 export * from './components';
+
+// Services - data transformation layer
+export * from './services';
