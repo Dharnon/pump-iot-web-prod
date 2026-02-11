@@ -12,3 +12,4 @@ export { FluidH2OSection } from './FluidH2OSection';
 export { FluidSection } from './FluidSection';
 export { MotorDataSection } from './MotorDataSection';
 export { DetailsSection } from './DetailsSection';
+export { DetailView } from './DetailView';

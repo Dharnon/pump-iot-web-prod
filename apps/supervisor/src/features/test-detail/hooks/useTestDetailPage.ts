@@ -15,6 +15,8 @@ import { usePdfPanel } from './usePdfPanel';
 import { useTestsToPerform } from './useTestsToPerform';
 import { getTestPdf } from '@/lib/api';
 import type { UseLanguageReturn } from '@/lib/language-context';
+import type { ViewMode, ViewConfig } from '../types/viewMode';
+import { getViewConfig } from '../types/viewMode';
 
 export interface UseTestDetailPageResult {
   // Test data
@@ -55,16 +57,25 @@ export interface UseTestDetailPageResult {
   
   // Mobile detection
   isMobile: boolean;
+  
+  // View configuration
+  viewConfig: ViewConfig;
 }
 
 /**
  * Comprehensive hook for test detail page
+ * 
+ * @param testId - Test/Protocol ID
+ * @param t - Translation function
+ * @param viewMode - View mode (PENDING or GENERATED)
  */
 export function useTestDetailPage(
   testId: string,
-  t: UseLanguageReturn['t']
+  t: UseLanguageReturn['t'],
+  viewMode: ViewMode = 'PENDING'
 ): UseTestDetailPageResult {
   const [isMobile, setIsMobile] = useState(false);
+  const viewConfig = getViewConfig(viewMode);
   
   // Core functionality hooks
   const { test, loading, error, updateTestData, setTest } = useTestDetail(testId);
@@ -182,5 +193,8 @@ export function useTestDetailPage(
     
     // Mobile
     isMobile,
+    
+    // View configuration
+    viewConfig,
   };
 }
