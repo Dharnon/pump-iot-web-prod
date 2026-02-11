@@ -1,8 +1,34 @@
+# Pump IoT Web Platform
+
+> 🇪🇸 **[Documentación en Español](./LEEME.md)** - Para despliegue y configuración completa en español
+
+## Quick Links
+
+- **[Deployment Guide (Spanish)](./DESPLIEGUE.md)** - Complete deployment instructions
+- **[Quick Start](./LEEME.md)** - Get started in minutes
+- **[Deployment Checklist](./docs/DEPLOYMENT_CHECKLIST.md)** - Verification checklist
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
-First, run the development server:
+### Automated Setup (Recommended)
+
+```bash
+bash scripts/quick-start.sh
+```
+
+### Manual Setup
+
+First, install dependencies:
+
+```bash
+pnpm install
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
