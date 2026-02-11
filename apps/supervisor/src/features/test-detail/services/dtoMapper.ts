@@ -77,7 +77,7 @@ export interface TestPdfData {
 }
 
 export interface TestSaveDTO {
-  Status: string;
+  Status?: string; // Optional, only set when finalizing from PENDING
   BancoId: number;
   GeneralInfo: {
     Pedido: string;
@@ -155,15 +155,17 @@ export interface TestSaveDTO {
  * @param generalInfo - General test information
  * @param pdfData - Extracted PDF data
  * @param bancoId - Test bench ID (defaults to 1)
+ * @param setStatusGenerated - Whether to set status to GENERADO (true for PENDING mode finalization)
  * @returns Backend-compatible DTO object
  */
 export function mapTestToSaveDTO(
   generalInfo: TestGeneralInfo,
   pdfData: TestPdfData | null | undefined,
-  bancoId: number = 1
+  bancoId: number = 1,
+  setStatusGenerated: boolean = true
 ): TestSaveDTO {
   return {
-    Status: "GENERADO",
+    Status: setStatusGenerated ? "GENERADO" : undefined, // Only set status when finalizing from PENDING
     BancoId: bancoId,
     GeneralInfo: {
       Pedido: generalInfo.pedido,

@@ -144,8 +144,8 @@ export function useTestDetailPage(
    */
   const handleSave = useCallback(async () => {
     if (!test) return;
-    await saveTest(test, pdfFile);
-  }, [test, pdfFile, saveTest]);
+    await saveTest(test, pdfFile, viewMode);
+  }, [test, pdfFile, saveTest, viewMode]);
   
   /**
    * Handles PDF data field changes
