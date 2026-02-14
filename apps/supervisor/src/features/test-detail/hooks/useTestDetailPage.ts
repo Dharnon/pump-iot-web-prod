@@ -23,7 +23,7 @@ export interface UseTestDetailPageResult {
   test: any;
   loading: boolean;
   error: string | null;
-  
+
   // PDF upload
   pdfFile: File | null;
   pdfUrl: string | null;
@@ -33,31 +33,31 @@ export interface UseTestDetailPageResult {
   handleDragOver: (e: React.DragEvent) => void;
   handleDragLeave: (e: React.DragEvent) => void;
   removePdf: () => void;
-  
+
   // PDF extraction
   extracting: boolean;
   handleAnalyzePdf: () => Promise<void>;
-  
+
   // Test save
   saving: boolean;
   handleSave: () => Promise<void>;
-  
+
   // Panel management
   isPdfExpanded: boolean;
   pdfPanelRef: React.RefObject<any>;
   togglePdf: () => void;
   onPanelResize: (size: any) => void;
-  
+
   // Tests to perform
   testsToPerform: any;
   toggleTest: (key: string) => void;
-  
+
   // Data updates
   handlePdfDataChange: (field: string, value: string) => void;
-  
+
   // Mobile detection
   isMobile: boolean;
-  
+
   // View configuration
   viewConfig: ViewConfig;
 }
@@ -76,13 +76,13 @@ export function useTestDetailPage(
 ): UseTestDetailPageResult {
   const [isMobile, setIsMobile] = useState(false);
   const viewConfig = getViewConfig(viewMode);
-  
+
   // Core functionality hooks
   const { test, loading, error, updateTestData, setTest } = useTestDetail(testId);
   const { testsToPerform, toggleTest, autoSetTests } = useTestsToPerform();
   const { saving, saveTest } = useTestSave();
   const { isPdfExpanded, pdfPanelRef, togglePdf, onPanelResize } = usePdfPanel();
-  
+
   // PDF upload hook
   const {
     pdfFile,
@@ -96,7 +96,7 @@ export function useTestDetailPage(
     setPdfFile,
     setPdfUrl,
   } = usePdfUpload(t);
-  
+
   // PDF extraction hook with callbacks
   const { extracting, extractPdfData } = usePdfExtraction({
     onExtracted: (specs) => {
@@ -108,7 +108,7 @@ export function useTestDetailPage(
     },
     onAutoSetTests: autoSetTests,
   });
-  
+
   // Mobile detection effect
   useEffect(() => {
     const checkMobile = () => {
@@ -118,9 +118,12 @@ export function useTestDetailPage(
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-  
+
   // Load PDF for generated protocols
   useEffect(() => {
+    // Skip PDF loading in mock mode
+    if (localStorage.getItem('USE_MOCK_DATA') === 'true') return;
+
     if (test?.hasPdf && test?.id) {
       getTestPdf(test.id)
         .then(blob => {
@@ -130,7 +133,7 @@ export function useTestDetailPage(
         .catch(err => console.error("Error loading PDF preview:", err));
     }
   }, [test?.hasPdf, test?.id, setPdfUrl]);
-  
+
   /**
    * Handles PDF analysis
    */
@@ -138,7 +141,7 @@ export function useTestDetailPage(
     if (!pdfFile) return;
     await extractPdfData(pdfFile);
   }, [pdfFile, extractPdfData]);
-  
+
   /**
    * Handles test save
    */
@@ -146,20 +149,20 @@ export function useTestDetailPage(
     if (!test) return;
     await saveTest(test, pdfFile, viewMode);
   }, [test, pdfFile, saveTest, viewMode]);
-  
+
   /**
    * Handles PDF data field changes
    */
   const handlePdfDataChange = useCallback((field: string, value: string) => {
     updateTestData(field, value);
   }, [updateTestData]);
-  
+
   return {
     // Test data
     test,
     loading,
     error,
-    
+
     // PDF upload
     pdfFile,
     pdfUrl,
@@ -169,31 +172,31 @@ export function useTestDetailPage(
     handleDragOver,
     handleDragLeave,
     removePdf,
-    
+
     // PDF extraction
     extracting,
     handleAnalyzePdf,
-    
+
     // Test save
     saving,
     handleSave,
-    
+
     // Panel management
     isPdfExpanded,
     pdfPanelRef,
     togglePdf,
     onPanelResize,
-    
+
     // Tests to perform
     testsToPerform,
     toggleTest,
-    
+
     // Data updates
     handlePdfDataChange,
-    
+
     // Mobile
     isMobile,
-    
+
     // View configuration
     viewConfig,
   };

@@ -7,6 +7,7 @@
 
 import { FileText } from "lucide-react";
 import { CleanInput } from "./CleanInput";
+import { CleanAutoInput } from "./CleanAutoInput";
 import type { UseLanguageReturn } from '@/lib/language-context';
 
 interface GeneralInfoSectionProps {
@@ -22,7 +23,7 @@ interface GeneralInfoSectionProps {
   allFieldsEditable?: boolean;
 }
 
-function InfoField({ label, value, highlight, className = "" }: { 
+function InfoField({ label, value, highlight, className = "" }: {
   label: string;
   value: string | number;
   highlight?: boolean;
@@ -45,59 +46,64 @@ export function GeneralInfoSection({ generalInfo, t, onDataChange, allFieldsEdit
           {t("test.generalInfo")}
         </h3>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="flex flex-wrap gap-4 items-start">
         {allFieldsEditable && onDataChange ? (
           <>
-            <CleanInput 
-              label={t("field.order")} 
+            <CleanAutoInput
+              label={t("field.order")}
               value={generalInfo.pedido}
               onChange={(val) => onDataChange("pedido", val)}
-              className="h-8 text-xs"
+              className="h-9 text-sm"
+              minWidth={140}
             />
-            <CleanInput 
-              label={t("field.client")} 
+            <CleanAutoInput
+              label={t("field.client")}
               value={generalInfo.cliente}
               onChange={(val) => onDataChange("cliente", val)}
-              className="h-8 text-xs"
+              className="h-9 text-sm"
+              minWidth={200}
             />
-            <CleanInput 
-              label={t("field.clientOrder")} 
+            <CleanAutoInput
+              label={t("field.clientOrder")}
               value={generalInfo.pedidoCliente || ""}
               onChange={(val) => onDataChange("pedidoCliente", val)}
-              className="h-8 text-xs"
+              className="h-9 text-sm"
+              minWidth={140}
             />
-            <CleanInput 
-              label={t("field.date")} 
+            <CleanAutoInput
+              label={t("field.date")}
               value={generalInfo.fecha || new Date().toLocaleDateString('es-ES')}
               onChange={(val) => onDataChange("fecha", val)}
-              className="h-8 text-xs"
+              className="h-9 text-sm"
+              minWidth={120}
             />
-            <CleanInput 
-              label={t("field.qty")} 
+            <CleanAutoInput
+              label={t("field.qty")}
               value={String(generalInfo.numeroBombas)}
               onChange={(val) => onDataChange("numeroBombas", val)}
-              className="h-8 text-xs"
+              className="h-9 text-sm w-20 text-center"
+              minWidth={60}
             />
-            <div className="flex items-center gap-2 pt-4">
+            <div className="flex items-center gap-2 pt-6">
               <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded border">CSV</span>
             </div>
           </>
         ) : (
           <>
-            <InfoField label={t("field.order")} value={generalInfo.pedido} highlight />
-            <InfoField label={t("field.client")} value={generalInfo.cliente} />
-            <InfoField label={t("field.clientOrder")} value={generalInfo.pedidoCliente || "-"} />
-            <InfoField 
-              label={t("field.date")} 
-              value={generalInfo.fecha || new Date().toLocaleDateString('es-ES')} 
-              className="text-muted-foreground" 
+            <InfoField label={t("field.order")} value={generalInfo.pedido} highlight className="min-w-[120px]" />
+            <InfoField label={t("field.client")} value={generalInfo.cliente} className="min-w-[180px]" />
+            <InfoField label={t("field.clientOrder")} value={generalInfo.pedidoCliente || "-"} className="min-w-[120px]" />
+            <InfoField
+              label={t("field.date")}
+              value={generalInfo.fecha || new Date().toLocaleDateString('es-ES')}
+              className="text-muted-foreground min-w-[100px]"
             />
-            <InfoField 
-              label={t("field.qty")} 
-              value={String(generalInfo.numeroBombas)} 
-              className="text-muted-foreground" 
+            <InfoField
+              label={t("field.qty")}
+              value={String(generalInfo.numeroBombas)}
+              className="text-muted-foreground min-w-[60px]"
             />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 pt-1">
               <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded border">CSV</span>
             </div>
           </>

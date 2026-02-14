@@ -7,7 +7,7 @@
 
 import { Settings2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { CleanInput } from "./CleanInput";
+import { CleanAutoInput } from "./CleanAutoInput";
 import type { TestPdfData } from '../services/dtoMapper';
 
 interface MotorDataSectionProps {
@@ -26,76 +26,86 @@ export function MotorDataSection({ pdfData, onDataChange, allFieldsEditable = fa
           Motor
         </h3>
       </div>
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-        <CleanInput 
-          label="Marca" 
-          value={pdfData?.motorMarca} 
-          onChange={(val) => onDataChange("motorMarca", val)} 
-          className="h-8 text-xs" 
+      <div className="flex flex-wrap gap-4 items-start">
+        <CleanAutoInput
+          label="Marca"
+          value={pdfData?.motorMarca}
+          onChange={(val) => onDataChange("motorMarca", val)}
+          className="h-9 text-sm"
+          minWidth={120}
         />
-        <CleanInput 
-          label="Tipo" 
-          value={pdfData?.motorTipo} 
-          onChange={(val) => onDataChange("motorTipo", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="Tipo"
+          value={pdfData?.motorTipo}
+          onChange={(val) => onDataChange("motorTipo", val)}
+          className="h-9 text-sm"
+          minWidth={120}
         />
-        <CleanInput 
-          label="Potencia" 
-          value={pdfData?.motorPotencia} 
-          unit="kW" 
-          onChange={(val) => onDataChange("motorPotencia", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="Potencia"
+          value={pdfData?.motorPotencia}
+          unit="kW"
+          onChange={(val) => onDataChange("motorPotencia", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <CleanInput 
-          label="Velocidad" 
-          value={pdfData?.motorVelocidad} 
-          unit="rpm" 
-          onChange={(val) => onDataChange("motorVelocidad", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="Velocidad"
+          value={pdfData?.motorVelocidad}
+          unit="rpm"
+          onChange={(val) => onDataChange("motorVelocidad", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <CleanInput 
-          label="Intensidad" 
-          value={pdfData?.motorIntensidad} 
-          unit="A" 
-          onChange={(val) => onDataChange("motorIntensidad", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="Intensidad"
+          value={pdfData?.motorIntensidad}
+          unit="A"
+          onChange={(val) => onDataChange("motorIntensidad", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
       </div>
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-5 pt-2">
-        <CleanInput 
-          label="η 25%" 
-          value={pdfData?.motorRendimiento25} 
-          unit="%" 
-          onChange={(val) => onDataChange("motorRendimiento25", val)} 
-          className="h-8 text-xs" 
+      <div className="flex flex-wrap gap-4 items-start pt-2">
+        <CleanAutoInput
+          label="η 25%"
+          value={pdfData?.motorRendimiento25}
+          unit="%"
+          onChange={(val) => onDataChange("motorRendimiento25", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <CleanInput 
-          label="η 50%" 
-          value={pdfData?.motorRendimiento50} 
-          unit="%" 
-          onChange={(val) => onDataChange("motorRendimiento50", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="η 50%"
+          value={pdfData?.motorRendimiento50}
+          unit="%"
+          onChange={(val) => onDataChange("motorRendimiento50", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <CleanInput 
-          label="η 75%" 
-          value={pdfData?.motorRendimiento75} 
-          unit="%" 
-          onChange={(val) => onDataChange("motorRendimiento75", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="η 75%"
+          value={pdfData?.motorRendimiento75}
+          unit="%"
+          onChange={(val) => onDataChange("motorRendimiento75", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <CleanInput 
-          label="η 100%" 
-          value={pdfData?.motorRendimiento100} 
-          unit="%" 
-          onChange={(val) => onDataChange("motorRendimiento100", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="η 100%"
+          value={pdfData?.motorRendimiento100}
+          unit="%"
+          onChange={(val) => onDataChange("motorRendimiento100", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <CleanInput 
-          label="η 125%" 
-          value={pdfData?.motorRendimiento125} 
-          unit="%" 
-          onChange={(val) => onDataChange("motorRendimiento125", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="η 125%"
+          value={pdfData?.motorRendimiento125}
+          unit="%"
+          onChange={(val) => onDataChange("motorRendimiento125", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
       </div>
     </section>

@@ -11,6 +11,9 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { StatusBadge } from "./StatusBadge";
 import type { UseLanguageReturn } from '@/lib/language-context';
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { useEffect, useState } from "react";
 
 interface TestDetailHeaderProps {
   test: {
@@ -33,15 +36,27 @@ export function TestDetailHeader({
   onSave,
   t
 }: TestDetailHeaderProps) {
+  const [useMock, setUseMock] = useState(false);
+
+  useEffect(() => {
+    setUseMock(localStorage.getItem('USE_MOCK_DATA') === 'true');
+  }, []);
+
+  const toggleMock = (checked: boolean) => {
+    localStorage.setItem('USE_MOCK_DATA', String(checked));
+    setUseMock(checked);
+    window.location.reload();
+  };
+
   return (
     <header className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-4 py-2 border-b bg-background/50 backdrop-blur-sm shrink-0 gap-2">
       <div className="flex items-center gap-3 sm:gap-4 min-w-0">
         <SidebarTrigger />
         <Separator orientation="vertical" className="h-4" />
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-8 w-8 -ml-2 text-muted-foreground hover:text-foreground shrink-0" 
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 -ml-2 text-muted-foreground hover:text-foreground shrink-0"
           onClick={onBack}
         >
           <ArrowLeft className="w-4 h-4" />
@@ -59,6 +74,10 @@ export function TestDetailHeader({
         </div>
       </div>
       <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+        <div className="flex items-center space-x-2 mr-2">
+          <Switch id="mock-mode" checked={useMock} onCheckedChange={toggleMock} />
+          <Label htmlFor="mock-mode" className="text-xs text-muted-foreground cursor-pointer">Mock</Label>
+        </div>
         <StatusBadge status={test.status} />
         <Button
           onClick={onSave}

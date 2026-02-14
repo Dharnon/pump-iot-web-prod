@@ -47,6 +47,20 @@ import {
     SidebarRail           // Barra delgada para resize/toggle
 } from "@/components/ui/sidebar";
 
+// Dropdown Menu
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    DropdownMenuSub,
+    DropdownMenuSubTrigger,
+    DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
+
 // Next.js - Navegación
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -55,7 +69,19 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 // Iconos (Lucide React)
-import { LayoutDashboard, FileSpreadsheet, FileText, LogOut, CheckCircle2 } from "lucide-react";
+import {
+    LayoutDashboard,
+    FileSpreadsheet,
+    FileText,
+    LogOut,
+    CheckCircle2,
+    Users,
+    ChevronsUpDown,
+    Globe,
+    Check,
+    Sun,
+    Moon
+} from "lucide-react";
 
 // (Image de Next.js - no usado actualmente, usando <img> por flexibilidad)
 import Image from "next/image";
@@ -63,8 +89,6 @@ import Image from "next/image";
 // Componentes UI
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { LanguageSelector } from "@/components/language-selector";
 import { useLanguage } from "@/lib/language-context";
 
 // =============================================================================
@@ -148,8 +172,7 @@ export default function SupervisorLayout({
     // Items del menú traducidos
     const menuItems = [
         { title: t("sidebar.dashboard"), icon: LayoutDashboard, href: "/supervisor" },
-        { title: t("sidebar.csv"), icon: FileSpreadsheet, href: "/supervisor/csv-list" },
-        { title: t("sidebar.pdf"), icon: FileText, href: "/supervisor/pdf-extractor" },
+        { title: "Usuarios", icon: Users, href: "/supervisor/user-management" },
     ];
 
     // =========================================================================
@@ -247,7 +270,7 @@ export default function SupervisorLayout({
                     {/* --------------------------------------------------------
                         FOOTER: Branding + Info de usuario
                         -------------------------------------------------------- */}
-                    <SidebarFooter className="p-4">
+                    <SidebarFooter className="p-4 group-data-[collapsible=icon]:p-2">
                         {/* Branding "Powered by HEXA Ingenieros" */}
                         <div className="flex flex-row items-end gap-2 opacity-60 hover:opacity-100 transition-opacity select-none group mb-4 w-full pl-1 group-data-[collapsible=icon]:hidden">
                             <span
@@ -271,36 +294,93 @@ export default function SupervisorLayout({
 
                         <Separator className="mb-4 group-data-[collapsible=icon]:mb-2" />
 
-                        {/* Información del usuario + acciones */}
-                        <div className="flex items-center gap-3 group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2">
-                            {/* Avatar con inicial del usuario */}
-                            <Avatar className="w-8 h-8">
-                                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                                    {user.username.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
+                        {/* User Menu Dropdown */}
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <SidebarMenuButton
+                                            size="lg"
+                                            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                                            tooltip={user.username}
+                                        >
+                                            <Avatar className="h-8 w-8 rounded-lg">
+                                                <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
+                                                    {user.username.charAt(0).toUpperCase()}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                                                <span className="truncate font-semibold">{user.username}</span>
+                                                <span className="truncate text-xs">{user.role}</span>
+                                            </div>
+                                            <ChevronsUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
+                                        </SidebarMenuButton>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent
+                                        className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                                        side="bottom"
+                                        align="end"
+                                        sideOffset={4}
+                                    >
+                                        <DropdownMenuLabel className="p-0 font-normal">
+                                            <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                                                <Avatar className="h-8 w-8 rounded-lg">
+                                                    <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
+                                                        {user.username.charAt(0).toUpperCase()}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <div className="grid flex-1 text-left text-sm leading-tight">
+                                                    <span className="truncate font-semibold">{user.username}</span>
+                                                    <span className="truncate text-xs">{user.email || user.role}</span>
+                                                </div>
+                                            </div>
+                                        </DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
 
-                            {/* Nombre y rol (oculto cuando colapsado) */}
-                            <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                                <p className="text-sm font-medium truncate">{user.username}</p>
-                                <p className="text-xs text-muted-foreground">{user.role}</p>
-                            </div>
+                                        {/* Language Submenu */}
+                                        <DropdownMenuGroup>
+                                            <DropdownMenuSub>
+                                                <DropdownMenuSubTrigger>
+                                                    <Globe className="mr-2 h-4 w-4" />
+                                                    <span>Idioma ({t("language") === "es" ? "Español" : "English"})</span>
+                                                </DropdownMenuSubTrigger>
+                                                <DropdownMenuSubContent>
+                                                    <DropdownMenuItem onClick={() => useLanguage().setLanguage("en")}>
+                                                        English
+                                                        {t("language") === "en" && <Check className="ml-auto h-4 w-4" />}
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => useLanguage().setLanguage("es")}>
+                                                        Español
+                                                        {t("language") === "es" && <Check className="ml-auto h-4 w-4" />}
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuSubContent>
+                                            </DropdownMenuSub>
+                                        </DropdownMenuGroup>
 
-                            {/* Language Selector */}
-                            <LanguageSelector />
+                                        {/* Theme Toggle */}
+                                        <DropdownMenuItem onClick={() => {
+                                            const isDark = document.documentElement.classList.contains("dark");
+                                            document.documentElement.classList.toggle("dark", !isDark);
+                                            localStorage.setItem("theme", !isDark ? "dark" : "light");
+                                        }}>
+                                            <div className="flex items-center">
+                                                <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                                <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                                                <span>Cambiar tema</span>
+                                            </div>
+                                        </DropdownMenuItem>
 
-                            {/* Toggle de tema dark/light */}
-                            <ThemeToggle />
+                                        <DropdownMenuSeparator />
 
-                            {/* Botón de logout */}
-                            <button
-                                onClick={handleLogout}
-                                className="p-2 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400 rounded-md transition-colors"
-                                title={t("sidebar.logout")}
-                            >
-                                <LogOut className="w-4 h-4" />
-                            </button>
-                        </div>
+                                        {/* Logout */}
+                                        <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                                            <LogOut className="mr-2 h-4 w-4" />
+                                            <span>{t("sidebar.logout")}</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
                     </SidebarFooter>
 
                     {/* Rail: Barra delgada para toggle del sidebar */}

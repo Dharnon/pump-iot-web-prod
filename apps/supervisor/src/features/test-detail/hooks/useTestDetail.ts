@@ -66,12 +66,29 @@ export function useTestDetail(testId: string): UseTestDetailResult {
   const fetchTest = useCallback(async () => {
     setLoading(true);
     setError(null);
-    
+
+    // Check for mock mode
+    const useMock = localStorage.getItem('USE_MOCK_DATA') === 'true';
+
     try {
-      const data = await getTestById(testId);
-      
+      let data;
+
+      if (useMock) {
+        // Dynamic import to avoid bundling mock data in production if not needed, 
+        // though here it's fine.
+        const { MOCK_TEST_DETAIL } = await import('./mockData');
+        console.log("USING MOCK DATA");
+
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        data = { ...MOCK_TEST_DETAIL, id: testId };
+      } else {
+        data = await getTestById(testId);
+      }
+
       // If generated/completed, map entity data to pdfData for form editing using service layer
-      if (data.status !== "PENDING") {
+      if (data.status !== "PENDING" && !useMock) {
         data.pdfData = mapEntitiesToPdfData({
           bomba: data.bomba,
           fluidoH2O: data.fluidoH2O,
@@ -80,7 +97,7 @@ export function useTestDetail(testId: string): UseTestDetailResult {
           motor: data.motor
         });
       }
-      
+
       setTest(data);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to load test";
@@ -102,10 +119,10 @@ export function useTestDetail(testId: string): UseTestDetailResult {
   const updateTestData = useCallback((field: string, value: any) => {
     setTest((prev) => {
       if (!prev) return null;
-      
+
       // Fields that belong to generalInfo
       const generalInfoFields = ['pedido', 'cliente', 'pedidoCliente', 'fecha', 'numeroBombas', 'modeloBomba', 'ordenTrabajo'];
-      
+
       if (generalInfoFields.includes(field)) {
         return {
           ...prev,
@@ -115,7 +132,7 @@ export function useTestDetail(testId: string): UseTestDetailResult {
           }
         };
       }
-      
+
       // Default: update pdfData
       return {
         ...prev,

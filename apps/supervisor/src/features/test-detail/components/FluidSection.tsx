@@ -7,7 +7,7 @@
 
 import { Droplets } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { CleanInput } from "./CleanInput";
+import { CleanAutoInput } from "./CleanAutoInput";
 import type { TestPdfData } from '../services/dtoMapper';
 
 interface FluidSectionProps {
@@ -25,90 +25,103 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
           <Droplets className="w-3.5 h-3.5 text-orange-500" /> Punto Garantizado en Fluido
         </span>
       </div>
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-        <CleanInput 
-          label="Fluido" 
-          value={pdfData?.liquidDescription} 
-          onChange={(val) => onDataChange("liquidDescription", val)} 
-          className="col-span-2 md:col-span-1 h-8 text-xs" 
+      <div className="flex flex-wrap gap-4 items-start">
+        <CleanAutoInput
+          label="Fluido"
+          value={pdfData?.liquidDescription}
+          onChange={(val) => onDataChange("liquidDescription", val)}
+          className="h-9 text-sm"
+          minWidth={100}
         />
-        <CleanInput 
-          label="Temperatura" 
-          value={pdfData?.temperature} 
-          unit="°C" 
-          onChange={(val) => onDataChange("temperature", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="Temperatura"
+          value={pdfData?.temperature}
+          unit="°C"
+          onChange={(val) => onDataChange("temperature", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <CleanInput 
-          label="Viscosidad" 
-          value={pdfData?.viscosity} 
-          unit="cSt" 
-          onChange={(val) => onDataChange("viscosity", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="Viscosidad"
+          value={pdfData?.viscosity}
+          unit="cSt"
+          onChange={(val) => onDataChange("viscosity", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <CleanInput 
-          label="Densidad" 
-          value={pdfData?.density} 
-          unit="kg/m³" 
-          onChange={(val) => onDataChange("density", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="Densidad"
+          value={pdfData?.density}
+          unit="kg/m³"
+          onChange={(val) => onDataChange("density", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <div className="hidden lg:block lg:col-span-1"></div>
 
-        <CleanInput 
-          label="Caudal" 
-          value={pdfData?.fluidFlowRate} 
-          unit="m³/h" 
-          onChange={(val) => onDataChange("fluidFlowRate", val)} 
-          className="h-8 text-xs" 
-        />
-        <CleanInput 
-          label="Altura" 
-          value={pdfData?.fluidHead} 
-          unit="m" 
-          onChange={(val) => onDataChange("fluidHead", val)} 
-          className="h-8 text-xs" 
-        />
-        <CleanInput 
-          label="Velocidad" 
-          value={pdfData?.fluidRpm} 
-          unit="rpm" 
-          onChange={(val) => onDataChange("fluidRpm", val)} 
-          className="h-8 text-xs" 
-        />
-        <CleanInput 
-          label="Potencia" 
-          value={pdfData?.fluidPower} 
-          unit="kW" 
-          onChange={(val) => onDataChange("fluidPower", val)} 
-          className="h-8 text-xs" 
-        />
-        <CleanInput 
-          label="Rendimiento" 
-          value={pdfData?.fluidEfficiency} 
-          unit="%" 
-          onChange={(val) => onDataChange("fluidEfficiency", val)} 
-          className="h-8 text-xs" 
-        />
+        <div className="w-full md:w-auto md:border-l md:pl-4 md:ml-2 flex flex-wrap gap-4">
+          <CleanAutoInput
+            label="Caudal"
+            value={pdfData?.fluidFlowRate}
+            unit="m³/h"
+            onChange={(val) => onDataChange("fluidFlowRate", val)}
+            className="h-9 text-sm text-right"
+            minWidth={80}
+          />
+          <CleanAutoInput
+            label="Altura"
+            value={pdfData?.fluidHead}
+            unit="m"
+            onChange={(val) => onDataChange("fluidHead", val)}
+            className="h-9 text-sm text-right"
+            minWidth={80}
+          />
+          <CleanAutoInput
+            label="Velocidad"
+            value={pdfData?.fluidRpm}
+            unit="rpm"
+            onChange={(val) => onDataChange("fluidRpm", val)}
+            className="h-9 text-sm text-right"
+            minWidth={80}
+          />
+          <CleanAutoInput
+            label="Potencia"
+            value={pdfData?.fluidPower}
+            unit="kW"
+            onChange={(val) => onDataChange("fluidPower", val)}
+            className="h-9 text-sm text-right"
+            minWidth={80}
+          />
+          <CleanAutoInput
+            label="Rendimiento"
+            value={pdfData?.fluidEfficiency}
+            unit="%"
+            onChange={(val) => onDataChange("fluidEfficiency", val)}
+            className="h-9 text-sm text-right"
+            minWidth={80}
+          />
+        </div>
       </div>
-      <div className="grid gap-3 grid-cols-3 max-w-sm pt-2">
-        <CleanInput 
-          label="CQ" 
-          value={pdfData?.cq} 
-          onChange={(val) => onDataChange("cq", val)} 
-          className="h-8 text-xs" 
+      <div className="flex flex-wrap gap-4 items-start pt-2">
+        <CleanAutoInput
+          label="CQ"
+          value={pdfData?.cq}
+          onChange={(val) => onDataChange("cq", val)}
+          className="h-9 text-sm"
+          minWidth={60}
         />
-        <CleanInput 
-          label="CH" 
-          value={pdfData?.ch} 
-          onChange={(val) => onDataChange("ch", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="CH"
+          value={pdfData?.ch}
+          onChange={(val) => onDataChange("ch", val)}
+          className="h-9 text-sm"
+          minWidth={60}
         />
-        <CleanInput 
-          label="CE" 
-          value={pdfData?.ce} 
-          onChange={(val) => onDataChange("ce", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="CE"
+          value={pdfData?.ce}
+          onChange={(val) => onDataChange("ce", val)}
+          className="h-9 text-sm"
+          minWidth={60}
         />
       </div>
     </section>

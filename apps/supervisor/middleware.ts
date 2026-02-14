@@ -56,6 +56,13 @@ export async function middleware(request: NextRequest) {
     // =========================================================================
     if (isProtectedRoute && token) {
         try {
+            // MOCK MODE BYPASS
+            const useMock = request.cookies.get('use_mock_data')?.value === 'true';
+            if (useMock) {
+                console.log('[Middleware] Mock mode detected - Bypassing backend validation');
+                return NextResponse.next();
+            }
+
             // Timeout de 3 segundos (crítico para no bloquear el middleware)
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 3000);
@@ -74,12 +81,12 @@ export async function middleware(request: NextRequest) {
             // Si el backend responde con error, el token es inválido
             if (!response.ok) {
                 console.error('[Middleware] Token validation failed:', response.status);
-                
+
                 // Borrar cookie inválida y redirigir a login
                 const loginUrl = new URL('/login', request.url);
                 loginUrl.searchParams.set('callbackUrl', pathname);
                 loginUrl.searchParams.set('error', 'session_expired');
-                
+
                 const redirectResponse = NextResponse.redirect(loginUrl);
                 redirectResponse.cookies.delete('token');
                 return redirectResponse;
@@ -95,11 +102,11 @@ export async function middleware(request: NextRequest) {
             // =====================================================================
             // Si hay cualquier error (red, timeout, backend caído), denegamos acceso
             console.error('[Middleware] Token validation error:', error);
-            
+
             const loginUrl = new URL('/login', request.url);
             loginUrl.searchParams.set('callbackUrl', pathname);
             loginUrl.searchParams.set('error', 'validation_failed');
-            
+
             const redirectResponse = NextResponse.redirect(loginUrl);
             redirectResponse.cookies.delete('token');
             return redirectResponse;

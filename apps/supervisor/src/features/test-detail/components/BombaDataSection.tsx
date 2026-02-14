@@ -7,7 +7,7 @@
 
 import { Settings2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { CleanInput } from "./CleanInput";
+import { CleanAutoInput } from "./CleanAutoInput";
 import type { TestPdfData } from '../services/dtoMapper';
 
 interface BombaDataSectionProps {
@@ -30,63 +30,70 @@ export function BombaDataSection({ pdfData, generalInfo, onDataChange, allFields
           <Settings2 className="w-3.5 h-3.5 text-primary" /> Datos Bomba
         </span>
       </div>
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        <CleanInput 
-          label="Item" 
-          value={pdfData?.item || generalInfo?.item} 
-          onChange={(val) => onDataChange("item", val)} 
-          className="h-8 text-xs" 
+      <div className="flex flex-wrap gap-4 items-start">
+        <CleanAutoInput
+          label="Item"
+          value={pdfData?.item || generalInfo?.item}
+          onChange={(val) => onDataChange("item", val)}
+          className="h-9 text-sm"
+          minWidth={80}
         />
-        <CleanInput 
-          label="Tipo Bomba" 
-          value={generalInfo?.modeloBomba || pdfData?.modeloBomba} 
+        <CleanAutoInput
+          label="Tipo Bomba"
+          value={generalInfo?.modeloBomba || pdfData?.modeloBomba}
           onChange={allFieldsEditable ? (val) => onDataChange("modeloBomba", val) : undefined}
-          className="h-8 text-xs" 
+          className="h-9 text-sm"
+          minWidth={160}
         />
-        <CleanInput 
-          label="Orden Trabajo" 
-          value={generalInfo?.ordenTrabajo} 
+        <CleanAutoInput
+          label="Orden Trabajo"
+          value={generalInfo?.ordenTrabajo}
           onChange={allFieldsEditable ? (val) => onDataChange("ordenTrabajo", val) : undefined}
-          className="h-8 text-xs" 
+          className="h-9 text-sm"
+          minWidth={120}
         />
-        <CleanInput 
-          label="D. Aspiración" 
-          value={pdfData?.suctionDiameter} 
-          unit="mm" 
-          onChange={(val) => onDataChange("suctionDiameter", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="D. Aspiración"
+          value={pdfData?.suctionDiameter}
+          unit="mm"
+          onChange={(val) => onDataChange("suctionDiameter", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <CleanInput 
-          label="D. Impulsión" 
-          value={pdfData?.dischargeDiameter} 
-          unit="mm" 
-          onChange={(val) => onDataChange("dischargeDiameter", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="D. Impulsión"
+          value={pdfData?.dischargeDiameter}
+          unit="mm"
+          onChange={(val) => onDataChange("dischargeDiameter", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <CleanInput 
-          label="D. Rodete" 
-          value={pdfData?.impellerDiameter} 
-          unit="mm" 
-          onChange={(val) => onDataChange("impellerDiameter", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="D. Rodete"
+          value={pdfData?.impellerDiameter}
+          unit="mm"
+          onChange={(val) => onDataChange("impellerDiameter", val)}
+          className="h-9 text-sm text-right"
+          minWidth={80}
         />
-        <CleanInput 
-          label="Tipo Cierre" 
-          value={pdfData?.sealType} 
-          onChange={(val) => onDataChange("sealType", val)} 
-          className="h-8 text-xs" 
+        <CleanAutoInput
+          label="Tipo Cierre"
+          value={pdfData?.sealType}
+          onChange={(val) => onDataChange("sealType", val)}
+          className="h-9 text-sm"
+          minWidth={120}
         />
-        <div className="flex items-center gap-2 pt-4 col-span-1">
+        <div className="flex items-center gap-2 pt-6 min-w-[120px]">
           <div className="relative flex items-center">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               id="vertical"
               checked={pdfData?.vertical === true || pdfData?.vertical === "true"}
               onChange={(e) => onDataChange("vertical", e.target.checked ? "true" : "false")}
               className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary transition-all cursor-pointer"
             />
           </div>
-          <label htmlFor="vertical" className="text-[10px] font-medium text-muted-foreground cursor-pointer">
+          <label htmlFor="vertical" className="text-xs font-medium text-muted-foreground cursor-pointer whitespace-nowrap">
             Bomba Vertical
           </label>
         </div>

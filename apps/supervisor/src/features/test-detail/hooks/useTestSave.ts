@@ -28,9 +28,26 @@ export function useTestSave(): UseTestSaveResult {
 
   const saveTest = useCallback(async (test: any, pdfFile: File | null, viewMode: ViewMode = 'PENDING') => {
     if (!test) return;
-    
+
+    // MOCK DATA CHECK
+    if (localStorage.getItem('USE_MOCK_DATA') === 'true') {
+      setSaving(true);
+      try {
+        console.log("MOCK SAVE - Skipping API call");
+        await new Promise(resolve => setTimeout(resolve, 800));
+        toast.success(viewMode === 'PENDING' ? "Prueba generada exitosamente (Mock)" : "Protocolo actualizado exitosamente (Mock)");
+
+        if (viewMode === 'PENDING') {
+          router.push("/supervisor");
+        }
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     setSaving(true);
-    
+
     try {
       // Use DTO mapper service to transform data to backend format
       const requestBody = mapTestToSaveDTO(test.generalInfo, test.pdfData, 1, viewMode === 'PENDING');
@@ -41,7 +58,7 @@ export function useTestSave(): UseTestSaveResult {
       // Upload PDF if file exists (only in PENDING mode when finalizing)
       if (pdfFile && viewMode === 'PENDING') {
         const protocolIds = result?.ids || (result?.id ? [result.id] : []);
-        
+
         if (protocolIds.length > 0) {
           try {
             await Promise.all(
@@ -54,12 +71,12 @@ export function useTestSave(): UseTestSaveResult {
           }
         }
       }
-      
-      const successMessage = viewMode === 'PENDING' 
-        ? "Prueba generada exitosamente" 
+
+      const successMessage = viewMode === 'PENDING'
+        ? "Prueba generada exitosamente"
         : "Protocolo actualizado exitosamente";
       toast.success(successMessage);
-      
+
       // Only redirect to supervisor in PENDING mode
       if (viewMode === 'PENDING') {
         router.push("/supervisor");

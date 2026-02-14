@@ -144,13 +144,13 @@ export default function LoginPage() {
                 // - Secure: Solo transmisión HTTPS (si aplica)
                 // - SameSite=Strict: Previene CSRF
                 // - Max-Age: Expiración explícita (8 horas)
-                
+
                 // Establecer cookie de token (HttpOnly se maneja en el servidor)
                 // En cliente solo podemos setear cookies no-HttpOnly, pero el middleware
                 // las leerá. Para producción, el backend debería setear la cookie HttpOnly.
                 const maxAge = 8 * 60 * 60; // 8 horas en segundos
                 document.cookie = `token=${response.token}; path=/; max-age=${maxAge}; SameSite=Strict${window.location.protocol === 'https:' ? '; Secure' : ''}`;
-                
+
                 // Guardar datos de usuario en localStorage (no sensibles)
                 localStorage.setItem("user", JSON.stringify(response.user));
 
@@ -245,6 +245,24 @@ export default function LoginPage() {
                         {/* Botón de submit */}
                         <Button type="submit" className="w-full" disabled={loading}>
                             {loading ? t("login.loading") : t("login.submit")}
+                        </Button>
+
+                        {/* MOCK LOGIN BUTTON */}
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            className="w-full border-dashed border-2"
+                            onClick={() => {
+                                // Set cookies for middleware bypass
+                                document.cookie = `token=mock-token; path=/; max-age=3600`;
+                                document.cookie = `use_mock_data=true; path=/; max-age=3600`;
+                                // Set localStorage for client-side hooks
+                                localStorage.setItem('USE_MOCK_DATA', 'true');
+                                localStorage.setItem('user', JSON.stringify({ username: 'mock_admin', role: 'admin' }));
+                                router.push('/supervisor');
+                            }}
+                        >
+                            🛠️ {t("login.mock_mode") || "Entrar con Datos Mock (Sin API)"}
                         </Button>
                     </form>
 
