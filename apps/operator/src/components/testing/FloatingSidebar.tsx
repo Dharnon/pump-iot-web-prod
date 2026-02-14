@@ -4,7 +4,7 @@ import { User, Settings, Search, Home, BarChart3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SidebarItem {
-  icon: React.ElementType;
+  icon: any;
   label: string;
   onClick?: () => void;
   active?: boolean;
@@ -32,7 +32,7 @@ export const FloatingSidebar: React.FC<FloatingSidebarProps> = ({ items = defaul
     >
       <div className="bg-card/95 backdrop-blur-xl rounded-xl md:rounded-2xl p-1.5 md:p-2 shadow-soft-lg border border-white/50 flex flex-col gap-1.5 md:gap-2">
         {items.map((item, index) => {
-          const Icon = item.icon;
+          const Icon = item.icon as React.ElementType;
           return (
             <motion.button
               key={index}

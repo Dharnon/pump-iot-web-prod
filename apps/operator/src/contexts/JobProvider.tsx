@@ -44,12 +44,48 @@ export interface Job {
     errorMessage?: string;
     completedAt?: Date;
     testResults?: TestResults;
+    protocolSpec?: {
+        // Motor
+        motorPower: number; // kW
+        nominalSpeed: number; // rpm
+        efficiency: number; // %
+        voltage: number; // V
+        current: number; // A
+        frequency: number; // Hz
+        poles: number;
+        motorBrand?: string;
+        motorType?: string;
+
+        // Pump
+        suctionDiameter?: number;
+        dischargeDiameter?: number;
+        impellerDiameter?: string;
+        sealType?: string;
+        isVertical?: boolean;
+
+        // Operating Point
+        flowRate?: number;
+        head?: number;
+        npshr?: number;
+        maxPower?: number;
+
+        // Fluid
+        liquidDescription?: string;
+        temperature?: number;
+        viscosity?: number;
+        density?: number;
+
+        // General
+        tolerance?: string;
+        internalComment?: string;
+    };
 }
 
 interface JobContextType {
     jobs: Job[];
     currentJob: Job | null;
     selectJob: (job: Job) => void;
+    updateJob: (updates: Partial<Job>) => void;
     clearJob: () => void;
     testConfig: TestConfig | null;
     setTestConfig: (config: TestConfig) => void;
@@ -96,44 +132,165 @@ const generateMockTestResults = (targetFlow: number, isOK: boolean): TestResults
 const mockJobs: Job[] = [
     {
         id: '1',
-        orderId: '1343537',
-        model: '1K1.5x1LF-82 M3 LF FPD - D4',
-        client: 'Industrial Solutions S.A.',
+        orderId: 'ORD-2024-001',
+        model: 'BOMBA-X-500',
+        client: 'Aguas Andinas',
         status: 'GENERADA',
-        targetFlow: 10.7,
-        impeller: '140mm',
+        targetFlow: 150,
+        impeller: '250mm',
+        protocolSpec: {
+            motorPower: 15,
+            nominalSpeed: 2900,
+            efficiency: 68,
+            voltage: 380,
+            current: 28.5,
+            frequency: 50,
+            poles: 2,
+            motorBrand: 'WEG',
+            motorType: 'W22 Premium',
+
+            suctionDiameter: 100,
+            dischargeDiameter: 80,
+            impellerDiameter: '250',
+            sealType: 'MECANICO',
+            isVertical: false,
+
+            flowRate: 150,
+            head: 45,
+            npshr: 2.5,
+            maxPower: 18.5,
+
+            liquidDescription: 'AGUA',
+            temperature: 25,
+            viscosity: 1,
+            density: 1000,
+
+            tolerance: 'ISO 9906 Grade 2B',
+            internalComment: 'Prueba estándar de recepción.'
+        }
     },
     {
         id: '2',
-        orderId: '1343538',
-        model: '2K2.0x1LF-95 M4 LF FPD - D5',
-        client: 'AquaTech Industries',
-        status: 'OK',
-        targetFlow: 15.2,
-        impeller: '160mm',
-        completedAt: new Date('2025-01-12'),
-        testResults: generateMockTestResults(15.2, true),
+        orderId: 'ORD-2024-002',
+        model: 'MULTISTAGE-V',
+        client: 'Minera Escondida',
+        status: 'EN_PROCESO',
+        targetFlow: 450,
+        impeller: '420mm',
+        protocolSpec: {
+            motorPower: 75,
+            nominalSpeed: 1450,
+            efficiency: 92,
+            voltage: 380,
+            current: 135,
+            frequency: 50,
+            poles: 4,
+            motorBrand: 'SIEMENS',
+            motorType: '1LE1',
+
+            suctionDiameter: 200,
+            dischargeDiameter: 150,
+            impellerDiameter: '420',
+            sealType: 'MECANICO',
+            isVertical: true,
+
+            flowRate: 450,
+            head: 120,
+            npshr: 4.2,
+            maxPower: 85,
+
+            liquidDescription: 'AGUA INDUSTRIAL',
+            temperature: 20,
+            viscosity: 1.2,
+            density: 1020,
+
+            tolerance: 'ISO 9906 Grade 1B',
+            internalComment: 'Verificar vibraciones en acople.'
+        }
     },
     {
         id: '3',
-        orderId: '1343539',
-        model: '1K1.0x1LF-70 M2 LF FPD - D3',
-        client: 'HydroPump Corp',
-        status: 'KO',
-        targetFlow: 8.5,
-        impeller: '120mm',
-        errorMessage: 'Fallo Vibración',
-        testResults: generateMockTestResults(8.5, false),
+        orderId: 'ORD-2024-003',
+        model: 'ISO-2858',
+        client: 'Copec',
+        status: 'OK',
+        targetFlow: 25,
+        impeller: '180mm',
+        completedAt: new Date(Date.now() - 86400000), // Yesterday
+        testResults: generateMockTestResults(25, true), // Adapted to existing TestResults interface
+        protocolSpec: {
+            motorPower: 5.5,
+            nominalSpeed: 2900,
+            efficiency: 85,
+            voltage: 380,
+            current: 10.5,
+            frequency: 50,
+            poles: 2,
+            motorBrand: 'ABB',
+            motorType: 'M3BP',
+
+            suctionDiameter: 50,
+            dischargeDiameter: 32,
+            impellerDiameter: '180',
+            sealType: 'MECANICO',
+            isVertical: false,
+
+            flowRate: 25,
+            head: 35,
+            npshr: 1.5,
+            maxPower: 6.0,
+
+            liquidDescription: 'DIESEL',
+            temperature: 20,
+            viscosity: 3.5,
+            density: 850,
+
+            tolerance: 'ISO 9906 Grade 2B',
+            internalComment: 'Cliente solicita prueba con fluido real si es posible (Simulado con agua con corrección).'
+        }
     },
     {
         id: '4',
-        orderId: '1343540',
-        model: '3K2.5x2LF-110 M5 LF FPD - D6',
-        client: 'Bombas del Norte',
-        status: 'GENERADA',
-        targetFlow: 22.0,
-        impeller: '180mm',
-    },
+        orderId: 'ORD-2024-004',
+        model: 'SUB-400',
+        client: 'Essbio',
+        status: 'KO',
+        targetFlow: 80,
+        impeller: '300mm',
+        errorMessage: 'Falla en prueba de presión hidrostática',
+        completedAt: new Date(Date.now() - 172800000), // 2 days ago
+        testResults: generateMockTestResults(80, false), // Adapted to existing TestResults interface
+        protocolSpec: {
+            motorPower: 22,
+            nominalSpeed: 2920,
+            efficiency: 75,
+            voltage: 415,
+            current: 39.5,
+            frequency: 50,
+            poles: 2,
+            motorBrand: 'Grundfos',
+            motorType: 'MGE',
+
+            suctionDiameter: 150,
+            dischargeDiameter: 100,
+            impellerDiameter: '300',
+            sealType: 'CARTUCHO',
+            isVertical: true,
+
+            flowRate: 80,
+            head: 60,
+            npshr: 3.0,
+            maxPower: 25,
+
+            liquidDescription: 'AGUA RESIDUAL',
+            temperature: 18,
+            viscosity: 1.1,
+            density: 1010,
+
+            tolerance: 'ISO 9906 Grade 2B',
+            internalComment: 'Falla en prueba de presión hidrostática. Revisar sellos.'
+        }
+    }
 ];
 
 // =============================================================================
@@ -178,6 +335,14 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children 
                 jobs,
                 currentJob,
                 selectJob,
+                updateJob: (updates: Partial<Job>) => {
+                    if (!currentJob) return;
+                    const updatedJob = { ...currentJob, ...updates };
+                    setCurrentJob(updatedJob);
+                    // Update in jobs list as well for consistency (mock)
+                    /* const updatedJobs = jobs.map(j => j.id === currentJob.id ? updatedJob : j);
+                       setJobs(updatedJobs); */
+                },
                 clearJob,
                 testConfig,
                 setTestConfig,
