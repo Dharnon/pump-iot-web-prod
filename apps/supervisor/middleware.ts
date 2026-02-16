@@ -52,8 +52,19 @@ export async function middleware(request: NextRequest) {
     }
 
     // =========================================================================
-    // CASO 2: Ruta protegida CON token → Validar contra backend
+    // CASO 2: Ruta protegida CON token → Permitir acceso (validación en cliente)
     // =========================================================================
+    // NOTA: La validación del token se hace en el cliente (useSWR + interceptors)
+    // porque el endpoint /api/auth/verify no está implementado en el backend.
+    // Si el token es inválido, el backend devolverá 401 en las peticiones API
+    // y el cliente redirigirá automáticamente al login.
+    if (isProtectedRoute && token) {
+        // Token presente, permitir acceso y dejar que el cliente valide
+        return NextResponse.next();
+    }
+
+    // CÓDIGO ORIGINAL COMENTADO (requiere endpoint /api/auth/verify en backend):
+    /*
     if (isProtectedRoute && token) {
         try {
             // Timeout de 3 segundos (crítico para no bloquear el middleware)
@@ -105,6 +116,7 @@ export async function middleware(request: NextRequest) {
             return redirectResponse;
         }
     }
+    */
 
     // =========================================================================
     // CASO 3: Ruta de autenticación (login) con token válido → Redirigir a dashboard
