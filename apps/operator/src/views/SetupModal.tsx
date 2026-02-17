@@ -153,7 +153,7 @@ export const SetupModal: React.FC = () => {
               <div className="flex items-center gap-4">
                 <div>
                   <h2 className="text-xl md:text-2xl font-bold text-foreground flex items-center gap-2">
-                    Configuración{" "}
+                    Prueba{" "}
                     <span className="text-muted-foreground font-mono font-normal">
                       #{currentJob.orderId}
                     </span>
@@ -881,23 +881,7 @@ export const SetupModal: React.FC = () => {
                   />
                 </div>
 
-                {/* Sticky Footer for Save Changes */}
-                <div className="absolute bottom-32 right-8 z-20 pointer-events-none">
-                  <AnimatePresence>
-                    {isDirty && (
-                      <motion.button
-                        initial={{ opacity: 0, y: 20, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 20, scale: 0.9 }}
-                        onClick={handleSaveProtocol}
-                        className="pointer-events-auto bg-primary text-primary-foreground px-6 py-3 rounded-full font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all active:scale-95 flex items-center gap-2"
-                      >
-                        <SaveIcon className="w-5 h-5" />
-                        Guardar Cambios
-                      </motion.button>
-                    )}
-                  </AnimatePresence>
-                </div>
+
               </TabsContent>
 
               {/* CONFIGURATION TAB (Second position) */}

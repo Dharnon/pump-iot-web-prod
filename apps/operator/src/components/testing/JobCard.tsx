@@ -99,7 +99,7 @@ export const JobCard: React.FC<JobCardProps> = ({
             "px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all select-none",
             status.className,
             job.status === "KO" &&
-              "cursor-pointer hover:opacity-80 active:scale-95 ring-offset-2 focus:ring-2 focus:ring-destructive",
+            "cursor-pointer hover:opacity-80 active:scale-95 ring-offset-2 focus:ring-2 focus:ring-destructive",
           )}
         >
           <StatusIcon className="w-3 h-3 mr-1" />
@@ -197,12 +197,7 @@ export const JobCard: React.FC<JobCardProps> = ({
         </div>
       )}
 
-      {/* Visual cue for clickable card */}
-      {isPending && (
-        <div className="flex items-center text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity mt-auto pt-2">
-          Configurar prueba <ChevronRightIcon className="w-3 h-3 ml-1" />
-        </div>
-      )}
+
     </motion.div>
   );
 };
