@@ -1,6 +1,6 @@
 /**
  * FluidSection Component
- * 
+ *
  * Displays and manages guaranteed point in fluid data.
  * Follows SRP: Only responsible for fluid point data UI.
  */
@@ -8,7 +8,7 @@
 import { Droplets } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { CleanAutoInput } from "./CleanAutoInput";
-import type { TestPdfData } from '../services/dtoMapper';
+import type { TestPdfData } from "../services/dtoMapper";
 
 interface FluidSectionProps {
   pdfData: TestPdfData | null | undefined;
@@ -16,13 +16,18 @@ interface FluidSectionProps {
   allFieldsEditable?: boolean;
 }
 
-export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false }: FluidSectionProps) {
+export function FluidSection({
+  pdfData,
+  onDataChange,
+  allFieldsEditable = false,
+}: FluidSectionProps) {
   return (
     <section className="space-y-4">
       <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
       <div>
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-          <Droplets className="w-3.5 h-3.5 text-orange-500" /> Punto Garantizado en Fluido
+          <Droplets className="w-3.5 h-3.5 text-orange-500" /> Punto Garantizado
+          en Fluido
         </span>
       </div>
       <div className="flex flex-wrap gap-4 items-start">
@@ -40,6 +45,7 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
           onChange={(val) => onDataChange("temperature", val)}
           className="h-9 text-sm text-right"
           minWidth={80}
+          type="number"
         />
         <CleanAutoInput
           label="Viscosidad"
@@ -48,6 +54,7 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
           onChange={(val) => onDataChange("viscosity", val)}
           className="h-9 text-sm text-right"
           minWidth={80}
+          type="number"
         />
         <CleanAutoInput
           label="Densidad"
@@ -56,6 +63,7 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
           onChange={(val) => onDataChange("density", val)}
           className="h-9 text-sm text-right"
           minWidth={80}
+          type="number"
         />
 
         <div className="w-full md:w-auto md:border-l md:pl-4 md:ml-2 flex flex-wrap gap-4">
@@ -66,6 +74,7 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
             onChange={(val) => onDataChange("fluidFlowRate", val)}
             className="h-9 text-sm text-right"
             minWidth={80}
+            type="number"
           />
           <CleanAutoInput
             label="Altura"
@@ -74,6 +83,7 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
             onChange={(val) => onDataChange("fluidHead", val)}
             className="h-9 text-sm text-right"
             minWidth={80}
+            type="number"
           />
           <CleanAutoInput
             label="Velocidad"
@@ -82,6 +92,7 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
             onChange={(val) => onDataChange("fluidRpm", val)}
             className="h-9 text-sm text-right"
             minWidth={80}
+            type="number"
           />
           <CleanAutoInput
             label="Potencia"
@@ -90,6 +101,7 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
             onChange={(val) => onDataChange("fluidPower", val)}
             className="h-9 text-sm text-right"
             minWidth={80}
+            type="number"
           />
           <CleanAutoInput
             label="Rendimiento"
@@ -98,6 +110,7 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
             onChange={(val) => onDataChange("fluidEfficiency", val)}
             className="h-9 text-sm text-right"
             minWidth={80}
+            type="number"
           />
         </div>
       </div>
@@ -108,6 +121,7 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
           onChange={(val) => onDataChange("cq", val)}
           className="h-9 text-sm"
           minWidth={60}
+          type="number"
         />
         <CleanAutoInput
           label="CH"
@@ -115,6 +129,7 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
           onChange={(val) => onDataChange("ch", val)}
           className="h-9 text-sm"
           minWidth={60}
+          type="number"
         />
         <CleanAutoInput
           label="CE"
@@ -122,6 +137,7 @@ export function FluidSection({ pdfData, onDataChange, allFieldsEditable = false 
           onChange={(val) => onDataChange("ce", val)}
           className="h-9 text-sm"
           minWidth={60}
+          type="number"
         />
       </div>
     </section>

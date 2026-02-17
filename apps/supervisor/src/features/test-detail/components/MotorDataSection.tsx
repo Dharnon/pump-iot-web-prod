@@ -1,6 +1,6 @@
 /**
  * MotorDataSection Component
- * 
+ *
  * Displays and manages motor technical data fields.
  * Follows SRP: Only responsible for motor data UI.
  */
@@ -8,7 +8,7 @@
 import { Settings2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { CleanAutoInput } from "./CleanAutoInput";
-import type { TestPdfData } from '../services/dtoMapper';
+import type { TestPdfData } from "../services/dtoMapper";
 
 interface MotorDataSectionProps {
   pdfData: TestPdfData | null | undefined;
@@ -16,7 +16,11 @@ interface MotorDataSectionProps {
   allFieldsEditable?: boolean;
 }
 
-export function MotorDataSection({ pdfData, onDataChange, allFieldsEditable = false }: MotorDataSectionProps) {
+export function MotorDataSection({
+  pdfData,
+  onDataChange,
+  allFieldsEditable = false,
+}: MotorDataSectionProps) {
   return (
     <section className="space-y-4">
       <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
@@ -46,24 +50,27 @@ export function MotorDataSection({ pdfData, onDataChange, allFieldsEditable = fa
           value={pdfData?.motorPotencia}
           unit="kW"
           onChange={(val) => onDataChange("motorPotencia", val)}
-          className="h-9 text-sm text-right"
+          className="h-9 text-sm text-right font-mono"
           minWidth={80}
+          type="number"
         />
         <CleanAutoInput
           label="Velocidad"
           value={pdfData?.motorVelocidad}
           unit="rpm"
           onChange={(val) => onDataChange("motorVelocidad", val)}
-          className="h-9 text-sm text-right"
+          className="h-9 text-sm text-right font-mono"
           minWidth={80}
+          type="number"
         />
         <CleanAutoInput
           label="Intensidad"
           value={pdfData?.motorIntensidad}
           unit="A"
           onChange={(val) => onDataChange("motorIntensidad", val)}
-          className="h-9 text-sm text-right"
+          className="h-9 text-sm text-right font-mono"
           minWidth={80}
+          type="number"
         />
       </div>
       <div className="flex flex-wrap gap-4 items-start pt-2">
@@ -72,40 +79,45 @@ export function MotorDataSection({ pdfData, onDataChange, allFieldsEditable = fa
           value={pdfData?.motorRendimiento25}
           unit="%"
           onChange={(val) => onDataChange("motorRendimiento25", val)}
-          className="h-9 text-sm text-right"
+          className="h-9 text-sm text-right font-mono"
           minWidth={80}
+          type="number"
         />
         <CleanAutoInput
           label="η 50%"
           value={pdfData?.motorRendimiento50}
           unit="%"
           onChange={(val) => onDataChange("motorRendimiento50", val)}
-          className="h-9 text-sm text-right"
+          className="h-9 text-sm text-right font-mono"
           minWidth={80}
+          type="number"
         />
         <CleanAutoInput
           label="η 75%"
           value={pdfData?.motorRendimiento75}
           unit="%"
           onChange={(val) => onDataChange("motorRendimiento75", val)}
-          className="h-9 text-sm text-right"
+          className="h-9 text-sm text-right font-mono"
           minWidth={80}
+          type="number"
         />
         <CleanAutoInput
           label="η 100%"
           value={pdfData?.motorRendimiento100}
           unit="%"
           onChange={(val) => onDataChange("motorRendimiento100", val)}
-          className="h-9 text-sm text-right"
+          className="h-9 text-sm text-right font-mono"
           minWidth={80}
+          type="number"
         />
         <CleanAutoInput
           label="η 125%"
           value={pdfData?.motorRendimiento125}
           unit="%"
           onChange={(val) => onDataChange("motorRendimiento125", val)}
-          className="h-9 text-sm text-right"
+          className="h-9 text-sm text-right font-mono"
           minWidth={80}
+          type="number"
         />
       </div>
     </section>

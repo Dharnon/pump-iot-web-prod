@@ -1,19 +1,19 @@
 /**
  * Dashboard.tsx - Refactored to use isolated providers
- * 
+ *
  * Changes:
  * - useTesting() → useJob() + useNavigation()
  * - setCapturedPoints moved to TelemetryProvider (used via hook in Analytics)
  */
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Search, Settings, BarChart3, Home, LogOut } from 'lucide-react';
-import { useJob, Job } from '@/contexts/JobProvider';
-import { useNavigation } from '@/contexts/NavigationProvider';
-import { JobCard } from '@/components/testing/JobCard';
-import { FloatingSidebar } from '@/components/testing/FloatingSidebar';
-import { SettingsModal } from '@/views/SettingsModal';
-import { cn } from '@/lib/utils';
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Search, Settings, BarChart3, Home, LogOut } from "lucide-react";
+import { useJob, Job } from "@/contexts/JobProvider";
+import { useNavigation } from "@/contexts/NavigationProvider";
+import { JobCard } from "@/components/testing/JobCard";
+import { FloatingSidebar } from "@/components/testing/FloatingSidebar";
+import { SettingsModal } from "@/views/SettingsModal";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,18 +26,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 
-type TabType = 'pendientes' | 'historial';
+type TabType = "pendientes" | "historial";
 
 export const Dashboard: React.FC = () => {
   const { jobs, selectJob, setTestConfig } = useJob();
   const { setCurrentView } = useNavigation();
-  const [activeTab, setActiveTab] = useState<TabType>('pendientes');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<TabType>("pendientes");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
-  const filteredJobs = jobs.filter(job => {
+  const filteredJobs = jobs.filter((job) => {
     const matchesSearch =
       job.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -46,14 +46,18 @@ export const Dashboard: React.FC = () => {
     return matchesSearch;
   });
 
-  const pendingJobs = filteredJobs.filter(job => job.status === 'GENERADA' || job.status === 'EN_PROCESO');
-  const historyJobs = filteredJobs.filter(job => job.status === 'OK' || job.status === 'KO');
+  const pendingJobs = filteredJobs.filter(
+    (job) => job.status === "GENERADA" || job.status === "EN_PROCESO",
+  );
+  const historyJobs = filteredJobs.filter(
+    (job) => job.status === "OK" || job.status === "KO",
+  );
 
-  const displayedJobs = activeTab === 'pendientes' ? pendingJobs : historyJobs;
+  const displayedJobs = activeTab === "pendientes" ? pendingJobs : historyJobs;
 
   const handleStartJob = (job: Job) => {
     selectJob(job);
-    setCurrentView('setup');
+    setCurrentView("setup");
   };
 
   const handleViewOrAnalyze = (job: Job) => {
@@ -62,7 +66,7 @@ export const Dashboard: React.FC = () => {
     if (job.testResults) {
       setTestConfig(job.testResults.testConfig);
     }
-    setCurrentView('analytics');
+    setCurrentView("analytics");
   };
 
   const handleLogout = () => {
@@ -72,19 +76,46 @@ export const Dashboard: React.FC = () => {
   };
 
   const sidebarItems = [
-    { icon: Home, label: 'Inicio', active: true, onClick: () => window.scrollTo({ top: 0, behavior: 'smooth' }) },
-    { icon: BarChart3, label: 'Reportes', onClick: () => setActiveTab('historial') },
-    { icon: Search, label: 'Buscar', onClick: () => searchInputRef.current?.focus() },
-    { icon: Settings, label: 'Ajustes', onClick: () => setIsSettingsOpen(true) },
-    { icon: LogOut, label: 'Salir', onClick: () => setIsLogoutDialogOpen(true) },
+    {
+      icon: Home,
+      label: "Inicio",
+      active: true,
+      onClick: () => window.scrollTo({ top: 0, behavior: "smooth" }),
+    },
+    {
+      icon: BarChart3,
+      label: "Reportes",
+      onClick: () => setActiveTab("historial"),
+    },
+    {
+      icon: Search,
+      label: "Buscar",
+      onClick: () => searchInputRef.current?.focus(),
+    },
+    {
+      icon: Settings,
+      label: "Ajustes",
+      onClick: () => setIsSettingsOpen(true),
+    },
+    {
+      icon: LogOut,
+      label: "Salir",
+      onClick: () => setIsLogoutDialogOpen(true),
+    },
   ];
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
       <FloatingSidebar items={sidebarItems} />
-      <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
 
-      <AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
+      <AlertDialog
+        open={isLogoutDialogOpen}
+        onOpenChange={setIsLogoutDialogOpen}
+      >
         <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>¿Cerrar sesión?</AlertDialogTitle>
@@ -93,8 +124,13 @@ export const Dashboard: React.FC = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-xl">Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleLogout} className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogCancel className="rounded-xl">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleLogout}
+              className="rounded-xl bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               Cerrar Sesión
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -112,9 +148,6 @@ export const Dashboard: React.FC = () => {
             <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">
               Banco de Pruebas
             </h1>
-            <p className="text-muted-foreground">
-              Gestione y ejecute pruebas de bombas hidráulicas
-            </p>
           </div>
 
           {/* Search Bar */}
@@ -142,12 +175,12 @@ export const Dashboard: React.FC = () => {
         >
           <div className="inline-flex bg-card rounded-full p-1 shadow-soft">
             <button
-              onClick={() => setActiveTab('pendientes')}
+              onClick={() => setActiveTab("pendientes")}
               className={cn(
                 "px-4 md:px-6 py-2 md:py-3 rounded-full text-xs md:text-sm font-semibold transition-all",
-                activeTab === 'pendientes'
+                activeTab === "pendientes"
                   ? "gradient-primary text-primary-foreground shadow-md"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               Pendientes
@@ -156,12 +189,12 @@ export const Dashboard: React.FC = () => {
               </span>
             </button>
             <button
-              onClick={() => setActiveTab('historial')}
+              onClick={() => setActiveTab("historial")}
               className={cn(
                 "px-4 md:px-6 py-2 md:py-3 rounded-full text-xs md:text-sm font-semibold transition-all",
-                activeTab === 'historial'
+                activeTab === "historial"
                   ? "gradient-primary text-primary-foreground shadow-md"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               Historial
@@ -175,7 +208,7 @@ export const Dashboard: React.FC = () => {
         {/* Job Grid */}
         <motion.div
           layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
         >
           {displayedJobs.map((job, index) => (
             <motion.div
@@ -206,12 +239,16 @@ export const Dashboard: React.FC = () => {
               <span className="text-4xl">🔍</span>
             </div>
             <h3 className="text-xl font-semibold text-foreground mb-2">
-              {searchQuery ? 'No se encontraron resultados' : `No hay trabajos ${activeTab === 'pendientes' ? 'pendientes' : 'en el historial'}`}
+              {searchQuery
+                ? "No se encontraron resultados"
+                : `No hay trabajos ${activeTab === "pendientes" ? "pendientes" : "en el historial"}`}
             </h3>
             <p className="text-muted-foreground">
               {searchQuery
                 ? `Intenta con otros términos para "${searchQuery}"`
-                : (activeTab === 'pendientes' ? 'Todos los trabajos han sido completados' : 'Aún no se han completado pruebas')}
+                : activeTab === "pendientes"
+                  ? "Todos los trabajos han sido completados"
+                  : "Aún no se han completado pruebas"}
             </p>
           </motion.div>
         )}

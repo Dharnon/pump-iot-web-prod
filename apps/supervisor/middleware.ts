@@ -30,7 +30,7 @@ const AUTH_ROUTES = ['/login'];
  * URL base del backend API.
  * Debe coincidir con NEXT_PUBLIC_API_URL o usar el default.
  */
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5002';
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;

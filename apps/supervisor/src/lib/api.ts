@@ -85,8 +85,8 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
     // Manejo de errores HTTP
     if (!response.ok) {
         // Intentar extraer mensaje de error del body JSON
-        const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-        throw new Error(error.error || `HTTP ${response.status}`);
+        const error = await response.json().catch(() => ({ error: null }));
+        throw new Error(error.error || `Error HTTP ${response.status}`);
     }
 
     // Parsear y retornar respuesta JSON
@@ -227,14 +227,13 @@ export async function validateToken(token: string): Promise<{
  * ```
  */
 export function logout(): void {
-    // Borrar cookie de token
+    // Borrar cookies de autenticación y modo mock
     document.cookie = 'token=; path=/; max-age=0; SameSite=Strict';
+    document.cookie = 'use_mock_data=; path=/; max-age=0; SameSite=Strict';
     
     // Limpiar localStorage
     localStorage.removeItem('user');
-    
-    // TODO: Opcionalmente, llamar a un endpoint de logout en el backend
-    // para invalidar el token en una lista negra (blacklist)
+    localStorage.removeItem('USE_MOCK_DATA');
 }
 
 // =============================================================================
@@ -254,7 +253,7 @@ export function logout(): void {
  */
 export interface Test {
     id: string; // This maps to NumeroProtocolo
-    status: 'PENDING' | 'IN_PROGRESS' | 'GENERATED' | 'COMPLETED';
+    status: 'PENDING' | 'IN_PROGRESS' | 'GENERATED' | 'GENERADO' | 'COMPLETED';
     numeroSerie?: string;
     generalInfo: {
         pedido: string;        // Número de pedido (ej: "PED-2024-001")
@@ -306,6 +305,18 @@ export async function patchTest(id: string, data: any): Promise<any> {
     return fetchApi<any>(`/api/tests/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data)
+    });
+}
+
+/**
+ * Elimina una prueba o protocolo.
+ * 
+ * @param id - ID de la prueba o protocolo
+ * @returns Resultado de la operación
+ */
+export async function deleteTest(id: string): Promise<any> {
+    return fetchApi<any>(`/api/tests/${id}`, {
+        method: 'DELETE'
     });
 }
 
@@ -372,6 +383,16 @@ export interface Listado {
  */
 export async function getListados(): Promise<Listado[]> {
     return fetchApi<Listado[]>('/api/Import/listados');
+}
+
+/**
+ * Creates a new blank listado entry.
+ */
+export async function createListado(data?: Partial<Listado>): Promise<{ success: boolean; id: number }> {
+    return fetchApi('/api/tests/listado', {
+        method: 'POST',
+        body: JSON.stringify(data || {})
+    });
 }
 
 // =============================================================================

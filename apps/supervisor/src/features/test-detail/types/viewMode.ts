@@ -33,7 +33,7 @@ export const PENDING_VIEW_CONFIG: ViewConfig = {
   editable: true,
   showPdfUpload: true,
   showSaveButton: true,
-  showExtendedSections: true, // Show all sections for manual entry if needed
+  showExtendedSections: false, // Hide motor/details in pending view
   allFieldsEditable: true,    // All fields can be edited
 };
 
@@ -47,7 +47,7 @@ export const PENDING_VIEW_CONFIG: ViewConfig = {
 export const GENERATED_VIEW_CONFIG: ViewConfig = {
   mode: 'GENERATED',
   editable: true,
-  showPdfUpload: false,
+  showPdfUpload: true, // Allow changing PDF in generated view
   showSaveButton: true,
   showExtendedSections: true, // Show motor/details
   allFieldsEditable: true, // All fields can be edited

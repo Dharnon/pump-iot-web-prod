@@ -35,6 +35,8 @@ export interface TestPdfData {
   maxPower?: number;
   efficiency?: number;
   npshr?: number;
+  qMin?: number;
+  bepFlow?: number;
 
   // Fluid Point
   liquidDescription?: string;
@@ -107,6 +109,8 @@ export interface TestSaveDTO {
     maxPower?: string;
     efficiency?: string;
     npshr?: string;
+    qMin?: string;
+    bepFlow?: string;
 
     // Fluid Point
     liquidDescription?: string;
@@ -198,6 +202,8 @@ export function mapTestToSaveDTO(
       maxPower: toString(pdfData.maxPower),
       efficiency: toString(pdfData.efficiency),
       npshr: toString(pdfData.npshr),
+      qMin: toString(pdfData.qMin),
+      bepFlow: toString(pdfData.bepFlow),
 
       // Fluid Point
       liquidDescription: pdfData.liquidDescription,

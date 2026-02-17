@@ -6,7 +6,7 @@ export function useTests() {
     // MOCK MODE
     const isMock = typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
 
-    const { data, error, isLoading, mutate } = useSWR<Test[]>(isMock ? null : '/api/tests', swrFetcher, {
+    const { data, error, isLoading, mutate, isValidating } = useSWR<Test[]>(isMock ? null : '/api/tests', swrFetcher, {
         revalidateOnFocus: true,
         revalidateOnReconnect: true,
         dedupingInterval: 2000,
@@ -16,6 +16,7 @@ export function useTests() {
         return {
             tests: MOCK_TESTS,
             isLoading: false,
+            isValidating: false,
             isError: null,
             mutate: () => Promise.resolve([] as any)
         };
@@ -24,6 +25,7 @@ export function useTests() {
     return {
         tests: data || [],
         isLoading: isLoading,
+        isValidating: isValidating,
         isError: error,
         mutate
     };

@@ -12,7 +12,9 @@ export interface LanguageContextType {
 
 export type UseLanguageReturn = LanguageContextType;
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+const LanguageContext = createContext<LanguageContextType | undefined>(
+  undefined,
+);
 
 // Simple translation dictionary for demo purposes
 const translations: Record<Language, Record<string, string>> = {
@@ -43,8 +45,9 @@ const translations: Record<Language, Record<string, string>> = {
     "dash.stat.total": "Total",
     "dash.stat.pending": "Pending",
     "dash.stat.process": "In Progress",
-    "dash.stat.generated": "Generated",
-    "dash.lastFile": "Last File:",
+    "dash.stat.generated": "Processed",
+    "dash.stat.completed": "Completed",
+    "dash.stat.lastFile": "Last File:",
 
     // Table Headers
     "table.title": "Tests",
@@ -66,7 +69,8 @@ const translations: Record<Language, Record<string, string>> = {
     "status.all": "All statuses",
     "status.PENDING": "Pending",
     "status.IN_PROGRESS": "In Progress",
-    "status.GENERATED": "Generated",
+    "status.GENERATED": "Processed",
+    "status.PROCESSED": "Processed",
     "status.COMPLETED": "Completed",
 
     // Empty State
@@ -147,8 +151,9 @@ const translations: Record<Language, Record<string, string>> = {
     "dash.stat.total": "Total",
     "dash.stat.pending": "Pendientes",
     "dash.stat.process": "En Proceso",
-    "dash.stat.generated": "Generados",
-    "dash.lastFile": "Último archivo:",
+    "dash.stat.generated": "Procesados",
+    "dash.stat.completed": "Completados",
+    "dash.stat.lastFile": "Último archivo:",
 
     // Table Headers
     "table.title": "Pruebas",
@@ -170,7 +175,8 @@ const translations: Record<Language, Record<string, string>> = {
     "status.all": "Todos los estados",
     "status.PENDING": "Pendiente",
     "status.IN_PROGRESS": "En Proceso",
-    "status.GENERATED": "Generado",
+    "status.GENERATED": "Procesado",
+    "status.PROCESSED": "Procesado",
     "status.COMPLETED": "Completado",
 
     // Empty State
@@ -182,7 +188,7 @@ const translations: Record<Language, Record<string, string>> = {
     "test.notFound.desc": "El registro solicitado no existe.",
     "test.back": "Volver",
     "test.tests": "Pruebas",
-    "test.finalize": "Finalizar Prueba",
+    "test.finalize": "Generar Protocolo",
     "test.viewing": "Visualizando archivo",
     "test.changePdf": "Cambiar PDF",
     "test.upload.title": "Sube un reporte PDF",
@@ -192,6 +198,7 @@ const translations: Record<Language, Record<string, string>> = {
     "test.testsToPerform": "Pruebas a Realizar",
     "test.pdfData": "Hoja de Datos PDF",
     "test.analyze": "Analizar PDF Real",
+    "test.generated": "Protocolo Procesado",
     "test.analyzing": "Analizando...",
     "test.section.perf": "Performance",
     "test.section.fluid": "Fluido",
@@ -247,7 +254,9 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage: handleSetLanguage, t }}>
+    <LanguageContext.Provider
+      value={{ language, setLanguage: handleSetLanguage, t }}
+    >
       {children}
     </LanguageContext.Provider>
   );

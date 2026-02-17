@@ -13,7 +13,9 @@ import { usePdfExtraction } from './usePdfExtraction';
 import { useTestSave } from './useTestSave';
 import { usePdfPanel } from './usePdfPanel';
 import { useTestsToPerform } from './useTestsToPerform';
-import { getTestPdf } from '@/lib/api';
+import { getTestPdf, deleteTest as deleteApi } from '@/lib/api';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 import type { UseLanguageReturn } from '@/lib/language-context';
 import type { ViewMode, ViewConfig } from '../types/viewMode';
 import { getViewConfig } from '../types/viewMode';
@@ -41,6 +43,10 @@ export interface UseTestDetailPageResult {
   // Test save
   saving: boolean;
   handleSave: () => Promise<void>;
+  
+  // Deletion
+  deleting: boolean;
+  handleDelete: () => Promise<void>;
 
   // Panel management
   isPdfExpanded: boolean;
@@ -151,6 +157,27 @@ export function useTestDetailPage(
   }, [test, pdfFile, saveTest, viewMode]);
 
   /**
+   * Handles deletion
+   */
+  const [deleting, setDeleting] = useState(false);
+  const router = useRouter();
+
+  const handleDelete = useCallback(async () => {
+    if (!testId) return;
+    
+    try {
+      setDeleting(true);
+      await deleteApi(testId);
+      toast.success(viewMode === 'PENDING' ? "Registro eliminado" : "Protocolo eliminado");
+      router.push('/supervisor');
+    } catch (err: any) {
+      toast.error(err.message || "Error al eliminar");
+    } finally {
+      setDeleting(false);
+    }
+  }, [testId, router, viewMode]);
+
+  /**
    * Handles PDF data field changes
    */
   const handlePdfDataChange = useCallback((field: string, value: string) => {
@@ -180,6 +207,10 @@ export function useTestDetailPage(
     // Test save
     saving,
     handleSave,
+
+    // Deletion
+    deleting,
+    handleDelete,
 
     // Panel management
     isPdfExpanded,
