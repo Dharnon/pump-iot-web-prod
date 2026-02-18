@@ -151,7 +151,7 @@ export const Analytics: React.FC = () => {
           <h2 className="text-xl font-semibold text-foreground mb-6">
             Curva Q-H (Caudal vs Altura)
           </h2>
-          <div className="h-96">
+          <div className="w-full aspect-[4/3] max-w-4xl mx-auto">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />

@@ -9,6 +9,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Gauge, Droplets, Thermometer, Zap, ArrowDownToLine, ArrowLeft } from 'lucide-react';
 import { Scene3D } from '@/components/testing/Scene3D';
+import { FloatingActionBar } from '@/components/testing/FloatingActionBar';
 import { ControlPanel } from '@/components/testing/ControlPanel';
 import { TelemetryCard } from '@/components/testing/TelemetryCard';
 import { Stepper } from '@/components/testing/Stepper';
@@ -163,20 +164,21 @@ export const Cockpit: React.FC = () => {
         </>
       ) : (
         <>
-          {/* Desktop/Landscape - Left Control Panel */}
-          <div
-            className="absolute top-1/2 -translate-y-1/2 z-20"
-            style={{ left: 'var(--fluid-edge-spacing)' }}
-          >
-            <ControlPanel
-              motorOn={controls.motorOn}
-              motorSpeed={controls.motorSpeed}
-              valveOpening={controls.valveOpening}
-              onMotorToggle={setMotorOn}
-              onMotorSpeedChange={setMotorSpeed}
-              onValveOpeningChange={setValveOpening}
-            />
-          </div>
+          {/* Desktop/Landscape - Floating Action Bar (3D Focus) */}
+          <FloatingActionBar
+            motorOn={controls.motorOn}
+            onMotorToggle={setMotorOn}
+            valveOpening={controls.valveOpening}
+            onValveChange={setValveOpening}
+            pressureData={{
+              suction: telemetry.pressure * 0.2, // Simulated suction
+              discharge: telemetry.pressure,
+              differential: telemetry.pressure * 0.8
+            }}
+            onCameraPreset={(preset) => {
+              // Integration with Scene3D camera would go here
+            }}
+          />
 
           {/* Desktop/Landscape - Right Telemetry Panel */}
           <div

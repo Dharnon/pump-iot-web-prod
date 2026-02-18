@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
+import { getTests, type Test } from "@pump-iot/core/api";
 
 // =============================================================================
 // TYPES (Extracted from original TestingContext)
@@ -110,6 +111,7 @@ export interface Job {
 
 interface JobContextType {
   jobs: Job[];
+  isLoading: boolean;
   currentJob: Job | null;
   selectJob: (job: Job) => void;
   updateJob: (updates: Partial<Job>) => void;
@@ -390,9 +392,49 @@ const JobContext = createContext<JobContextType | null>(null);
 export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [jobs] = useState<Job[]>(mockJobs);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentJob, setCurrentJob] = useState<Job | null>(null);
   const [testConfig, setTestConfig] = useState<TestConfig | null>(null);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        setLoading(true);
+        const data = await getTests();
+
+        // Filtrar protocolos generados (admitiendo variantes de status)
+        const mappedJobs: Job[] = data
+          .filter(t => t.status === 'GENERATED' || t.status === 'GENERADO')
+          .map(t => ({
+            id: t.id,
+            orderId: t.generalInfo.pedido || 'N/A',
+            model: t.generalInfo.modeloBomba || 'Desconocido',
+            client: t.generalInfo.cliente || 'Desconocido',
+            status: 'GENERADA',
+            targetFlow: 0, // Valor por defecto, se puede extraer de especificaciones si existen
+            impeller: t.generalInfo.item || '',
+            createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
+            protocolSpec: {
+              itemNumber: t.generalInfo.item,
+              pumpType: t.generalInfo.tipoDeBomba,
+              serialNumber: t.numeroSerie,
+            }
+          }));
+
+        setJobs(mappedJobs);
+      } catch (error) {
+        console.error("Error fetching jobs from API:", error);
+        // Fallback to mock data on error for development if needed, 
+        // but better to show empty state or error in production.
+        // setJobs(mockJobs); 
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, []);
 
   const selectJob = useCallback((job: Job) => {
     setCurrentJob(job);
@@ -412,6 +454,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
     <JobContext.Provider
       value={{
         jobs,
+        isLoading: loading,
         currentJob,
         selectJob,
         updateJob: (updates: Partial<Job>) => {

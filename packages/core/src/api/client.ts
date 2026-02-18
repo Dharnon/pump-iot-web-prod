@@ -5,9 +5,21 @@
  * Centralizes error handling and request configuration.
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 
-                     process.env.VITE_API_URL || 
-                     'http://localhost:5002';
+const getBaseUrl = () => {
+  try {
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL;
+    }
+    // @ts-ignore
+    if (typeof import.meta !== 'undefined' && import.meta.env) {
+      // @ts-ignore
+      return import.meta.env.VITE_API_URL;
+    }
+  } catch (e) { }
+  return 'http://localhost:5002';
+};
+
+const API_BASE_URL = getBaseUrl();
 
 /**
  * Generic fetch wrapper with centralized error handling.
@@ -19,7 +31,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ||
  * @throws Error if response is not OK
  */
 export async function fetchApi<T>(
-  endpoint: string, 
+  endpoint: string,
   options?: RequestInit
 ): Promise<T> {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
