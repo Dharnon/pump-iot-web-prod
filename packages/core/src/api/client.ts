@@ -8,12 +8,14 @@
 const getBaseUrl = () => {
   try {
     if (typeof process !== 'undefined' && process.env) {
-      return process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL;
+      const url = process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL;
+      if (url) return url;
     }
     // @ts-ignore
     if (typeof import.meta !== 'undefined' && import.meta.env) {
       // @ts-ignore
-      return import.meta.env.VITE_API_URL;
+      const url = import.meta.env.VITE_API_URL;
+      if (url) return url;
     }
   } catch (e) { }
   return 'http://localhost:5002';

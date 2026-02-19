@@ -1,5 +1,17 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { getTests, type Test } from "@pump-iot/core/api";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
+import {
+  getTests,
+  getTestById,
+  patchTest,
+  type Test,
+} from "@pump-iot/core/api";
+import { toast } from "sonner";
 
 // =============================================================================
 // TYPES (Extracted from original TestingContext)
@@ -46,6 +58,12 @@ export interface Job {
   completedAt?: Date;
   testResults?: TestResults;
   protocolSpec?: {
+    // Generic
+    customerOrder?: string;
+    jobDate?: string;
+    pumpQuantity?: number;
+    workOrder?: string;
+
     // Pump Data
     itemNumber?: string;
     pumpType?: string;
@@ -90,6 +108,8 @@ export interface Job {
     guaranteedPower?: number; // kW
     guaranteedEfficiency?: number; // %
     guaranteedNpshr?: number; // m
+    guaranteedQMin?: number; // m³/h
+    bestEfficiencyPointFlow?: number; // m³/h
 
     // Guaranteed Point (Specific Fluid)
     fluidName?: string;
@@ -101,6 +121,9 @@ export interface Job {
     fluidSpeed?: number; // rpm
     fluidPower?: number; // kW
     fluidEfficiency?: number; // %
+    cq?: number; // CaudalCoeficiente
+    ch?: number; // AlturaCoeficiente
+    ce?: number; // RendimientoCoeficiente
 
     // General
     tolerance?: string;
@@ -113,8 +136,8 @@ interface JobContextType {
   jobs: Job[];
   isLoading: boolean;
   currentJob: Job | null;
-  selectJob: (job: Job) => void;
-  updateJob: (updates: Partial<Job>) => void;
+  selectJob: (job: Job) => Promise<void>;
+  updateJob: (updates: Partial<Job>) => Promise<void>;
   clearJob: () => void;
   testConfig: TestConfig | null;
   setTestConfig: (config: TestConfig) => void;
@@ -402,32 +425,45 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
       try {
         setLoading(true);
         const data = await getTests();
+        console.log("Raw API Response:", data);
 
         // Filtrar protocolos generados (admitiendo variantes de status)
         const mappedJobs: Job[] = data
-          .filter(t => t.status === 'GENERATED' || t.status === 'GENERADO')
-          .map(t => ({
-            id: t.id,
-            orderId: t.generalInfo.pedido || 'N/A',
-            model: t.generalInfo.modeloBomba || 'Desconocido',
-            client: t.generalInfo.cliente || 'Desconocido',
-            status: 'GENERADA',
-            targetFlow: 0, // Valor por defecto, se puede extraer de especificaciones si existen
-            impeller: t.generalInfo.item || '',
-            createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
-            protocolSpec: {
-              itemNumber: t.generalInfo.item,
-              pumpType: t.generalInfo.tipoDeBomba,
-              serialNumber: t.numeroSerie,
-            }
-          }));
+          .filter(
+            (t) =>
+              (t.status === "GENERATED" ||
+                t.status === "GENERADO" ||
+                t.status === "PROCESADO") &&
+              !String(t.id).startsWith("pending-"),
+          )
+          .map((t) => {
+            const info = t.generalInfo as any;
+            return {
+              id: t.id.toString(),
+              orderId: info.pedidoCliente || info.pedido || `JOB-${t.id}`,
+              model: info.modeloBomba || "Desconocido",
+              client: info.cliente || "Desconocido",
+              status: "GENERADA",
+              targetFlow: 0,
+              impeller: info.item || "",
+              createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
+              protocolSpec: {
+                customerOrder: info.pedidoCliente || info.pedido,
+                workOrder: info.ordenTrabajo,
+                itemNumber: info.item,
+                pumpType: info.tipoDeBomba || info.modeloBomba, // Fallback to model if type is missing
+                serialNumber: t.numeroSerie,
+              },
+            };
+          });
 
+        console.log("Mapped Jobs:", mappedJobs);
         setJobs(mappedJobs);
       } catch (error) {
         console.error("Error fetching jobs from API:", error);
-        // Fallback to mock data on error for development if needed, 
+        // Fallback to mock data on error for development if needed,
         // but better to show empty state or error in production.
-        // setJobs(mockJobs); 
+        // setJobs(mockJobs);
       } finally {
         setLoading(false);
       }
@@ -436,14 +472,220 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
     fetchJobs();
   }, []);
 
-  const selectJob = useCallback((job: Job) => {
+  const selectJob = useCallback(async (job: Job) => {
+    // 1. Set basic job info first (optimistic)
     setCurrentJob(job);
     setTestConfig({
       bankId: "A",
       testPressure: 6,
       points: generateDefaultPoints(job.targetFlow),
     });
+
+    try {
+      // 2. Fetch full details from backend
+      const fullTest = await getTestById(job.id);
+      console.log("Full Test Details:", fullTest);
+
+      // 3. Map full details to Job structure
+      const info = fullTest.generalInfo as any;
+
+      const updatedJob: Job = {
+        ...job,
+        // Update orderId logic for Detail View
+        orderId: info.pedidoCliente || info.pedido || job.orderId,
+        protocolSpec: {
+          ...job.protocolSpec,
+          // Generic
+          customerOrder: info.pedidoCliente,
+          jobDate: info.fecha,
+          pumpQuantity: info.numeroBombas,
+          workOrder: info.ordenTrabajo,
+
+          // Pump
+          itemNumber: fullTest.bomba?.item,
+          pumpType: fullTest.bomba?.tipo,
+          suctionDiameter: fullTest.bomba?.diametroAspiracion,
+          dischargeDiameter: fullTest.bomba?.diametroImpulsion,
+          impellerDiameter: fullTest.bomba?.diametroRodete,
+          sealType: fullTest.bomba?.tipoCierre,
+          isVertical: fullTest.bomba?.vertical,
+
+          // Motor
+          motorBrand: fullTest.motor?.marca,
+          motorType: fullTest.motor?.tipo,
+          motorPower: fullTest.motor?.potencia,
+          nominalSpeed: fullTest.motor?.velocidad,
+          current: fullTest.motor?.intensidad,
+          // efficiencies...
+          efficiency25: fullTest.motor?.rendimiento25,
+          efficiency50: fullTest.motor?.rendimiento50,
+          efficiency75: fullTest.motor?.rendimiento75,
+          efficiency100: fullTest.motor?.rendimiento100,
+          efficiency125: fullTest.motor?.rendimiento125,
+
+          // Pressures
+          manometricCorrection: fullTest.detalles?.correccionManometrica,
+          atmosphericPressure: fullTest.detalles?.presionAtmosferica,
+
+          // Temperatures
+          waterTemperature: fullTest.detalles?.temperaturaAgua,
+          ambientTemperature: fullTest.detalles?.temperaturaAmbiente,
+          runTime: fullTest.detalles?.tiempoFuncionamientoBomba,
+          couplingTemperature: fullTest.detalles?.temperaturaLadoAcoplamiento,
+          pumpTemperature: fullTest.detalles?.temperaturaLadoBomba,
+
+          // Guaranteed Point (Water) - from FluidoH2O
+          guaranteedFlow: fullTest.fluidoH2O?.caudal,
+          guaranteedHead: fullTest.fluidoH2O?.altura,
+          guaranteedSpeed: fullTest.fluidoH2O?.velocidad,
+          guaranteedPower: fullTest.fluidoH2O?.potencia,
+          guaranteedEfficiency: fullTest.fluidoH2O?.rendimiento,
+          guaranteedNpshr: fullTest.fluidoH2O?.npshRequerido,
+          guaranteedQMin: fullTest.fluidoH2O?.qMin,
+          bestEfficiencyPointFlow: fullTest.fluidoH2O?.bep,
+
+          // Guaranteed Point (Specific Fluid) - from Fluido
+          fluidName: fullTest.fluido?.nombre,
+          fluidTemperature: fullTest.fluido?.temperatura,
+          fluidViscosity: fullTest.fluido?.viscosidad,
+          fluidDensity: fullTest.fluido?.densidad,
+          fluidFlow: fullTest.fluido?.caudal,
+          fluidHead: fullTest.fluido?.altura,
+          fluidSpeed: fullTest.fluido?.velocidad,
+          fluidPower: fullTest.fluido?.potencia,
+          fluidEfficiency: fullTest.fluido?.rendimiento,
+          cq: fullTest.fluido?.caudalCoeficiente,
+          ch: fullTest.fluido?.alturaCoeficiente,
+          ce: fullTest.fluido?.rendimientoCoeficiente,
+
+          // General
+          tolerance: fullTest.detalles?.comentario,
+          internalComment: fullTest.detalles?.comentarioInterno,
+        },
+      };
+
+      setCurrentJob(updatedJob);
+
+      // Update TestConfig based on guaranteed points if available
+      if (updatedJob.protocolSpec?.guaranteedFlow) {
+        setTestConfig({
+          bankId: "A",
+          testPressure: 6,
+          points: generateDefaultPoints(updatedJob.protocolSpec.guaranteedFlow),
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching full job details:", error);
+      toast.error("Error al cargar los detalles del protocolo");
+    }
   }, []);
+
+  const updateJob = useCallback(
+    async (updates: Partial<Job>) => {
+      if (!currentJob) return;
+
+      try {
+        // 1. Optimistic update
+        let updatedJob = { ...currentJob, ...updates };
+
+        // Update orderId if customerOrder changed (since it's now the main ID)
+        if (updates.protocolSpec?.customerOrder) {
+          updatedJob = {
+            ...updatedJob,
+            orderId: updates.protocolSpec.customerOrder,
+          };
+        }
+
+        setCurrentJob(updatedJob);
+
+        // 2. Map updates to Backend DTO structure (PdfDataDto)
+        // We only map fields that are present in `updates.protocolSpec`
+        const spec = updates.protocolSpec || {};
+
+        const pdfDataDto = {
+          // Pump
+          Item: spec.itemNumber,
+          ModeloBomba: spec.pumpType,
+          NumeroSerie: spec.serialNumber,
+          SuctionDiameter: spec.suctionDiameter?.toString(),
+          DischargeDiameter: spec.dischargeDiameter?.toString(),
+          ImpellerDiameter: spec.impellerDiameter,
+          SealType: spec.sealType,
+          Vertical: spec.isVertical?.toString(),
+
+          // Motor
+          MotorMarca: spec.motorBrand,
+          MotorTipo: spec.motorType,
+          MotorPotencia: spec.motorPower?.toString(),
+          MotorVelocidad: spec.nominalSpeed?.toString(),
+          MotorIntensidad: spec.current?.toString(),
+          MotorRendimiento25: spec.efficiency25?.toString(),
+          MotorRendimiento50: spec.efficiency50?.toString(),
+          MotorRendimiento75: spec.efficiency75?.toString(),
+          MotorRendimiento100: spec.efficiency100?.toString(),
+          MotorRendimiento125: spec.efficiency125?.toString(),
+
+          // Pressures & Temps
+          DetallesCorreccionManometrica: spec.manometricCorrection?.toString(),
+          DetallesPresionAtmosferica: spec.atmosphericPressure?.toString(),
+          DetallesTemperaturaAgua: spec.waterTemperature?.toString(),
+          DetallesTemperaturaAmbiente: spec.ambientTemperature?.toString(),
+          DetallesTemperaturaLadoAcoplamiento:
+            spec.couplingTemperature?.toString(),
+          DetallesTemperaturaLadoBomba: spec.pumpTemperature?.toString(),
+          DetallesTiempoFuncionamientoBomba: spec.runTime?.toString(),
+
+          // Guaranteed Point (Water)
+          FlowRate: spec.guaranteedFlow?.toString(),
+          Head: spec.guaranteedHead?.toString(),
+          Rpm: spec.guaranteedSpeed?.toString(),
+          MaxPower: spec.guaranteedPower?.toString(),
+          Efficiency: spec.guaranteedEfficiency?.toString(),
+          Npshr: spec.guaranteedNpshr?.toString(),
+          QMin: spec.guaranteedQMin?.toString(),
+          BepFlow: spec.bestEfficiencyPointFlow?.toString(),
+
+          // Guaranteed Point (Fluid)
+          LiquidDescription: spec.fluidName,
+          Temperature: spec.fluidTemperature?.toString(),
+          Viscosity: spec.fluidViscosity?.toString(),
+          Density: spec.fluidDensity?.toString(),
+          FluidFlowRate: spec.fluidFlow?.toString(),
+          FluidHead: spec.fluidHead?.toString(),
+          FluidRpm: spec.fluidSpeed?.toString(),
+          FluidPower: spec.fluidPower?.toString(),
+          FluidEfficiency: spec.fluidEfficiency?.toString(),
+          CaudalCoeficiente: spec.cq?.toString(),
+          AlturaCoeficiente: spec.ch?.toString(),
+          RendimientoCoeficiente: spec.ce?.toString(),
+
+          // General
+          Tolerance: spec.tolerance,
+          InternalComment: spec.internalComment,
+        };
+
+        // 3. Call API
+        await patchTest(currentJob.id, {
+          pdfData: pdfDataDto,
+          numeroSerie: spec.serialNumber,
+          generalInfo: {
+            item: spec.itemNumber,
+            modeloBomba: spec.pumpType,
+            pedidoCliente: spec.customerOrder,
+            fecha: spec.jobDate,
+            numeroBombas: spec.pumpQuantity,
+            ordenTrabajo: spec.workOrder,
+          } as any, // Cast to any to avoid deep partial issues if strict, but mainly to allow partial generalInfo if needed
+        });
+
+        toast.success("Cambios guardados correctamente");
+      } catch (error) {
+        console.error("Error updating job:", error);
+        toast.error("Error al guardar los cambios");
+      }
+    },
+    [currentJob],
+  );
 
   const clearJob = useCallback(() => {
     setCurrentJob(null);
@@ -457,14 +699,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         isLoading: loading,
         currentJob,
         selectJob,
-        updateJob: (updates: Partial<Job>) => {
-          if (!currentJob) return;
-          const updatedJob = { ...currentJob, ...updates };
-          setCurrentJob(updatedJob);
-          // Update in jobs list as well for consistency (mock)
-          /* const updatedJobs = jobs.map(j => j.id === currentJob.id ? updatedJob : j);
-                       setJobs(updatedJobs); */
-        },
+        updateJob,
         clearJob,
         testConfig,
         setTestConfig,

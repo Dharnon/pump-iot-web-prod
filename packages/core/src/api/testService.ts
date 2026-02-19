@@ -9,7 +9,7 @@ import { fetchApi } from './client';
 
 export interface Test {
   id: string;
-  status: 'PENDING' | 'IN_PROGRESS' | 'GENERATED' | 'COMPLETED' | 'SIN_PROCESAR' | 'EN_PROCESO' | 'GENERADO';
+  status: 'PENDING' | 'IN_PROGRESS' | 'GENERATED' | 'COMPLETED' | 'SIN_PROCESAR' | 'EN_PROCESO' | 'GENERADO' | 'PROCESADO';
   numeroSerie?: string;
   generalInfo: {
     pedido: string;

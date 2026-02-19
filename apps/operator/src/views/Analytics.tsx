@@ -1,12 +1,12 @@
 /**
  * Analytics.tsx - Refactored to use isolated providers
- * 
+ *
  * Changes:
  * - useTesting() → useJob() + useNavigation() + useTelemetry()
  * - resetTest split into navigation + telemetry reset
  */
-import React, { useMemo, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import React, { useMemo, useCallback } from "react";
+import { motion } from "framer-motion";
 import {
   LineChart,
   Line,
@@ -16,12 +16,22 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
-} from 'recharts';
-import { CheckCircle2, Download, FileText, ArrowLeft, RotateCcw, AlertTriangle, XCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useJob } from '@/contexts/JobProvider';
-import { useNavigation } from '@/contexts/NavigationProvider';
-import { useTelemetry } from '@/contexts/TelemetryProvider';
+} from "recharts";
+import {
+  CheckCircle2,
+  Download,
+  FileText,
+  ArrowLeft,
+  RotateCcw,
+  AlertTriangle,
+  XCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useJob } from "@/contexts/JobProvider";
+import { useNavigation } from "@/contexts/NavigationProvider";
+import { useTelemetry } from "@/contexts/TelemetryProvider";
+import { getTestPdf } from "@pump-iot/core/api";
+import { toast } from "sonner";
 
 // Generate theoretical Q-H curve data
 const generateTheoreticalCurve = (nominalFlow: number) => {
@@ -41,8 +51,9 @@ export const Analytics: React.FC = () => {
   const { setCurrentView } = useNavigation();
   const { capturedPoints, resetTelemetry } = useTelemetry();
 
-  const isApproved = currentJob?.status === 'OK' || (currentJob?.status !== 'KO');
-  const isHistorical = currentJob?.status === 'OK' || currentJob?.status === 'KO';
+  const isApproved = currentJob?.status === "OK" || currentJob?.status !== "KO";
+  const isHistorical =
+    currentJob?.status === "OK" || currentJob?.status === "KO";
 
   // Generate chart data
   const chartData = useMemo(() => {
@@ -53,7 +64,7 @@ export const Analytics: React.FC = () => {
     // Map captured points to Q-H format
     const captured = capturedPoints.map((point, index) => {
       const targetFlow = testConfig.points[index]?.targetFlow || point.flow;
-      const head = 12 - (point.pressure * 0.8); // Simplified head calculation from pressure
+      const head = 12 - point.pressure * 0.8; // Simplified head calculation from pressure
       const deviation = Math.abs(point.flow - targetFlow);
       const isOutOfTolerance = deviation > targetFlow * 0.05; // 5% tolerance
 
@@ -62,7 +73,7 @@ export const Analytics: React.FC = () => {
         actualFlow: point.flow,
         head,
         power: point.power,
-        efficiency: (point.flow * 10 / point.power) * 10, // Simplified efficiency
+        efficiency: ((point.flow * 10) / point.power) * 10, // Simplified efficiency
         isOutOfTolerance,
         deviation,
       };
@@ -71,13 +82,13 @@ export const Analytics: React.FC = () => {
     return { theoretical, captured };
   }, [currentJob, testConfig, capturedPoints]);
 
-  const failedPoints = chartData.captured.filter(p => p.isOutOfTolerance);
+  const failedPoints = chartData.captured.filter((p) => p.isOutOfTolerance);
 
   // Combined reset function
   const resetTest = useCallback(() => {
     resetTelemetry();
     clearJob();
-    setCurrentView('dashboard');
+    setCurrentView("dashboard");
   }, [resetTelemetry, clearJob, setCurrentView]);
 
   const handleFinish = () => {
@@ -89,7 +100,24 @@ export const Analytics: React.FC = () => {
     if (isHistorical) {
       resetTest();
     } else {
-      setCurrentView('cockpit');
+      setCurrentView("cockpit");
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (!currentJob) return;
+    try {
+      const blob = await getTestPdf(currentJob.id);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Reporte_${currentJob.orderId}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error exporting PDF:", error);
+      toast.error("Error al exportar el PDF");
     }
   };
 
@@ -121,7 +149,7 @@ export const Analytics: React.FC = () => {
             </Button>
             <div>
               <h1 className="text-3xl font-bold text-foreground">
-                {isHistorical ? 'Reporte de Prueba' : 'Análisis de Resultados'}
+                {isHistorical ? "Reporte de Prueba" : "Análisis de Resultados"}
               </h1>
               <p className="text-muted-foreground">
                 Pedido {currentJob.orderId} • {currentJob.model}
@@ -130,7 +158,11 @@ export const Analytics: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button variant="outline" className="rounded-full h-12 px-6">
+            <Button
+              variant="outline"
+              className="rounded-full h-12 px-6"
+              onClick={handleExportPdf}
+            >
               <Download className="w-4 h-4 mr-2" />
               Exportar PDF
             </Button>
@@ -154,30 +186,42 @@ export const Analytics: React.FC = () => {
           <div className="w-full aspect-[4/3] max-w-4xl mx-auto">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="hsl(var(--border))"
+                />
                 <XAxis
                   dataKey="flow"
                   type="number"
-                  domain={[0, 'auto']}
-                  label={{ value: 'Caudal (m³/h)', position: 'bottom', offset: -10 }}
+                  domain={[0, "auto"]}
+                  label={{
+                    value: "Caudal (m³/h)",
+                    position: "bottom",
+                    offset: -10,
+                  }}
                   stroke="hsl(var(--muted-foreground))"
                 />
                 <YAxis
                   dataKey="head"
                   type="number"
-                  domain={[0, 'auto']}
-                  label={{ value: 'Altura (m)', angle: -90, position: 'insideLeft' }}
+                  domain={[0, "auto"]}
+                  label={{
+                    value: "Altura (m)",
+                    angle: -90,
+                    position: "insideLeft",
+                  }}
                   stroke="hsl(var(--muted-foreground))"
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '12px',
-                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "12px",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
                   }}
                   formatter={(value: number, name: string) => {
-                    if (name === 'head') return [value.toFixed(2) + ' m', 'Altura'];
+                    if (name === "head")
+                      return [value.toFixed(2) + " m", "Altura"];
                     return [value.toFixed(2), name];
                   }}
                 />
@@ -199,12 +243,18 @@ export const Analytics: React.FC = () => {
                   data={chartData.captured}
                   type="monotone"
                   dataKey="head"
-                  stroke={currentJob.status === 'KO' ? 'hsl(var(--destructive))' : 'hsl(var(--primary))'}
+                  stroke={
+                    currentJob.status === "KO"
+                      ? "hsl(var(--destructive))"
+                      : "hsl(var(--primary))"
+                  }
                   strokeWidth={3}
                   dot={(props: any) => {
                     const { cx, cy, payload } = props;
                     const isOutOfTolerance = payload?.isOutOfTolerance;
-                    const color = isOutOfTolerance ? 'hsl(var(--destructive))' : 'hsl(var(--success))';
+                    const color = isOutOfTolerance
+                      ? "hsl(var(--destructive))"
+                      : "hsl(var(--success))";
                     return (
                       <circle
                         cx={cx}
@@ -217,8 +267,11 @@ export const Analytics: React.FC = () => {
                     );
                   }}
                   activeDot={{
-                    fill: currentJob.status === 'KO' ? 'hsl(var(--destructive))' : 'hsl(var(--primary))',
-                    stroke: 'hsl(var(--primary-glow))',
+                    fill:
+                      currentJob.status === "KO"
+                        ? "hsl(var(--destructive))"
+                        : "hsl(var(--primary))",
+                    stroke: "hsl(var(--primary-glow))",
                     strokeWidth: 4,
                     r: 10,
                   }}
@@ -231,9 +284,9 @@ export const Analytics: React.FC = () => {
                   stroke="hsl(var(--success))"
                   strokeDasharray="4 4"
                   label={{
-                    value: 'Nominal',
-                    position: 'top',
-                    fill: 'hsl(var(--success))',
+                    value: "Nominal",
+                    position: "top",
+                    fill: "hsl(var(--success))",
                     fontSize: 12,
                   }}
                 />
@@ -245,7 +298,9 @@ export const Analytics: React.FC = () => {
           <div className="flex items-center justify-center gap-8 mt-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-0.5 border-t-2 border-dashed border-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Curva Teórica</span>
+              <span className="text-sm text-muted-foreground">
+                Curva Teórica
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-success" />
@@ -253,11 +308,15 @@ export const Analytics: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-destructive" />
-              <span className="text-sm text-muted-foreground">Punto Fuera Tolerancia</span>
+              <span className="text-sm text-muted-foreground">
+                Punto Fuera Tolerancia
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-8 h-0.5 border-t-2 border-dashed border-success" />
-              <span className="text-sm text-muted-foreground">Caudal Nominal</span>
+              <span className="text-sm text-muted-foreground">
+                Caudal Nominal
+              </span>
             </div>
           </div>
         </motion.div>
@@ -270,7 +329,7 @@ export const Analytics: React.FC = () => {
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
         >
           {/* Status Card - Dynamic based on OK/KO */}
-          {currentJob.status === 'KO' ? (
+          {currentJob.status === "KO" ? (
             <div className="bg-card rounded-3xl p-6 shadow-soft border-2 border-destructive/20">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-2xl bg-destructive/20 flex items-center justify-center">
@@ -278,12 +337,16 @@ export const Analytics: React.FC = () => {
                 </div>
                 <div>
                   <span className="text-sm text-muted-foreground">Estado</span>
-                  <p className="text-xl font-bold text-destructive">RECHAZADO</p>
+                  <p className="text-xl font-bold text-destructive">
+                    RECHAZADO
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 text-destructive bg-destructive/10 rounded-lg p-3">
                 <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                <p className="text-sm font-medium">{currentJob.errorMessage || 'Error de tolerancia'}</p>
+                <p className="text-sm font-medium">
+                  {currentJob.errorMessage || "Error de tolerancia"}
+                </p>
               </div>
             </div>
           ) : (
@@ -304,7 +367,9 @@ export const Analytics: React.FC = () => {
           )}
 
           <div className="bg-card rounded-3xl p-6 shadow-soft">
-            <span className="text-sm text-muted-foreground">Puntos Capturados</span>
+            <span className="text-sm text-muted-foreground">
+              Puntos Capturados
+            </span>
             <p className="text-3xl font-bold font-mono text-foreground mt-1">
               {capturedPoints.length} / {testConfig?.points.length || 0}
             </p>
@@ -320,15 +385,24 @@ export const Analytics: React.FC = () => {
           </div>
 
           <div className="bg-card rounded-3xl p-6 shadow-soft">
-            <span className="text-sm text-muted-foreground">Eficiencia Promedio</span>
+            <span className="text-sm text-muted-foreground">
+              Eficiencia Promedio
+            </span>
             <p className="text-3xl font-bold font-mono text-foreground mt-1">
               {chartData.captured.length > 0
-                ? (chartData.captured.reduce((sum, p) => sum + (p.efficiency || 0), 0) / chartData.captured.length).toFixed(1)
-                : '--'
-              }%
+                ? (
+                    chartData.captured.reduce(
+                      (sum, p) => sum + (p.efficiency || 0),
+                      0,
+                    ) / chartData.captured.length
+                  ).toFixed(1)
+                : "--"}
+              %
             </p>
             <p className="text-sm text-muted-foreground mt-2">
-              {chartData.captured.length > 0 ? 'Calculada sobre puntos capturados' : 'Sin datos disponibles'}
+              {chartData.captured.length > 0
+                ? "Calculada sobre puntos capturados"
+                : "Sin datos disponibles"}
             </p>
           </div>
         </motion.div>
@@ -352,7 +426,7 @@ export const Analytics: React.FC = () => {
             <>
               <Button
                 variant="outline"
-                onClick={() => setCurrentView('cockpit')}
+                onClick={() => setCurrentView("cockpit")}
                 className="h-14 px-8 rounded-full font-semibold"
               >
                 <RotateCcw className="w-4 h-4 mr-2" />

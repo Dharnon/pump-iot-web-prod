@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { useJob, TestPoint } from "@/contexts/JobProvider";
+import { getTestPdf } from "@pump-iot/core/api";
 import { useNavigation } from "@/contexts/NavigationProvider";
 import { cn } from "@/lib/utils";
 import { Toaster, toast } from "sonner";
@@ -227,6 +228,76 @@ export const SetupModal: React.FC = () => {
                 value="protocol"
                 className="space-y-6 m-0 pb-32 max-w-7xl mx-auto focus-visible:outline-none animate-in fade-in slide-in-from-bottom-2"
               >
+                {/* Row 0: General Info */}
+                <div className="glass-panel p-6 rounded-3xl border border-border/50 bg-card/60">
+                  <h3 className="text-sm font-semibold text-foreground mb-6 flex items-center gap-2">
+                    <FileTextIconFixed className="w-4 h-4 text-primary" />
+                    Información General
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
+                        Pedido Cliente
+                      </label>
+                      <input
+                        type="text"
+                        value={protocolForm.customerOrder || ""}
+                        onChange={(e) =>
+                          handleProtocolChange("customerOrder", e.target.value)
+                        }
+                        className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-medium text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
+                        Fecha
+                      </label>
+                      <input
+                        type="date"
+                        value={
+                          protocolForm.jobDate
+                            ? new Date(protocolForm.jobDate)
+                                .toISOString()
+                                .split("T")[0]
+                            : ""
+                        }
+                        onChange={(e) =>
+                          handleProtocolChange("jobDate", e.target.value)
+                        }
+                        className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-medium text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
+                        Cantidad Bombas
+                      </label>
+                      <input
+                        type="number"
+                        value={protocolForm.pumpQuantity || ""}
+                        onChange={(e) =>
+                          handleProtocolChange(
+                            "pumpQuantity",
+                            Number(e.target.value),
+                          )
+                        }
+                        className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-mono font-bold text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
+                        Tolerancia
+                      </label>
+                      <input
+                        type="text"
+                        value={protocolForm.tolerance || ""}
+                        onChange={(e) =>
+                          handleProtocolChange("tolerance", e.target.value)
+                        }
+                        className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-medium text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
                 {/* Row 1: Pump & Motor */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* BOMB SECTION */}
@@ -236,6 +307,21 @@ export const SetupModal: React.FC = () => {
                       Datos Bomba
                     </h3>
                     <div className="grid grid-cols-2 gap-4">
+                      {/* Work Order moved here */}
+                      <div className="col-span-2 space-y-1.5">
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
+                          Orden Trabajo
+                        </label>
+                        <input
+                          type="text"
+                          value={protocolForm.workOrder || ""}
+                          onChange={(e) =>
+                            handleProtocolChange("workOrder", e.target.value)
+                          }
+                          className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-medium text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
+                        />
+                      </div>
+
                       <div className="space-y-1.5">
                         <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
                           Item
@@ -711,6 +797,38 @@ export const SetupModal: React.FC = () => {
                           className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-mono font-bold text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
                         />
                       </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] uppercase tracking-wider text-red-400 font-semibold ml-1">
+                          Q Min (m³/h)
+                        </label>
+                        <input
+                          type="number"
+                          value={protocolForm.guaranteedQMin || ""}
+                          onChange={(e) =>
+                            handleProtocolChange(
+                              "guaranteedQMin",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-mono font-bold text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
+                        />
+                      </div>
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] uppercase tracking-wider text-red-400 font-semibold ml-1">
+                          BEP (m³/h)
+                        </label>
+                        <input
+                          type="number"
+                          value={protocolForm.bestEfficiencyPointFlow || ""}
+                          onChange={(e) =>
+                            handleProtocolChange(
+                              "bestEfficiencyPointFlow",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-mono font-bold text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -862,6 +980,64 @@ export const SetupModal: React.FC = () => {
                           className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-mono font-bold text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
                         />
                       </div>
+                      <div className="col-span-2 mt-2">
+                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1 mb-2 block">
+                          Coeficientes (Curva Fluido)
+                        </label>
+                        <div className="grid grid-cols-3 gap-4">
+                          <div className="space-y-1">
+                            <label className="text-[10px] text-muted-foreground">
+                              Cq (Caudal)
+                            </label>
+                            <input
+                              type="number"
+                              value={protocolForm.cq || ""}
+                              onChange={(e) =>
+                                handleProtocolChange(
+                                  "cq",
+                                  Number(e.target.value),
+                                )
+                              }
+                              className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-mono font-bold text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
+                              step="0.0001"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] text-muted-foreground">
+                              Ch (Altura)
+                            </label>
+                            <input
+                              type="number"
+                              value={protocolForm.ch || ""}
+                              onChange={(e) =>
+                                handleProtocolChange(
+                                  "ch",
+                                  Number(e.target.value),
+                                )
+                              }
+                              className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-mono font-bold text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
+                              step="0.0001"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-[10px] text-muted-foreground">
+                              Ce (Rendim.)
+                            </label>
+                            <input
+                              type="number"
+                              value={protocolForm.ce || ""}
+                              onChange={(e) =>
+                                handleProtocolChange(
+                                  "ce",
+                                  Number(e.target.value),
+                                )
+                              }
+                              className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-mono font-bold text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
+                              step="0.0001"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -880,8 +1056,6 @@ export const SetupModal: React.FC = () => {
                     placeholder="Agregar comentarios sobre el equipo o la prueba..."
                   />
                 </div>
-
-
               </TabsContent>
 
               {/* CONFIGURATION TAB (Second position) */}
@@ -1022,6 +1196,16 @@ export const SetupModal: React.FC = () => {
                     <Button
                       variant="outline"
                       className="mt-4 gap-2 rounded-full px-6"
+                      onClick={async () => {
+                        try {
+                          const blob = await getTestPdf(currentJob.id);
+                          const url = window.URL.createObjectURL(blob);
+                          window.open(url, "_blank");
+                        } catch (error) {
+                          console.error("Error opening PDF:", error);
+                          toast.error("Error al abrir el documento");
+                        }
+                      }}
                     >
                       <FileTextIconFixed className="w-4 h-4" />
                       Abrir Documento

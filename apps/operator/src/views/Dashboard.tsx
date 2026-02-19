@@ -25,14 +25,28 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { getTestPdf } from "@pump-iot/core/api";
 
 type TabType = "pendientes" | "historial";
+
+import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { es } from "date-fns/locale";
 
 export const Dashboard: React.FC = () => {
   const { jobs, selectJob, setTestConfig } = useJob();
   const { setCurrentView } = useNavigation();
   const [activeTab, setActiveTab] = useState<TabType>("pendientes");
   const [searchQuery, setSearchQuery] = useState("");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
@@ -43,7 +57,24 @@ export const Dashboard: React.FC = () => {
       job.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.model.toLowerCase().includes(searchQuery.toLowerCase());
 
-    return matchesSearch;
+    let matchesDate = true;
+    if (dateRange?.from) {
+      const jobDate = new Date(job.createdAt);
+
+      if (dateRange.to) {
+        matchesDate = isWithinInterval(jobDate, {
+          start: startOfDay(dateRange.from),
+          end: endOfDay(dateRange.to),
+        });
+      } else {
+        matchesDate = isWithinInterval(jobDate, {
+          start: startOfDay(dateRange.from),
+          end: endOfDay(dateRange.from),
+        });
+      }
+    }
+
+    return matchesSearch && matchesDate;
   });
 
   const pendingJobs = filteredJobs.filter(
@@ -60,13 +91,24 @@ export const Dashboard: React.FC = () => {
     setCurrentView("setup");
   };
 
-  const handleViewOrAnalyze = (job: Job) => {
+  const handleAnalyze = (job: Job) => {
     selectJob(job);
     // Load historical test results if available
     if (job.testResults) {
       setTestConfig(job.testResults.testConfig);
     }
     setCurrentView("analytics");
+  };
+
+  const handleViewPdf = async (job: Job) => {
+    try {
+      const blob = await getTestPdf(job.id);
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Error opening PDF:", error);
+      toast.error("Error al abrir el reporte PDF");
+    }
   };
 
   const handleLogout = () => {
@@ -150,19 +192,60 @@ export const Dashboard: React.FC = () => {
             </h1>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative w-full md:w-72 lg:w-96">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <span className="text-muted-foreground">🔍</span>
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Date Picker */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant={"outline"}
+                  className={cn(
+                    "w-full sm:w-[260px] justify-start text-left font-normal rounded-xl border-input bg-card h-[46px]",
+                    !dateRange && "text-muted-foreground",
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd, y", { locale: es })} -{" "}
+                        {format(dateRange.to, "LLL dd, y", { locale: es })}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y", { locale: es })
+                    )
+                  ) : (
+                    <span>Filtrar por fecha</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={setDateRange}
+                  numberOfMonths={2}
+                  locale={es}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {/* Search Bar */}
+            <div className="relative w-full md:w-72 lg:w-96">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span className="text-muted-foreground">🔍</span>
+              </div>
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Buscar pedido, cliente o modelo..."
+                className="block w-full pl-10 pr-3 py-2.5 border border-input rounded-xl bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Buscar pedido, cliente o modelo..."
-              className="block w-full pl-10 pr-3 py-2.5 border border-input rounded-xl bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
           </div>
         </motion.div>
 
@@ -221,8 +304,8 @@ export const Dashboard: React.FC = () => {
               <JobCard
                 job={job}
                 onStart={() => handleStartJob(job)}
-                onView={() => handleViewOrAnalyze(job)}
-                onAnalyze={() => handleViewOrAnalyze(job)}
+                onView={() => handleViewPdf(job)}
+                onAnalyze={() => handleAnalyze(job)}
               />
             </motion.div>
           ))}
@@ -239,13 +322,13 @@ export const Dashboard: React.FC = () => {
               <span className="text-4xl">🔍</span>
             </div>
             <h3 className="text-xl font-semibold text-foreground mb-2">
-              {searchQuery
+              {searchQuery || dateRange
                 ? "No se encontraron resultados"
                 : `No hay trabajos ${activeTab === "pendientes" ? "pendientes" : "en el historial"}`}
             </h3>
             <p className="text-muted-foreground">
-              {searchQuery
-                ? `Intenta con otros términos para "${searchQuery}"`
+              {searchQuery || dateRange
+                ? `Intenta con otros términos o cambia el rango de fechas`
                 : activeTab === "pendientes"
                   ? "Todos los trabajos han sido completados"
                   : "Aún no se han completado pruebas"}

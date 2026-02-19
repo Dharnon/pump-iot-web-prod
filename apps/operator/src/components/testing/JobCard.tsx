@@ -99,7 +99,7 @@ export const JobCard: React.FC<JobCardProps> = ({
             "px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all select-none",
             status.className,
             job.status === "KO" &&
-            "cursor-pointer hover:opacity-80 active:scale-95 ring-offset-2 focus:ring-2 focus:ring-destructive",
+              "cursor-pointer hover:opacity-80 active:scale-95 ring-offset-2 focus:ring-2 focus:ring-destructive",
           )}
         >
           <StatusIcon className="w-3 h-3 mr-1" />
@@ -144,6 +144,17 @@ export const JobCard: React.FC<JobCardProps> = ({
             {job.model}
           </p>
         </div>
+
+        {(job.protocolSpec?.workOrder || job.orderId) && (
+          <div>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              Orden Trabajo
+            </span>
+            <p className="text-sm font-medium text-foreground">
+              {job.protocolSpec?.workOrder || job.orderId}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Error message for KO status - Collapsible */}
@@ -196,8 +207,6 @@ export const JobCard: React.FC<JobCardProps> = ({
           )}
         </div>
       )}
-
-
     </motion.div>
   );
 };
