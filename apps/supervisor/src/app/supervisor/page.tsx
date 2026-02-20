@@ -53,6 +53,8 @@ import { useLanguage } from "@/lib/language-context";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { deleteTest, createListado } from "@/lib/api";
 import { toast } from "sonner";
+import { useSignalR } from "@/hooks/useSignalR";
+import { HubConnectionState } from "@microsoft/signalr";
 
 type ViewMode = "pending" | "protocols";
 
@@ -73,9 +75,15 @@ export default function DashboardPage() {
   const { t } = useLanguage();
   const [creating, setCreating] = useState(false);
   const [isReady, setIsReady] = useState(false);
-
   // SWR Hook for data fetching
   const { tests, isLoading, isValidating, mutate } = useTests();
+
+  // SignalR — real-time lock tracking + auto-refresh
+  const { locks, connectionState } = useSignalR({
+    onListUpdated: () => mutate(),
+  });
+  const isConnected = connectionState === HubConnectionState.Connected;
+  const isReconnecting = connectionState === HubConnectionState.Reconnecting;
 
   // Load state from localStorage on mount
   useEffect(() => {
@@ -142,14 +150,15 @@ export default function DashboardPage() {
     }
   };
 
-  // Get translated columns
+  // Get translated columns — pass locks so status cell shows "En Ejecución"
   const pendingColumns = useMemo(
-    () => getColumns(t, handleDelete),
-    [t, handleDelete],
+    () => getColumns(t, handleDelete, locks),
+    [t, handleDelete, locks],
   );
+
   const protocolColumns = useMemo(
-    () => getProtocolColumns(t, handleDelete),
-    [t, handleDelete],
+    () => getProtocolColumns(t, handleDelete, locks),
+    [t, handleDelete, locks],
   );
 
   // Separate pending and generated tests
@@ -160,18 +169,21 @@ export default function DashboardPage() {
 
   const inProgressTests = useMemo(() => {
     if (!tests) return [];
-    return tests.filter((t: any) => t.status === "IN_PROGRESS");
-  }, [tests]);
+    return tests.filter(
+      (t: any) => t.status === "IN_PROGRESS" || (locks && locks[t.id]),
+    );
+  }, [tests, locks]);
 
   const generatedTestsOnly = useMemo(() => {
     if (!tests) return [];
-    // Only count items that are NOT pending-xxx and have GENERATED status
+    // Only count items that are NOT pending-xxx and have GENERATED status AND are not locked
     return tests.filter(
       (t: any) =>
         !t.id.startsWith("pending-") &&
-        (t.status === "GENERATED" || t.status === "GENERADO"),
+        (t.status === "GENERATED" || t.status === "GENERADO") &&
+        (!locks || !locks[t.id]),
     );
-  }, [tests]);
+  }, [tests, locks]);
 
   const completedTests = useMemo(() => {
     if (!tests) return [];
@@ -187,12 +199,21 @@ export default function DashboardPage() {
   const filteredData = useMemo(() => {
     const dataSource = viewMode === "pending" ? pendingTests : generatedTests;
     if (statusFilter === "all") return dataSource;
-    return dataSource.filter(
-      (t) =>
-        t.status === statusFilter ||
-        (statusFilter === "GENERATED" && t.status === "GENERADO"),
-    );
-  }, [viewMode, pendingTests, generatedTests, statusFilter]);
+
+    return dataSource.filter((t) => {
+      // Special handling for IN_PROGRESS filter: include locked items
+      if (statusFilter === "IN_PROGRESS") {
+        return t.status === "IN_PROGRESS" || (locks && locks[t.id]);
+      }
+      // Special handling for GENERATED filter: exclude locked items (they are "En Proceso")
+      if (statusFilter === "GENERATED" || statusFilter === "GENERADO") {
+        const isGenerated = t.status === "GENERATED" || t.status === "GENERADO";
+        return isGenerated && (!locks || !locks[t.id]);
+      }
+      // Default behavior for other filters
+      return t.status === statusFilter;
+    });
+  }, [viewMode, pendingTests, generatedTests, statusFilter, locks]);
 
   useEffect(() => {
     const stored = localStorage.getItem("lastImport");
@@ -209,7 +230,7 @@ export default function DashboardPage() {
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">
-      {/* Compact Header - Similar to test/:id */}
+      {/* Compact Header */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-6 py-2 border-b bg-background/50 backdrop-blur-sm shrink-0 gap-2">
         <div className="flex items-center gap-3 sm:gap-4 min-w-0">
           <SidebarTrigger />
@@ -231,6 +252,35 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
+          {/* SignalR connection indicator */}
+          <div
+            className="flex items-center gap-1.5"
+            title={
+              isConnected
+                ? "Conectado al servidor"
+                : isReconnecting
+                  ? "Reconectando..."
+                  : "Sin conexión"
+            }
+          >
+            <span
+              className={[
+                "block w-2 h-2 rounded-full",
+                isConnected
+                  ? "bg-green-500 shadow-[0_0_5px_2px_rgba(34,197,94,0.5)]"
+                  : isReconnecting
+                    ? "bg-yellow-400 animate-pulse"
+                    : "bg-red-500 animate-pulse",
+              ].join(" ")}
+            />
+            <span className="text-[10px] text-muted-foreground hidden sm:inline">
+              {isConnected
+                ? "En línea"
+                : isReconnecting
+                  ? "Reconectando"
+                  : "Sin conexión"}
+            </span>
+          </div>
           <ImportModal onImportSuccess={handleImportSuccess} />
         </div>
       </header>
@@ -415,6 +465,16 @@ export default function DashboardPage() {
                 data={filteredData}
                 loading={isLoading}
                 onRowClick={(row) => {
+                  // Block access if an operator is actively executing this protocol
+                  const lockedBy = (row as any).id && locks[(row as any).id];
+                  if (lockedBy && row.status !== "PENDING") {
+                    toast.warning(`Protocolo en ejecución por ${lockedBy}`, {
+                      description:
+                        "No es posible editar el protocolo mientras está siendo ejecutado.",
+                      duration: 4000,
+                    });
+                    return;
+                  }
                   // Route to test page for pending, protocolo page for generated
                   const route =
                     row.status === "PENDING"

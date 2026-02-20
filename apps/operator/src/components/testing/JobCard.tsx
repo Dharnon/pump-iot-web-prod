@@ -6,21 +6,24 @@ import {
   Clock,
   ChevronRight,
   FileText,
+  Lock,
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Job } from "@/contexts/JobProvider";
 import { cn } from "@/lib/utils";
 
-// Cast icons to any to avoid TS errors with current setup
 const ClockIcon = Clock as any;
 const CheckCircle2Icon = CheckCircle2 as any;
 const AlertTriangleIcon = AlertTriangle as any;
 const ChevronRightIcon = ChevronRight as any;
 const FileTextIcon = FileText as any;
+const LockIcon = Lock as any;
 
 interface JobCardProps {
   job: Job;
+  lockedBy?: string; // device name that currently holds the lock
   onStart?: () => void;
   onView?: () => void;
   onAnalyze?: () => void;
@@ -55,6 +58,7 @@ const statusConfig = {
 
 export const JobCard: React.FC<JobCardProps> = ({
   job,
+  lockedBy,
   onStart,
   onView,
   onAnalyze,
@@ -62,6 +66,7 @@ export const JobCard: React.FC<JobCardProps> = ({
   const status = statusConfig[job.status];
   const StatusIcon = status.icon;
   const [showErrorDetails, setShowErrorDetails] = React.useState(false);
+  const isLocked = Boolean(lockedBy);
 
   const handleBadgeClick = (e: React.MouseEvent) => {
     if (job.status === "KO") {
@@ -74,45 +79,62 @@ export const JobCard: React.FC<JobCardProps> = ({
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
-  }).format(new Date(job.createdAt));
+  }).format(
+    job.protocolSpec?.jobDate
+      ? new Date(job.protocolSpec.jobDate)
+      : new Date(job.createdAt),
+  );
 
   const isPending = job.status === "GENERADA";
+  const isClickable = isPending && !isLocked;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -4, transition: { duration: 0.2 } }}
-      onClick={isPending ? onStart : undefined}
+      whileHover={{ y: isClickable ? -4 : 0, transition: { duration: 0.2 } }}
+      onClick={isClickable ? onStart : undefined}
       className={cn(
         "bg-card rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300",
         "border h-full flex flex-col cursor-default",
         status.borderClass,
-        isPending && "cursor-pointer hover:border-primary/50 group",
+        isClickable && "cursor-pointer hover:border-primary/50 group",
+        isLocked && "opacity-70 border-amber-500/40",
       )}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
-        <Badge
-          onClick={handleBadgeClick}
-          className={cn(
-            "px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all select-none",
-            status.className,
-            job.status === "KO" &&
-              "cursor-pointer hover:opacity-80 active:scale-95 ring-offset-2 focus:ring-2 focus:ring-destructive",
+        <div className="flex items-center gap-2">
+          <Badge
+            onClick={handleBadgeClick}
+            className={cn(
+              "px-2.5 py-0.5 rounded-full text-[10px] font-semibold transition-all select-none",
+              status.className,
+              job.status === "KO" &&
+                "cursor-pointer hover:opacity-80 active:scale-95 ring-offset-2 focus:ring-2 focus:ring-destructive",
+            )}
+          >
+            <StatusIcon className="w-3 h-3 mr-1" />
+            {status.label}
+            {job.status === "KO" && (
+              <ChevronRightIcon
+                className={cn(
+                  "w-3 h-3 ml-1 transition-transform",
+                  showErrorDetails && "rotate-90",
+                )}
+              />
+            )}
+          </Badge>
+
+          {/* Lock badge — shown when another tablet is editing this protocol */}
+          {isLocked && (
+            <Badge className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 animate-pulse">
+              <LockIcon className="w-3 h-3 mr-1" />
+              {lockedBy}
+            </Badge>
           )}
-        >
-          <StatusIcon className="w-3 h-3 mr-1" />
-          {status.label}
-          {job.status === "KO" && (
-            <ChevronRightIcon
-              className={cn(
-                "w-3 h-3 ml-1 transition-transform",
-                showErrorDetails && "rotate-90",
-              )}
-            />
-          )}
-        </Badge>
+        </div>
+
         <span className="text-[10px] font-medium text-muted-foreground bg-secondary/50 px-2 py-0.5 rounded-md">
           {dateFormatted}
         </span>

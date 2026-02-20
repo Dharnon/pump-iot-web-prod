@@ -38,7 +38,7 @@ export function BombaDataSection({
       <div className="flex flex-wrap gap-4 items-start">
         <CleanAutoInput
           label="Item"
-          value={pdfData?.item || generalInfo?.item}
+          value={generalInfo?.item || pdfData?.item || ""}
           onChange={(val) => onDataChange("item", val)}
           className="h-9 text-sm"
           minWidth={80}

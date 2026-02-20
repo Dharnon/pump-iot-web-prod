@@ -40,7 +40,7 @@
  * @example En .env.local:
  * NEXT_PUBLIC_API_URL=http://192.168.1.100:4000
  */
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5002';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5002';
 
 // =============================================================================
 // CLIENTE HTTP GENÉRICO

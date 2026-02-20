@@ -96,6 +96,22 @@ export function useTestDetail(testId: string): UseTestDetailResult {
           detalles: data.detalles,
           motor: data.motor
         });
+
+        // Sync pedidoCliente from cliente entity into generalInfo (they may diverge)
+        if (data.cliente?.pedidoCliente && !data.generalInfo?.pedidoCliente) {
+          data.generalInfo = {
+            ...data.generalInfo,
+            pedidoCliente: data.cliente.pedidoCliente
+          };
+        }
+
+        // Sync item from bomba entity into generalInfo (bomba.item is the canonical source)
+        if (data.bomba?.item) {
+          data.generalInfo = {
+            ...data.generalInfo,
+            item: data.bomba.item
+          };
+        }
       }
 
       setTest(data);
@@ -121,7 +137,7 @@ export function useTestDetail(testId: string): UseTestDetailResult {
       if (!prev) return null;
 
       // Fields that belong to generalInfo
-      const generalInfoFields = ['pedido', 'cliente', 'pedidoCliente', 'fecha', 'numeroBombas', 'modeloBomba', 'ordenTrabajo'];
+      const generalInfoFields = ['pedido', 'cliente', 'pedidoCliente', 'fecha', 'numeroBombas', 'modeloBomba', 'ordenTrabajo', 'item'];
 
       if (generalInfoFields.includes(field)) {
         return {
@@ -129,6 +145,12 @@ export function useTestDetail(testId: string): UseTestDetailResult {
           generalInfo: {
             ...prev.generalInfo,
             [field]: value
+          },
+          // If updating 'item', ensure we remove it from pdfData so it doesn't mask the new generalInfo value
+          // if pdfData logic prioritizes its own field (though we swapped priority in view, it's safer to be clean)
+          pdfData: {
+             ...prev.pdfData,
+             ...(field === 'item' ? { item: undefined } : {})
           }
         };
       }

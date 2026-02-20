@@ -55,9 +55,18 @@ export function useTestSave(): UseTestSaveResult {
       const result = await patchTest(test.id, requestBody);
       console.log("Protocol saved:", result);
 
-      // Upload PDF if file exists (only in PENDING mode when finalizing)
-      if (pdfFile && viewMode === 'PENDING') {
-        const protocolIds = result?.ids || (result?.id ? [result.id] : []);
+      // Upload PDF if file exists
+      // In PENDING mode: use the IDs returned by the generate endpoint
+      // In GENERATED mode: use the existing test's own ID
+      if (pdfFile) {
+        let protocolIds: (string | number)[] = [];
+
+        if (viewMode === 'PENDING') {
+          protocolIds = result?.ids || (result?.id ? [result.id] : []);
+        } else {
+          // GENERATED mode: test already has an ID
+          protocolIds = test.numeroProtocolo ? [test.numeroProtocolo] : [test.id];
+        }
 
         if (protocolIds.length > 0) {
           try {

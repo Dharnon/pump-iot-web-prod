@@ -4,6 +4,7 @@ import React, {
   useState,
   useCallback,
   useEffect,
+  useRef,
 } from "react";
 import {
   getTests,
@@ -12,6 +13,8 @@ import {
   type Test,
 } from "@pump-iot/core/api";
 import { toast } from "sonner";
+import { HubConnectionState } from "@microsoft/signalr";
+import { useSignalR, type Locks } from "../hooks/useSignalR";
 
 // =============================================================================
 // TYPES (Extracted from original TestingContext)
@@ -141,6 +144,11 @@ interface JobContextType {
   clearJob: () => void;
   testConfig: TestConfig | null;
   setTestConfig: (config: TestConfig) => void;
+  // SignalR
+  connectionState: HubConnectionState;
+  locks: Locks;
+  lockProtocol: (id: string) => void;
+  unlockProtocol: (id: string) => void;
 }
 
 // =============================================================================
@@ -420,6 +428,38 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentJob, setCurrentJob] = useState<Job | null>(null);
   const [testConfig, setTestConfig] = useState<TestConfig | null>(null);
 
+  const fetchJobsRef = useRef<() => Promise<void>>();
+
+  const { connectionState, locks, lockProtocol, unlockProtocol, isConnected } =
+    useSignalR({
+      onListUpdated: () => {
+        // Re-fetch jobs when supervisor generates a new protocol
+        fetchJobsRef.current?.();
+      },
+    });
+
+  // Manage protocol lock based on currentJob
+  // When a job is selected AND we are connected, we lock it.
+  // When deselected, changed, or disconnected, we unlock.
+  // Adding isConnected ensures we retry locking if connection drops and comes back.
+  useEffect(() => {
+    if (currentJob?.id && isConnected) {
+      console.log(
+        `[JobProvider] Locking protocol ${currentJob.id} (Connected: ${isConnected})`,
+      );
+      lockProtocol(currentJob.id);
+    }
+
+    return () => {
+      if (currentJob?.id) {
+        // Only try to unlock if we have a valid ID.
+        // If connection is lost, this might fail, but that's expected.
+        console.log(`[JobProvider] Unlocking protocol ${currentJob.id}`);
+        unlockProtocol(currentJob.id);
+      }
+    };
+  }, [currentJob?.id, isConnected, lockProtocol, unlockProtocol]);
+
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -451,6 +491,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
                 customerOrder: info.pedidoCliente || info.pedido,
                 workOrder: info.ordenTrabajo,
                 itemNumber: info.item,
+                jobDate: info.fecha,
                 pumpType: info.tipoDeBomba || info.modeloBomba, // Fallback to model if type is missing
                 serialNumber: t.numeroSerie,
               },
@@ -469,6 +510,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
       }
     };
 
+    fetchJobsRef.current = fetchJobs;
     fetchJobs();
   }, []);
 
@@ -703,6 +745,11 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         clearJob,
         testConfig,
         setTestConfig,
+        // SignalR
+        connectionState,
+        locks,
+        lockProtocol,
+        unlockProtocol,
       }}
     >
       {children}

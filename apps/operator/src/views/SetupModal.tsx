@@ -1,7 +1,7 @@
 /**
  * SetupModal.tsx - Enhanced with Tabs and Protocol Details
  */
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -44,7 +44,14 @@ const ActivityIcon = Activity as any;
 const DropletsIcon = Droplets as any;
 
 export const SetupModal: React.FC = () => {
-  const { currentJob, testConfig, setTestConfig, updateJob } = useJob();
+  const {
+    currentJob,
+    testConfig,
+    setTestConfig,
+    updateJob,
+    lockProtocol,
+    unlockProtocol,
+  } = useJob();
   const { setCurrentView } = useNavigation();
 
   const [selectedBank, setSelectedBank] = useState<
@@ -77,17 +84,32 @@ export const SetupModal: React.FC = () => {
   );
   const [isDirty, setIsDirty] = useState(false);
 
+  // Sync form when currentJob updates with full backend details
+  useEffect(() => {
+    if (currentJob?.protocolSpec) {
+      setProtocolForm(currentJob.protocolSpec);
+    }
+  }, [currentJob]);
+
   // Helper to update protocol form
   const handleProtocolChange = (field: string, value: any) => {
     setProtocolForm((prev) => ({ ...prev, [field]: value }));
     setIsDirty(true);
   };
 
-  const handleSaveProtocol = () => {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveProtocol = async () => {
     if (currentJob) {
-      updateJob({ protocolSpec: protocolForm });
-      setIsDirty(false);
-      toast.success("Protocolo actualizado correctamente");
+      setIsSaving(true);
+      try {
+        await updateJob({ protocolSpec: protocolForm });
+        setIsDirty(false);
+      } catch (error) {
+        console.error("Failed to save protocol", error);
+      } finally {
+        setIsSaving(false);
+      }
     }
   };
 
@@ -256,9 +278,10 @@ export const SetupModal: React.FC = () => {
                         type="date"
                         value={
                           protocolForm.jobDate
-                            ? new Date(protocolForm.jobDate)
-                                .toISOString()
-                                .split("T")[0]
+                            ? typeof protocolForm.jobDate === "string" &&
+                              protocolForm.jobDate.includes("T")
+                              ? protocolForm.jobDate.split("T")[0]
+                              : protocolForm.jobDate
                             : ""
                         }
                         onChange={(e) =>
@@ -1245,10 +1268,20 @@ export const SetupModal: React.FC = () => {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 20, scale: 0.9 }}
                     onClick={handleSaveProtocol}
-                    className="pointer-events-auto bg-primary text-primary-foreground px-6 py-3 rounded-full font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all active:scale-95 flex items-center gap-2"
+                    disabled={isSaving}
+                    className="pointer-events-auto bg-primary text-primary-foreground px-6 py-3 rounded-full font-bold transition-all active:scale-95 flex items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    <SaveIcon className="w-5 h-5" />
-                    Guardar Cambios
+                    {isSaving ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <SaveIcon className="w-5 h-5" />
+                        Guardar Cambios
+                      </>
+                    )}
                   </motion.button>
                 )}
               </AnimatePresence>

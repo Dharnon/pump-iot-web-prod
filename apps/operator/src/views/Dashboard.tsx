@@ -7,9 +7,19 @@
  */
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Search, Settings, BarChart3, Home, LogOut } from "lucide-react";
+import {
+  Search,
+  Settings,
+  BarChart3,
+  Home,
+  LogOut,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
+import { HubConnectionState } from "@microsoft/signalr";
 import { useJob, Job } from "@/contexts/JobProvider";
 import { useNavigation } from "@/contexts/NavigationProvider";
+
 import { JobCard } from "@/components/testing/JobCard";
 import { FloatingSidebar } from "@/components/testing/FloatingSidebar";
 import { SettingsModal } from "@/views/SettingsModal";
@@ -42,8 +52,12 @@ import {
 import { es } from "date-fns/locale";
 
 export const Dashboard: React.FC = () => {
-  const { jobs, selectJob, setTestConfig } = useJob();
+  const { jobs, selectJob, setTestConfig, connectionState, locks } = useJob();
   const { setCurrentView } = useNavigation();
+
+  const isConnected = connectionState === HubConnectionState.Connected;
+  const isReconnecting = connectionState === HubConnectionState.Reconnecting;
+
   const [activeTab, setActiveTab] = useState<TabType>("pendientes");
   const [searchQuery, setSearchQuery] = useState("");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -186,10 +200,39 @@ export const Dashboard: React.FC = () => {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4"
         >
-          <div>
+          <div className="flex items-center gap-3">
             <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">
               Banco de Pruebas
             </h1>
+            {/* SignalR connection indicator */}
+            <div
+              className="flex items-center gap-1.5 mb-2"
+              title={
+                isConnected
+                  ? "Conectado al servidor"
+                  : isReconnecting
+                    ? "Reconectando..."
+                    : "Sin conexión"
+              }
+            >
+              <span
+                className={[
+                  "block w-2.5 h-2.5 rounded-full",
+                  isConnected
+                    ? "bg-green-500 shadow-[0_0_6px_2px_rgba(34,197,94,0.6)]"
+                    : isReconnecting
+                      ? "bg-yellow-400 animate-pulse shadow-[0_0_6px_2px_rgba(250,204,21,0.5)]"
+                      : "bg-red-500 animate-pulse shadow-[0_0_6px_2px_rgba(239,68,68,0.6)]",
+                ].join(" ")}
+              />
+              <span className="text-xs text-muted-foreground hidden sm:inline">
+                {isConnected
+                  ? "En línea"
+                  : isReconnecting
+                    ? "Reconectando"
+                    : "Sin conexión"}
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
@@ -303,6 +346,7 @@ export const Dashboard: React.FC = () => {
             >
               <JobCard
                 job={job}
+                lockedBy={locks[job.id]}
                 onStart={() => handleStartJob(job)}
                 onView={() => handleViewPdf(job)}
                 onAnalyze={() => handleAnalyze(job)}

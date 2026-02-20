@@ -13,7 +13,9 @@ import {
   ArrowUp,
   ArrowDown,
   Trash2,
+  Lock,
 } from "lucide-react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -114,6 +116,7 @@ function SortableHeader({ column, title }: { column: any; title: string }) {
 export const getColumns = (
   t: (key: string) => string,
   onDelete?: (id: string) => void,
+  locks?: Record<string, string>, // protocolId → device name
 ): ColumnDef<TestItem>[] => [
   {
     accessorKey: "status",
@@ -122,6 +125,26 @@ export const getColumns = (
     ),
     cell: ({ row }) => {
       const status = row.getValue("status") as string;
+      const lockedBy = locks?.[row.original.id];
+
+      // If operating tablet is executing this protocol, show IN_PROGRESS style
+      if (lockedBy) {
+        return (
+          <div className="flex items-center gap-1.5">
+            <Badge
+              variant="outline"
+              className="rounded-full pl-1.5 pr-2.5 py-0.5 font-medium border border-slate-200 dark:border-slate-700 bg-transparent text-slate-600 dark:text-slate-300"
+            >
+              <Loader2 className="w-3.5 h-3.5 mr-1.5 text-blue-500 dark:text-blue-400 animate-spin" />
+              En Proceso
+            </Badge>
+            <span className="text-[10px] text-muted-foreground font-mono">
+              {lockedBy}
+            </span>
+          </div>
+        );
+      }
+
       const config = getStatusConfig(status, t);
       const Icon = config.icon;
       return (
