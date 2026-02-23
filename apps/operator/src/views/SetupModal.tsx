@@ -49,6 +49,7 @@ export const SetupModal: React.FC = () => {
     testConfig,
     setTestConfig,
     updateJob,
+    clearJob,
     lockProtocol,
     unlockProtocol,
   } = useJob();
@@ -144,6 +145,8 @@ export const SetupModal: React.FC = () => {
   };
 
   const handleClose = () => {
+    // Release the SignalR lock before navigating away
+    clearJob();
     setCurrentView("dashboard");
   };
 

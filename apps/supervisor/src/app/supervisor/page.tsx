@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
@@ -75,6 +75,7 @@ export default function DashboardPage() {
   const { t } = useLanguage();
   const [creating, setCreating] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   // SWR Hook for data fetching
   const { tests, isLoading, isValidating, mutate } = useTests();
 
@@ -92,6 +93,7 @@ export default function DashboardPage() {
 
     if (savedViewMode) setViewMode(savedViewMode);
     if (savedStatusFilter) setStatusFilter(savedStatusFilter);
+    setSidebarOpen(localStorage.getItem("dashboardSidebarOpen") !== "false");
     setIsReady(true);
   }, []);
 
@@ -100,8 +102,9 @@ export default function DashboardPage() {
     if (isReady) {
       localStorage.setItem("dashboardViewMode", viewMode);
       localStorage.setItem("dashboardStatusFilter", statusFilter);
+      localStorage.setItem("dashboardSidebarOpen", String(sidebarOpen));
     }
-  }, [viewMode, statusFilter, isReady]);
+  }, [viewMode, statusFilter, sidebarOpen, isReady]);
 
   // Reset status filter when switching views (only if not restoring from mount)
   useEffect(() => {
@@ -217,7 +220,14 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("lastImport");
-    if (stored) setLastImport(JSON.parse(stored));
+    if (stored) {
+      try {
+        setLastImport(JSON.parse(stored));
+      } catch (e) {
+        console.error("Error parsing lastImport:", e);
+        localStorage.removeItem("lastImport");
+      }
+    }
   }, []);
 
   const handleImportSuccess = (filename: string, count: number) => {
@@ -286,9 +296,9 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Grid Layout - Asymmetric (Main + Sidebar) */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_420px] overflow-hidden">
+      <div className="flex-1 flex overflow-hidden">
         {/* Main Content Area */}
-        <div className="flex flex-col border-r overflow-hidden">
+        <div className="flex-1 flex flex-col border-r overflow-hidden">
           {/* Stats Grid - Infinite Lines Style */}
           <div className="grid grid-cols-4 border-b">
             <StatCell
@@ -488,66 +498,86 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Sidebar - Fixed Width Panel */}
-        <div className="hidden lg:flex flex-col border-l bg-background overflow-hidden">
-          <div className="px-6 py-4 border-b">
-            <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">
-              Actividad Reciente
-            </h2>
-          </div>
-          <div className="flex-1 overflow-auto p-6 space-y-4">
-            {lastImport ? (
-              <div className="space-y-3">
-                <div className="p-4 border border-border/50 hover:border-primary/30 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-all cursor-pointer group">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <FileSpreadsheet className="w-4 h-4 text-primary" />
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        Última Importación
-                      </span>
-                    </div>
-                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50 group-hover:translate-x-0.5 transition-transform" />
+        {/* Sidebar - Collapsible Panel */}
+        <div
+          className={[
+            "hidden lg:flex flex-col border-l bg-background overflow-hidden transition-all duration-300",
+            sidebarOpen ? "w-[320px] min-w-[320px]" : "w-10 min-w-10",
+          ].join(" ")}
+        >
+          {/* Header - always visible, acts as toggle */}
+          <button
+            onClick={() => setSidebarOpen((v) => !v)}
+            className="flex items-center justify-between px-3 py-2.5 border-b w-full hover:bg-muted/30 transition-colors group shrink-0"
+          >
+            {sidebarOpen && (
+              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
+                Actividad Reciente
+              </span>
+            )}
+            <ChevronRight
+              className={[
+                "w-3.5 h-3.5 text-muted-foreground/60 group-hover:text-foreground transition-all shrink-0",
+                sidebarOpen ? "rotate-180" : "",
+              ].join(" ")}
+            />
+          </button>
+
+          {/* Content — only shown when open */}
+          {sidebarOpen && (
+            <div className="flex-1 overflow-auto p-3 space-y-3">
+              {/* Last Import */}
+              {lastImport ? (
+                <div className="p-3 border border-border/40 hover:border-primary/30 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-all rounded-sm">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <FileSpreadsheet className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      Última Importación
+                    </span>
                   </div>
-                  <p className="text-sm font-semibold text-foreground mb-1">
+                  <p className="text-xs font-semibold text-foreground truncate mb-0.5">
                     {lastImport.filename}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    {lastImport.count} registros importados
-                  </p>
-                  <p className="text-[10px] text-muted-foreground/70 mt-2">
-                    {new Date(lastImport.time).toLocaleString("es-ES")}
+                  <p className="text-[10px] text-muted-foreground">
+                    {lastImport.count} registros •{" "}
+                    {new Date(lastImport.time).toLocaleString("es-ES", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </p>
                 </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-32 text-xs text-muted-foreground">
-                No hay actividad reciente
-              </div>
-            )}
+              ) : (
+                <div className="flex items-center justify-center h-12 text-[10px] text-muted-foreground/60">
+                  Sin actividad
+                </div>
+              )}
 
-            {/* Quick Stats */}
-            <div className="space-y-2 pt-4 border-t">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                Estadísticas
-              </h3>
-              <QuickStatRow label="Total de Pruebas" value={tests.length} />
-              <QuickStatRow
-                label="Pendientes"
-                value={pendingTests.length}
-                color="text-yellow-600"
-              />
-              <QuickStatRow
-                label="En Proceso"
-                value={tests.filter((t) => t.status === "IN_PROGRESS").length}
-                color="text-blue-600"
-              />
-              <QuickStatRow
-                label="Completadas"
-                value={generatedTests.length}
-                color="text-green-600"
-              />
+              {/* Quick Stats */}
+              <div className="space-y-1 pt-2 border-t">
+                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+                  Estadísticas
+                </h3>
+                <QuickStatRow label="Total" value={tests.length} />
+                <QuickStatRow
+                  label="Pendientes"
+                  value={pendingTests.length}
+                  color="text-yellow-600"
+                />
+                <QuickStatRow
+                  label="En Proceso"
+                  value={tests.filter((t) => t.status === "IN_PROGRESS").length}
+                  color="text-blue-600"
+                />
+                <QuickStatRow
+                  label="Completadas"
+                  value={generatedTests.length}
+                  color="text-green-600"
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

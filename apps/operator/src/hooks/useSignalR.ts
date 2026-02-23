@@ -25,11 +25,31 @@ const API_BASE_URL =
 
 const HUB_URL = `${API_BASE_URL}/hubs/protocol`;
 
-// Device name identifies this tablet in the UI. Uses hostname or a random suffix.
-const DEVICE_NAME =
-  typeof window !== "undefined"
-    ? window.location.hostname || `Tablet-${Math.random().toString(36).slice(2, 6)}`
-    : "Tablet";
+// ─── Device name ────────────────────────────────────────────────────────────
+// Assigns a friendly persistent name ("Tablet 1", "Tablet 2", …) stored in
+// localStorage so the same device always shows the same label.
+export function getDeviceName(): string {
+  const STORAGE_KEY = "pump_iot_device_name";
+  if (typeof window === "undefined") return "Tablet";
+
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) return saved;
+
+  // Pick a number 1-99 that no other tab on this machine has claimed yet.
+  // We use a shared prefix so different tabs/windows don't collide.
+  const usedKey = "pump_iot_used_device_ids";
+  const used: number[] = JSON.parse(localStorage.getItem(usedKey) ?? "[]");
+  let next = 1;
+  while (used.includes(next)) next++;
+  used.push(next);
+  localStorage.setItem(usedKey, JSON.stringify(used));
+
+  const name = `Tablet ${next}`;
+  localStorage.setItem(STORAGE_KEY, name);
+  return name;
+}
+
+const DEVICE_NAME = getDeviceName();
 
 export type Locks = Record<string, string>; // protocolId → deviceName
 

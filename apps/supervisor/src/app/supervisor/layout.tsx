@@ -167,7 +167,25 @@ export default function SupervisorLayout({
     }
 
     // Parsear y guardar en estado
-    setUser(JSON.parse(storedUser));
+    try {
+      const parsedUser = JSON.parse(storedUser);
+      // Validate object structure
+      if (
+        !parsedUser ||
+        typeof parsedUser !== "object" ||
+        !parsedUser.username
+      ) {
+        console.warn("Invalid user object in localStorage:", parsedUser);
+        localStorage.removeItem("user");
+        router.push("/login");
+        return;
+      }
+      setUser(parsedUser);
+    } catch (e) {
+      console.error("Error parsing user from localStorage:", e);
+      localStorage.removeItem("user");
+      router.push("/login");
+    }
   }, [router]);
 
   // Hook de idioma
@@ -193,8 +211,16 @@ export default function SupervisorLayout({
    * Limpia localStorage y redirige a login.
    */
   const handleLogout = () => {
+    // Clear localStorage (client-side session data)
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
+    // CRITICAL: Also expire the token cookie so the middleware
+    // no longer grants access to /supervisor after logout.
+    // This must mirror how the cookie is set in login/page.tsx.
+    document.cookie = "token=; path=/; max-age=0; SameSite=Strict";
+    document.cookie = "use_mock_data=; path=/; max-age=0; SameSite=Strict";
+
     router.push("/login");
   };
 

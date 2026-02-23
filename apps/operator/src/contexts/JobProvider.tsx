@@ -149,6 +149,8 @@ interface JobContextType {
   locks: Locks;
   lockProtocol: (id: string) => void;
   unlockProtocol: (id: string) => void;
+  /** Set of protocol IDs locked by THIS device/session */
+  myLockedProtocols: Set<string>;
 }
 
 // =============================================================================
@@ -427,6 +429,10 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
   const [currentJob, setCurrentJob] = useState<Job | null>(null);
   const [testConfig, setTestConfig] = useState<TestConfig | null>(null);
+  // Tracks which protocol IDs THIS session has locked (not other devices)
+  const [myLockedProtocols, setMyLockedProtocols] = useState<Set<string>>(
+    new Set(),
+  );
 
   const fetchJobsRef = useRef<() => Promise<void>>();
 
@@ -438,27 +444,50 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
       },
     });
 
-  // Manage protocol lock based on currentJob
-  // When a job is selected AND we are connected, we lock it.
-  // When deselected, changed, or disconnected, we unlock.
-  // Adding isConnected ensures we retry locking if connection drops and comes back.
+  // Keep a ref to the current job id so cleanup functions always see the latest
+  const currentJobIdRef = useRef<string | null>(null);
+  currentJobIdRef.current = currentJob?.id ?? null;
+
+  // Effect 1: Lock when a job is selected, unlock when deselected or job changes
   useEffect(() => {
-    if (currentJob?.id && isConnected) {
-      console.log(
-        `[JobProvider] Locking protocol ${currentJob.id} (Connected: ${isConnected})`,
-      );
+    if (!currentJob?.id) return;
+
+    // Only lock if we're connected. If not, Effect 2 will handle it on reconnect.
+    if (isConnected) {
+      console.log(`[JobProvider] Locking protocol ${currentJob.id}`);
       lockProtocol(currentJob.id);
+      setMyLockedProtocols((prev) => new Set(prev).add(currentJob.id));
     }
 
     return () => {
-      if (currentJob?.id) {
-        // Only try to unlock if we have a valid ID.
-        // If connection is lost, this might fail, but that's expected.
-        console.log(`[JobProvider] Unlocking protocol ${currentJob.id}`);
-        unlockProtocol(currentJob.id);
+      // Cleanup: unlock the job that was locked by THIS effect run
+      const jobId = currentJob.id; // captured at effect creation time
+      if (jobId) {
+        console.log(`[JobProvider] Unlocking protocol ${jobId}`);
+        unlockProtocol(jobId);
+        setMyLockedProtocols((prev) => {
+          const next = new Set(prev);
+          next.delete(jobId);
+          return next;
+        });
       }
     };
-  }, [currentJob?.id, isConnected, lockProtocol, unlockProtocol]);
+    // Only re-run when the job actually changes — NOT when isConnected flips
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentJob?.id, lockProtocol, unlockProtocol]);
+
+  // Effect 2: Re-lock on reconnect (without triggering an unlock on cleanup)
+  useEffect(() => {
+    if (!isConnected) return;
+    if (!currentJobIdRef.current) return;
+
+    console.log(
+      `[JobProvider] Re-locking protocol ${currentJobIdRef.current} after reconnect`,
+    );
+    lockProtocol(currentJobIdRef.current);
+    setMyLockedProtocols((prev) => new Set(prev).add(currentJobIdRef.current!));
+    // No unlock in cleanup — Effect 1 owns the unlock lifecycle
+  }, [isConnected, lockProtocol]);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -750,6 +779,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         locks,
         lockProtocol,
         unlockProtocol,
+        myLockedProtocols,
       }}
     >
       {children}

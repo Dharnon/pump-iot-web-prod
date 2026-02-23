@@ -52,7 +52,14 @@ import {
 import { es } from "date-fns/locale";
 
 export const Dashboard: React.FC = () => {
-  const { jobs, selectJob, setTestConfig, connectionState, locks } = useJob();
+  const {
+    jobs,
+    selectJob,
+    setTestConfig,
+    connectionState,
+    locks,
+    myLockedProtocols,
+  } = useJob();
   const { setCurrentView } = useNavigation();
 
   const isConnected = connectionState === HubConnectionState.Connected;
@@ -346,7 +353,12 @@ export const Dashboard: React.FC = () => {
             >
               <JobCard
                 job={job}
-                lockedBy={locks[job.id]}
+                lockedBy={
+                  // Show lock only if another device (not this session) holds it
+                  locks[job.id] && !myLockedProtocols.has(job.id)
+                    ? locks[job.id]
+                    : undefined
+                }
                 onStart={() => handleStartJob(job)}
                 onView={() => handleViewPdf(job)}
                 onAnalyze={() => handleAnalyze(job)}
