@@ -198,6 +198,11 @@ export default function SupervisorLayout({
       icon: LayoutDashboard,
       href: "/supervisor",
     },
+    {
+      title: "Programación",
+      icon: FileSpreadsheet,
+      href: "/supervisor/programacion",
+    },
     { title: "Usuarios", icon: Users, href: "/supervisor/user-management" },
   ];
 
@@ -238,7 +243,7 @@ export default function SupervisorLayout({
 
   return (
     // SidebarProvider: Provee context para estado del sidebar (open/collapsed)
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       {/* Container principal: flex horizontal, altura completa */}
       <div className="h-screen flex w-full overflow-hidden">
         {/* ============================================================

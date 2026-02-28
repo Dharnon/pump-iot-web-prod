@@ -37,11 +37,11 @@ function InfoField({
 }) {
   return (
     <div className={className}>
-      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">
+      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5">
         {label}
       </p>
       <p
-        className={`text-sm font-medium ${highlight ? "text-primary font-mono" : "text-foreground"} break-words`}
+        className={`text-xs font-medium ${highlight ? "text-primary font-mono" : "text-foreground"} break-words`}
       >
         {value}
       </p>
@@ -57,36 +57,36 @@ export function GeneralInfoSection({
   showQty = true,
 }: GeneralInfoSectionProps) {
   return (
-    <section className="space-y-4">
+    <section className="space-y-3">
       <div>
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-          <FileText className="w-4 h-4" />
+        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+          <FileText className="w-3.5 h-3.5" />
           {t("test.generalInfo")}
         </h3>
       </div>
-      <div className="flex flex-wrap gap-4 items-start">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-3 gap-y-2">
         {allFieldsEditable && onDataChange ? (
           <>
             <CleanAutoInput
               label={t("field.order")}
               value={generalInfo.pedido}
               onChange={(val) => onDataChange("pedido", val)}
-              className="h-9 text-sm"
-              minWidth={140}
+              className="h-8 text-xs"
+              minWidth={100}
             />
             <CleanAutoInput
               label={t("field.client")}
               value={generalInfo.cliente}
               onChange={(val) => onDataChange("cliente", val)}
-              className="h-9 text-sm"
-              minWidth={200}
+              className="h-8 text-xs col-span-1 sm:col-span-2"
+              minWidth={150}
             />
             <CleanAutoInput
               label={t("field.clientOrder")}
               value={generalInfo.pedidoCliente || ""}
               onChange={(val) => onDataChange("pedidoCliente", val)}
-              className="h-9 text-sm"
-              minWidth={140}
+              className="h-8 text-xs"
+              minWidth={100}
             />
             <CleanAutoInput
               label={t("field.date")}
@@ -94,23 +94,18 @@ export function GeneralInfoSection({
                 generalInfo.fecha || new Date().toLocaleDateString("es-ES")
               }
               onChange={(val) => onDataChange("fecha", val)}
-              className="h-9 text-sm"
-              minWidth={120}
+              className="h-8 text-xs"
+              minWidth={90}
             />
             {showQty && (
               <CleanAutoInput
                 label={t("field.qty")}
                 value={String(generalInfo.numeroBombas)}
                 onChange={(val) => onDataChange("numeroBombas", val)}
-                className="h-9 text-sm w-20 text-center"
-                minWidth={60}
+                className="h-8 text-xs w-16 text-center"
+                minWidth={50}
               />
             )}
-            <div className="flex items-center gap-2 pt-6">
-              <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded border">
-                CSV
-              </span>
-            </div>
           </>
         ) : (
           <>
@@ -118,37 +113,32 @@ export function GeneralInfoSection({
               label={t("field.order")}
               value={generalInfo.pedido}
               highlight
-              className="min-w-[120px]"
+              className="col-span-1"
             />
             <InfoField
               label={t("field.client")}
               value={generalInfo.cliente}
-              className="min-w-[180px]"
+              className="col-span-1 sm:col-span-2"
             />
             <InfoField
               label={t("field.clientOrder")}
               value={generalInfo.pedidoCliente || "-"}
-              className="min-w-[120px]"
+              className="col-span-1"
             />
             <InfoField
               label={t("field.date")}
               value={
                 generalInfo.fecha || new Date().toLocaleDateString("es-ES")
               }
-              className="text-muted-foreground min-w-[100px]"
+              className="col-span-1"
             />
             {showQty && (
               <InfoField
                 label={t("field.qty")}
                 value={String(generalInfo.numeroBombas)}
-                className="text-muted-foreground min-w-[60px]"
+                className="col-span-1"
               />
             )}
-            <div className="flex items-center gap-2 pt-1">
-              <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded border">
-                CSV
-              </span>
-            </div>
           </>
         )}
       </div>

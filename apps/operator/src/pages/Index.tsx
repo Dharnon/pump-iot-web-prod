@@ -5,6 +5,7 @@
  * 
  * Provider Hierarchy:
  * - NavigationProvider: View state (infrequent updates)
+ * - UserProvider: User-bank association
  * - JobProvider: Job selection and test config (infrequent updates)
  * - TelemetryProvider: Real-time data (500ms updates, ISOLATED)
  * 
@@ -15,6 +16,7 @@ import { AnimatePresence } from 'framer-motion';
 
 // New isolated providers
 import { NavigationProvider, useNavigation } from '@/contexts/NavigationProvider';
+import { UserProvider } from '@/contexts/UserProvider';
 import { JobProvider, useJob } from '@/contexts/JobProvider';
 import { TelemetryProvider } from '@/contexts/TelemetryProvider';
 
@@ -23,6 +25,7 @@ import { Dashboard } from '@/views/Dashboard';
 import { SetupModal } from '@/views/SetupModal';
 import { Cockpit } from '@/views/Cockpit';
 import { Analytics } from '@/views/Analytics';
+import { Programacion } from '@/views/Programacion';
 
 /**
  * AppContent - Renders current view based on navigation state.
@@ -38,14 +41,17 @@ const AppContent: React.FC = () => {
   const isTelemetryActive = currentView === 'cockpit';
 
   return (
-    <TelemetryProvider isActive={isTelemetryActive} testConfig={testConfig}>
-      <AnimatePresence mode="wait">
-        {currentView === 'dashboard' && <Dashboard key="dashboard" />}
-        {currentView === 'setup' && <SetupModal key="setup" />}
-        {currentView === 'cockpit' && <Cockpit key="cockpit" />}
-        {currentView === 'analytics' && <Analytics key="analytics" />}
-      </AnimatePresence>
-    </TelemetryProvider>
+    <div className="h-full">
+      <TelemetryProvider isActive={isTelemetryActive} testConfig={testConfig}>
+        <AnimatePresence mode="wait">
+          {currentView === 'dashboard' && <Dashboard key="dashboard" />}
+          {currentView === 'setup' && <div className="h-full"><SetupModal key="setup" /></div>}
+          {currentView === 'cockpit' && <Cockpit key="cockpit" />}
+          {currentView === 'analytics' && <Analytics key="analytics" />}
+          {currentView === 'programacion' && <Programacion key="programacion" />}
+        </AnimatePresence>
+      </TelemetryProvider>
+    </div>
   );
 };
 
@@ -54,15 +60,18 @@ const AppContent: React.FC = () => {
  * 
  * Provider order matters:
  * 1. NavigationProvider (outermost - used by all)
- * 2. JobProvider (middle - used by cockpit/analytics)
- * 3. TelemetryProvider (innermost - only in AppContent, only active in cockpit)
+ * 2. UserProvider (user-bank association)
+ * 3. JobProvider (middle - used by cockpit/analytics)
+ * 4. TelemetryProvider (innermost - only in AppContent, only active in cockpit)
  */
 const Index: React.FC = () => {
   return (
     <NavigationProvider>
-      <JobProvider>
-        <AppContent />
-      </JobProvider>
+      <UserProvider>
+        <JobProvider>
+          <AppContent />
+        </JobProvider>
+      </UserProvider>
     </NavigationProvider>
   );
 };

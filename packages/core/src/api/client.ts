@@ -5,6 +5,8 @@
  * Centralizes error handling and request configuration.
  */
 
+import { mockJobs, mockBancos, mockMotores } from './mockData';
+
 const getBaseUrl = () => {
   try {
     if (typeof process !== 'undefined' && process.env) {
@@ -23,8 +25,12 @@ const getBaseUrl = () => {
 
 const API_BASE_URL = getBaseUrl();
 
+// Flag to use mock data when API is unavailable
+const USE_MOCK_DATA = true; // Set to false to use real API
+
 /**
  * Generic fetch wrapper with centralized error handling.
+ * Falls back to mock data when API is unavailable.
  * 
  * @template T - Expected response type
  * @param endpoint - API endpoint path
@@ -36,6 +42,11 @@ export async function fetchApi<T>(
   endpoint: string,
   options?: RequestInit
 ): Promise<T> {
+  // Handle mock data for common endpoints
+  if (USE_MOCK_DATA) {
+    return handleMockEndpoint(endpoint) as Promise<T>;
+  }
+
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers: {
@@ -50,6 +61,67 @@ export async function fetchApi<T>(
   }
 
   return response.json();
+}
+
+function handleMockEndpoint(endpoint: string): any {
+  // Tests endpoint
+  if (endpoint === '/api/tests' || endpoint === '/api/Tests') {
+    return mockJobs.map(job => ({
+      id: job.id,
+      status: job.status === 'EN_PROCESO' ? 'IN_PROGRESS' : 
+             job.status === 'OK' ? 'COMPLETED' : 
+             job.status === 'KO' ? 'COMPLETED' : 'GENERATED',
+      generalInfo: {
+        pedido: job.orderId,
+        cliente: job.client,
+        modeloBomba: job.model,
+        ordenDeTrabajo: job.protocolSpec?.workOrder,
+        numeroBombas: job.protocolSpec?.pumpQuantity || 1,
+      },
+      numeroProtocolo: parseInt(job.id),
+      bancoId: job.bancoId || 1,
+    }));
+  }
+
+  // Bancos endpoint
+  if (endpoint === '/api/bancos' || endpoint === '/api/Bancos') {
+    return mockBancos;
+  }
+
+  // Motores endpoint
+  if (endpoint.includes('/api/Motores/banco/')) {
+    const bankId = parseInt(endpoint.split('/').pop() || '1');
+    return mockMotores.filter(m => m.bancoId === bankId);
+  }
+
+  // Single test endpoint
+  const testMatch = endpoint.match(/\/api\/tests\/(.+)/i);
+  if (testMatch) {
+    const testId = testMatch[1];
+    const job = mockJobs.find(j => j.id === testId);
+    if (job) {
+      return {
+        id: job.id,
+        status: job.status === 'EN_PROCESO' ? 'IN_PROGRESS' : 
+               job.status === 'OK' ? 'COMPLETED' : 
+               job.status === 'KO' ? 'COMPLETED' : 'GENERATED',
+        generalInfo: {
+          pedido: job.orderId,
+          cliente: job.client,
+          modeloBomba: job.model,
+          ordenDeTrabajo: job.protocolSpec?.workOrder,
+          numeroBombas: job.protocolSpec?.pumpQuantity || 1,
+          pedidoCliente: job.protocolSpec?.customerOrder,
+        },
+        numeroProtocolo: parseInt(job.id),
+        bancoId: job.bancoId || 1,
+        pdfData: {},
+      };
+    }
+  }
+
+  console.warn(`No mock data for endpoint: ${endpoint}`);
+  return [];
 }
 
 /**

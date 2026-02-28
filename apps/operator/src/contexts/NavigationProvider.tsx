@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 // TYPES
 // =============================================================================
 
-export type AppView = 'dashboard' | 'setup' | 'cockpit' | 'analytics';
+export type AppView = 'dashboard' | 'setup' | 'cockpit' | 'analytics' | 'programacion';
 
 interface NavigationContextType {
     currentView: AppView;

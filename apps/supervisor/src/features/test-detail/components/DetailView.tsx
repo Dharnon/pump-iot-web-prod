@@ -17,6 +17,7 @@ import {
   Eye,
   EyeOff,
   Trash2,
+  Wrench,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -67,6 +68,7 @@ interface DetailViewProps {
   t: UseLanguageReturn["t"];
   backRoute?: string;
   breadcrumbLabel?: string;
+  onMoveToBank?: (id: string) => void;
 }
 
 export function DetailView({
@@ -74,6 +76,7 @@ export function DetailView({
   t,
   backRoute = "/supervisor",
   breadcrumbLabel = "test.tests",
+  onMoveToBank,
 }: DetailViewProps) {
   const router = useRouter();
   const {
@@ -138,52 +141,63 @@ export function DetailView({
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">
       {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-4 py-2 border-b bg-background/50 backdrop-blur-sm shrink-0 gap-2">
-        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between px-3 py-2 border-b bg-background/50 backdrop-blur-sm shrink-0 gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4" />
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 -ml-2 text-muted-foreground hover:text-foreground shrink-0"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground shrink-0"
             onClick={() => router.push(backRoute)}
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
           </Button>
-          <div className="flex items-center gap-3 min-w-0 overflow-hidden">
-            <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-medium shrink-0">
+          <div className="flex items-center gap-2 min-w-0 overflow-hidden">
+            <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-medium shrink-0">
               <span>{t(breadcrumbLabel)}</span>
               <ChevronRight className="w-3 h-3" />
-              <span>{test.generalInfo.pedido}</span>
+              <span className="truncate max-w-[100px] sm:max-w-[200px]">{test.generalInfo.pedido}</span>
             </div>
-            <span className="text-muted-foreground/30 text-lg sm:text-xl font-light">
+            <span className="text-muted-foreground/30 text-sm font-light">
               /
             </span>
             <h1
-              className="text-lg sm:text-xl font-bold tracking-tight text-foreground truncate"
+              className="text-sm sm:text-base font-semibold tracking-tight text-foreground truncate"
               title={test.generalInfo.cliente}
             >
               {test.generalInfo.cliente}
             </h1>
           </div>
         </div>
-        <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+        <div className="flex items-center gap-2">
           <StatusBadge status={test.status} />
+
+          {onMoveToBank && (test.status === 'GENERATED' || test.status === 'GENERADO') && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-3 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+              onClick={() => onMoveToBank(test.id)}
+            >
+              <Wrench className="w-3.5 h-3.5 mr-1.5" />
+              Banco
+            </Button>
+          )}
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
                 variant="outline"
                 size="sm"
-                className="h-9 px-4 text-xs font-semibold text-muted-foreground hover:text-destructive hover:bg-destructive/10 border-border/50"
+                className="h-8 px-3 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 border-border/50"
                 disabled={deleting}
               >
                 {deleting ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                 ) : (
-                  <Trash2 className="w-4 h-4 mr-2" />
+                  <Trash2 className="w-3.5 h-3.5 mr-1.5" />
                 )}
-                Eliminar
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
@@ -218,18 +232,13 @@ export function DetailView({
                   (test.status === "GENERATED" || test.status === "PROCESADO"))
               }
               size="sm"
-              className="bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-95 transition-all text-xs font-semibold px-4 h-9"
+              className="bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-95 transition-all text-xs font-semibold px-3 h-8"
             >
               {saving ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
               ) : (
-                <CheckCircle2 className="w-4 h-4 mr-2" />
+                <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
               )}
-              {viewConfig.mode === "PENDING"
-                ? test.status === "GENERATED" || test.status === "PROCESADO"
-                  ? t("test.generated")
-                  : t("test.finalize")
-                : "Guardar"}
             </Button>
           )}
         </div>
@@ -286,14 +295,14 @@ export function DetailView({
             className="bg-background/50 backdrop-blur-sm"
           >
             <Tabs defaultValue="data" className="h-full flex flex-col">
-              <div className="px-6 md:px-8 border-b bg-background/50 backdrop-blur-sm shrink-0">
+              <div className="px-3 md:px-4 border-b bg-background/50 backdrop-blur-sm shrink-0">
                 <TabsList
                   variant="line"
-                  className="h-12 w-full justify-start gap-8"
+                  className="h-9 w-full justify-start gap-4"
                 >
                   <TabsTrigger
                     value="data"
-                    className="px-0 py-3 text-xs uppercase tracking-widest"
+                    className="px-0 py-1.5 text-xs uppercase tracking-widest"
                   >
                     Datos
                   </TabsTrigger>
@@ -306,21 +315,21 @@ export function DetailView({
                         e.stopPropagation();
                         togglePdf();
                       }}
-                      className="h-8 gap-2 text-muted-foreground hover:text-primary transition-colors ml-4"
+                      className="h-7 gap-1.5 text-muted-foreground hover:text-primary transition-colors ml-2"
                       title={isPdfExpanded ? "Colapsar PDF" : "Expandir PDF"}
                     >
                       {isPdfExpanded ? (
                         <>
-                          <EyeOff className="w-3.5 h-3.5" />
-                          <span className="text-[10px] uppercase tracking-widest font-bold">
-                            Ocultar PDF
+                          <EyeOff className="w-3 h-3" />
+                          <span className="text-[9px] uppercase tracking-wider font-bold">
+                            PDF
                           </span>
                         </>
                       ) : (
                         <>
-                          <Eye className="w-3.5 h-3.5" />
-                          <span className="text-[10px] uppercase tracking-widest font-bold">
-                            Ver PDF
+                          <Eye className="w-3 h-3" />
+                          <span className="text-[9px] uppercase tracking-wider font-bold">
+                            PDF
                           </span>
                         </>
                       )}
@@ -330,8 +339,8 @@ export function DetailView({
               </div>
 
               <ScrollArea className="flex-1">
-                <div className="p-4 md:p-6 space-y-8">
-                  <TabsContent value="data" className="space-y-8 mt-0">
+                <div className="p-2 md:p-3 space-y-4">
+                  <TabsContent value="data" className="space-y-4 mt-0">
                     {/* General Info Section */}
                     <GeneralInfoSection
                       generalInfo={test.generalInfo}
@@ -358,15 +367,15 @@ export function DetailView({
                       allFieldsEditable={viewConfig.allFieldsEditable}
                     />
 
-                    {/* Fluid H2O Section */}
-                    <FluidH2OSection
+                    {/* Fluid Section - Punto Garantizado en Fluido */}
+                    <FluidSection
                       pdfData={test.pdfData}
                       onDataChange={handlePdfDataChange}
                       allFieldsEditable={viewConfig.allFieldsEditable}
                     />
 
-                    {/* Fluid Section */}
-                    <FluidSection
+                    {/* Fluid H2O Section - Punto Garantizado en Agua (calculado desde fluido) */}
+                    <FluidH2OSection
                       pdfData={test.pdfData}
                       onDataChange={handlePdfDataChange}
                       allFieldsEditable={viewConfig.allFieldsEditable}

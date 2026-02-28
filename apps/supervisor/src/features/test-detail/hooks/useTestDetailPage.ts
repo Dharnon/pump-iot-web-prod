@@ -178,11 +178,50 @@ export function useTestDetailPage(
   }, [testId, router, viewMode]);
 
   /**
-   * Handles PDF data field changes
+   * Handles PDF data field changes with auto-calculation for water values
    */
   const handlePdfDataChange = useCallback((field: string, value: string) => {
+    // First update the field
     updateTestData(field, value);
-  }, [updateTestData]);
+    
+    // Get current pdfData from test
+    const pdfData = test?.pdfData || {};
+    
+    // Auto-calculate water values when fluid values change
+    const fluidFields = ['fluidPower', 'fluidEfficiency', 'fluidRpm', 'density', 'ce', 'fluidFlowRate', 'fluidHead'];
+    if (fluidFields.includes(field) || field === 'density' || field === 'ce') {
+      const density = parseFloat(field === 'density' ? value : pdfData.density) || 1000;
+      const fluidPower = parseFloat(field === 'fluidPower' ? value : pdfData.fluidPower) || 0;
+      const fluidEfficiency = parseFloat(field === 'fluidEfficiency' ? value : pdfData.fluidEfficiency) || 0;
+      const fluidRpm = parseFloat(field === 'fluidRpm' ? value : pdfData.fluidRpm) || 0;
+      const ce = parseFloat(field === 'ce' ? value : pdfData.ce) || 1;
+      const fluidFlowRate = parseFloat(field === 'fluidFlowRate' ? value : pdfData.fluidFlowRate) || 0;
+      const fluidHead = parseFloat(field === 'fluidHead' ? value : pdfData.fluidHead) || 0;
+      
+      // Calculate water values
+      // Potencia agua = Potencia fluido / (densidad / 1000)
+      const waterPower = density > 0 ? (fluidPower * 1000 / density).toFixed(2) : '0';
+      
+      // Eficiencia agua = Eficiencia fluido / CE
+      const waterEfficiency = ce > 0 ? (fluidEfficiency / ce).toFixed(2) : '0';
+      
+      // Velocidad agua = Velocidad fluido
+      const waterRpm = fluidRpm.toString();
+      
+      // Caudal = del fluido
+      const flowRate = fluidFlowRate.toString();
+      
+      // Altura = del fluido
+      const head = fluidHead.toString();
+      
+      // Update water values (only if they haven't been manually edited)
+      updateTestData('maxPower', waterPower);
+      updateTestData('efficiency', waterEfficiency);
+      updateTestData('rpm', waterRpm);
+      updateTestData('flowRate', flowRate);
+      updateTestData('head', head);
+    }
+  }, [updateTestData, test]);
 
   return {
     // Test data

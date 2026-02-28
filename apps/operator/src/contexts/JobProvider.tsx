@@ -57,6 +57,7 @@ export interface Job {
   status: JobStatus;
   targetFlow: number;
   impeller: string;
+  bancoId?: number; // 1-5 mapping to A-E
   errorMessage?: string;
   completedAt?: Date;
   testResults?: TestResults;
@@ -156,6 +157,11 @@ interface JobContextType {
 // =============================================================================
 // HELPERS
 // =============================================================================
+
+export function getBankLetter(bancoId: number | undefined): string {
+  const letters = ['A', 'B', 'C', 'D', 'E'];
+  return letters[(bancoId || 1) - 1] || 'A';
+}
 
 const generateDefaultPoints = (targetFlow: number): TestPoint[] => [
   { id: 1, targetFlow: 0, captured: false },
@@ -515,6 +521,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
               status: "GENERADA",
               targetFlow: 0,
               impeller: info.item || "",
+              bancoId: t.bancoId || 1,
               createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
               protocolSpec: {
                 customerOrder: info.pedidoCliente || info.pedido,
@@ -531,9 +538,6 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         setJobs(mappedJobs);
       } catch (error) {
         console.error("Error fetching jobs from API:", error);
-        // Fallback to mock data on error for development if needed,
-        // but better to show empty state or error in production.
-        // setJobs(mockJobs);
       } finally {
         setLoading(false);
       }
