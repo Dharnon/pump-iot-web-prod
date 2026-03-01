@@ -1,14 +1,12 @@
 /**
- * Cockpit.tsx - Refactored to use isolated providers
+ * Cockpit.tsx - Operator Control Panel
  * 
- * Changes:
- * - useTesting() → useJob() + useNavigation() + useTelemetry() + useCaptureLogic()
- * - Business logic extracted to useCaptureLogic hook
+ * Focus on metrics, controls, and real-time graphs
+ * No 3D - optimized for pump control and monitoring
  */
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Gauge, Droplets, Thermometer, Zap, ArrowDownToLine, ArrowLeft } from 'lucide-react';
-import { Scene3D } from '@/components/testing/Scene3D';
 import { FloatingActionBar } from '@/components/testing/FloatingActionBar';
 import { ControlPanel } from '@/components/testing/ControlPanel';
 import { TelemetryCard } from '@/components/testing/TelemetryCard';
@@ -50,13 +48,13 @@ export const Cockpit: React.FC = () => {
   const currentTarget = testConfig.points[currentPointIndex]?.targetFlow;
 
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* 3D Scene Background */}
-      <Scene3D
-        isRunning={controls.motorOn}
-        motorSpeed={controls.motorSpeed}
-        className="absolute inset-0 z-0"
-      />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+      {/* Grid Pattern Background - Industrial feel */}
+      <div className="absolute inset-0 opacity-10" style={{
+        backgroundImage: `linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)`,
+        backgroundSize: '40px 40px'
+      }} />
 
       {/* Floating Header */}
       <motion.div

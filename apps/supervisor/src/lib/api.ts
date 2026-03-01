@@ -253,8 +253,9 @@ export function logout(): void {
  */
 export interface Test {
     id: string; // This maps to NumeroProtocolo
-    status: 'PENDING' | 'IN_PROGRESS' | 'GENERATED' | 'GENERADO' | 'COMPLETED';
+    status: 'PENDING' | 'IN_PROGRESS' | 'GENERATED' | 'GENERADO' | 'COMPLETED' | 'EN_BANCO';
     numeroSerie?: string;
+    banco?: string; // Banco assigned to (A, B, C, D, E)
     generalInfo: {
         pedido: string;        // Número de pedido (ej: "PED-2024-001")
         cliente: string;       // Nombre del cliente

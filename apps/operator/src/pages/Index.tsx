@@ -22,7 +22,7 @@ import { TelemetryProvider } from '@/contexts/TelemetryProvider';
 
 // Views
 import { Dashboard } from '@/views/Dashboard';
-import { SetupModal } from '@/views/SetupModal';
+import { SetupPage } from '@/views/SetupPage';
 import { Cockpit } from '@/views/Cockpit';
 import { Analytics } from '@/views/Analytics';
 import { Programacion } from '@/views/Programacion';
@@ -45,7 +45,7 @@ const AppContent: React.FC = () => {
       <TelemetryProvider isActive={isTelemetryActive} testConfig={testConfig}>
         <AnimatePresence mode="wait">
           {currentView === 'dashboard' && <Dashboard key="dashboard" />}
-          {currentView === 'setup' && <div className="h-full"><SetupModal key="setup" /></div>}
+          {currentView === 'setup' && <SetupPage key="setup" />}
           {currentView === 'cockpit' && <Cockpit key="cockpit" />}
           {currentView === 'analytics' && <Analytics key="analytics" />}
           {currentView === 'programacion' && <Programacion key="programacion" />}

@@ -31,7 +31,7 @@ import {
   CheckSquare,
   ChevronRight,
   TrendingUp,
-  Clock,
+  Lock,
   FileCheck,
   Plus,
 } from "lucide-react";
@@ -188,6 +188,11 @@ export default function DashboardPage() {
     );
   }, [tests, locks]);
 
+  const enBancoTests = useMemo(() => {
+    if (!tests) return [];
+    return tests.filter((t: any) => t.status === "EN_BANCO");
+  }, [tests]);
+
   const completedTests = useMemo(() => {
     if (!tests) return [];
     return tests.filter((t: any) => t.status === "COMPLETED");
@@ -212,6 +217,10 @@ export default function DashboardPage() {
       if (statusFilter === "GENERATED" || statusFilter === "GENERADO") {
         const isGenerated = t.status === "GENERATED" || t.status === "GENERADO";
         return isGenerated && (!locks || !locks[t.id]);
+      }
+      // Special handling for EN_BANCO filter
+      if (statusFilter === "EN_BANCO") {
+        return t.status === "EN_BANCO";
       }
       // Default behavior for other filters
       return t.status === statusFilter;
@@ -300,11 +309,11 @@ export default function DashboardPage() {
         {/* Main Content Area */}
         <div className="flex-1 flex flex-col border-r overflow-hidden">
           {/* Stats Grid - Infinite Lines Style */}
-          <div className="grid grid-cols-4 border-b">
+          <div className="grid grid-cols-5 border-b">
             <StatCell
               label={t("dash.stat.pending")}
               value={pendingTests.filter((t) => t.status === "PENDING").length}
-              icon={<Clock className="w-4 h-4" />}
+              icon={<Lock className="w-4 h-4" />}
               color="text-yellow-600"
               active={viewMode === "pending"}
               onClick={() => {
@@ -324,6 +333,17 @@ export default function DashboardPage() {
               onClick={() => {
                 setViewMode("protocols");
                 setStatusFilter("GENERATED");
+              }}
+            />
+            <StatCell
+              label="En Banco"
+              value={enBancoTests.length}
+              icon={<Lock className="w-4 h-4" />}
+              color="text-amber-600"
+              active={viewMode === "protocols" && statusFilter === "EN_BANCO"}
+              onClick={() => {
+                setViewMode("protocols");
+                setStatusFilter("EN_BANCO");
               }}
             />
             <StatCell
@@ -368,6 +388,9 @@ export default function DashboardPage() {
                       <SelectItem value="PENDING">
                         {t("status.PENDING")}
                       </SelectItem>
+                      <SelectItem value="EN_BANCO">
+                        En Banco
+                      </SelectItem>
                       <SelectItem value="GENERATED">
                         {t("status.PROCESSED")}
                       </SelectItem>
@@ -376,6 +399,9 @@ export default function DashboardPage() {
                     <>
                       <SelectItem value="IN_PROGRESS">
                         {t("status.IN_PROGRESS")}
+                      </SelectItem>
+                      <SelectItem value="EN_BANCO">
+                        En Banco
                       </SelectItem>
                       <SelectItem value="GENERATED">
                         {t("status.GENERATED")}
@@ -569,6 +595,11 @@ export default function DashboardPage() {
                   label="En Proceso"
                   value={tests.filter((t) => t.status === "IN_PROGRESS").length}
                   color="text-blue-600"
+                />
+                <QuickStatRow
+                  label="En Banco"
+                  value={enBancoTests.length}
+                  color="text-amber-600"
                 />
                 <QuickStatRow
                   label="Completadas"

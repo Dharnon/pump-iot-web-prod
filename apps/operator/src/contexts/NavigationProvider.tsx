@@ -30,7 +30,7 @@ const NavigationContext = createContext<NavigationContextType | null>(null);
  *         no afecta a componentes que muestran datos en tiempo real.
  */
 export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [currentView, setCurrentView] = useState<AppView>('dashboard');
+    const [currentView, setCurrentView] = useState<AppView>('programacion');
 
     const navigateTo = useCallback((view: AppView) => {
         setCurrentView(view);

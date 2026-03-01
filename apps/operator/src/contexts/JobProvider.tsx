@@ -217,6 +217,7 @@ const mockJobs: Job[] = [
     status: "GENERADA",
     targetFlow: 150,
     impeller: "250mm",
+    bancoId: 1, // Banco A
     createdAt: new Date("2024-01-15T08:30:00"),
     protocolSpec: {
       // Pump
@@ -268,6 +269,7 @@ const mockJobs: Job[] = [
     status: "EN_PROCESO",
     targetFlow: 300,
     impeller: "320mm",
+    bancoId: 2, // Banco B
     createdAt: new Date("2024-01-16T10:15:00"),
     protocolSpec: {
       // Pump
@@ -307,6 +309,7 @@ const mockJobs: Job[] = [
     status: "OK",
     targetFlow: 50,
     impeller: "180mm",
+    bancoId: 3, // Banco C
     completedAt: new Date("2024-01-14T17:30:00"),
     createdAt: new Date("2024-01-14T15:45:00"),
     testResults: generateMockTestResults(50, true), // Adapted to existing TestResults interface
@@ -364,6 +367,7 @@ const mockJobs: Job[] = [
     status: "KO",
     targetFlow: 80,
     impeller: "300mm",
+    bancoId: 1, // Banco A
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), // 5 days ago
     errorMessage: "Falla en prueba de presión hidrostática",
     completedAt: new Date(Date.now() - 172800000), // 2 days ago
@@ -407,6 +411,69 @@ const mockJobs: Job[] = [
       tolerance: "ISO 9906 Grade 2B",
       internalComment:
         "Falla en prueba de presión hidrostática. Revisar sellos.",
+    },
+  },
+  {
+    id: "5",
+    orderId: "ORD-2024-005",
+    model: "HM-200",
+    client: "Industrial Chile",
+    status: "GENERADA",
+    targetFlow: 200,
+    impeller: "220mm",
+    bancoId: 1, // Banco A
+    createdAt: new Date("2024-01-17T08:00:00"),
+    protocolSpec: {
+      itemNumber: "P-505",
+      pumpType: "Horizontal Monobloco",
+      serialNumber: "SN-2024-005",
+      impellerDiameter: "220",
+      suctionDiameter: 100,
+      dischargeDiameter: 80,
+      sealType: "MECANICO",
+      isVertical: false,
+    },
+  },
+  {
+    id: "6",
+    orderId: "ORD-2024-006",
+    model: "CP-150",
+    client: "Agua Potable",
+    status: "GENERADA",
+    targetFlow: 100,
+    impeller: "200mm",
+    bancoId: 4, // Banco D
+    createdAt: new Date("2024-01-17T09:30:00"),
+    protocolSpec: {
+      itemNumber: "P-606",
+      pumpType: "Centrífuga",
+      serialNumber: "SN-2024-006",
+      impellerDiameter: "200",
+      suctionDiameter: 80,
+      dischargeDiameter: 65,
+      sealType: "MECANICO",
+      isVertical: false,
+    },
+  },
+  {
+    id: "7",
+    orderId: "ORD-2024-007",
+    model: "LS-300",
+    client: "Minera Centinela",
+    status: "GENERADA",
+    targetFlow: 400,
+    impeller: "350mm",
+    bancoId: 5, // Banco E
+    createdAt: new Date("2024-01-17T11:00:00"),
+    protocolSpec: {
+      itemNumber: "P-707",
+      pumpType: "Sumergible",
+      serialNumber: "SN-2024-007",
+      impellerDiameter: "350",
+      suctionDiameter: 200,
+      dischargeDiameter: 150,
+      sealType: "CARTUCHO",
+      isVertical: true,
     },
   },
 ];
@@ -497,28 +564,52 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const fetchJobs = async () => {
+      // Check if mock mode is enabled
+      const isMock = typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
+
+      if (isMock) {
+        console.log("JobProvider: Working in MOCK MODE");
+        setJobs(mockJobs);
+        setLoading(false);
+        return;
+      }
+
       try {
         setLoading(true);
         const data = await getTests();
         console.log("Raw API Response:", data);
 
-        // Filtrar protocolos generados (admitiendo variantes de status)
+        // Filtrar protocolos generados, en banco, en proceso y completados (admitiendo variantes de status)
         const mappedJobs: Job[] = data
           .filter(
             (t) =>
               (t.status === "GENERATED" ||
                 t.status === "GENERADO" ||
-                t.status === "PROCESADO") &&
+                t.status === "PROCESADO" ||
+                t.status === "EN_BANCO" ||
+                t.status === "IN_PROGRESS" ||
+                t.status === "COMPLETED") &&
               !String(t.id).startsWith("pending-"),
           )
           .map((t) => {
+            // Map API status to local status
+            let localStatus: JobStatus;
+            if (t.status === "IN_PROGRESS") {
+              localStatus = "EN_PROCESO";
+            } else if (t.status === "COMPLETED") {
+              localStatus = "OK";
+            } else {
+              // GENERATED, GENERADO, PROCESADO, EN_BANCO all map to GENERADA (pending at bench)
+              localStatus = "GENERADA";
+            }
+
             const info = t.generalInfo as any;
             return {
               id: t.id.toString(),
               orderId: info.pedidoCliente || info.pedido || `JOB-${t.id}`,
               model: info.modeloBomba || "Desconocido",
               client: info.cliente || "Desconocido",
-              status: "GENERADA",
+              status: localStatus,
               targetFlow: 0,
               impeller: info.item || "",
               bancoId: t.bancoId || 1,
@@ -555,6 +646,13 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
       testPressure: 6,
       points: generateDefaultPoints(job.targetFlow),
     });
+
+    // Check if mock mode is enabled
+    const isMock = typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
+    if (isMock) {
+      console.log("selectJob: Skipping detail fetch in MOCK MODE");
+      return;
+    }
 
     try {
       // 2. Fetch full details from backend

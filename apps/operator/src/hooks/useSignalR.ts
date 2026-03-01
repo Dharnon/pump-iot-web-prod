@@ -80,6 +80,13 @@ export function useSignalR({ onListUpdated }: UseSignalROptions = {}): UseSignal
   onListUpdatedRef.current = onListUpdated;
 
   useEffect(() => {
+    // Check if mock mode is enabled
+    const isMock = typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
+    if (isMock) {
+      console.log("[SignalR] Skipping connection in MOCK MODE");
+      return;
+    }
+
     const connection = new HubConnectionBuilder()
       .withUrl(HUB_URL, {
         // Skip the HTTP negotiate handshake and go directly to WebSocket.

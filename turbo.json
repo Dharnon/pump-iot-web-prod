@@ -39,6 +39,15 @@
             "dependsOn": [
                 "^type-check"
             ]
+        },
+        "docs:dev": {
+            "cache": false,
+            "persistent": true
+        },
+        "docs:build": {
+            "outputs": [
+                ".vitepress/dist/**"
+            ]
         }
     }
 }

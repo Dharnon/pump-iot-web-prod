@@ -117,18 +117,32 @@ export default function ProgramacionPage() {
 
         return (
           <div
-            onClick={() => router.push(`/supervisor/protocolo/${test?.id}`)}
-            className="block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md p-2.5 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors cursor-grab active:cursor-grabbing"
+            className="block bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md p-2.5 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
           >
-            <div className="flex items-center gap-2 mb-1.5">
-              <div className={`w-1.5 h-1.5 rounded-full ${statusDot}`} />
-              <span className="text-[10px] font-mono text-slate-400">#{test?.numeroprotocolo}</span>
+            <div className="flex items-start justify-between mb-1.5">
+              <div className="flex items-center gap-2">
+                <div className={`w-1.5 h-1.5 rounded-full ${statusDot}`} />
+                <span className="text-[10px] font-mono text-slate-400">#{test?.numeroprotocolo}</span>
+              </div>
+              {isInProgress && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(`/supervisor/3d/${test?.id}`, '_blank', 'width=1200,height=800');
+                  }}
+                  className="text-[9px] px-1.5 py-0.5 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+                >
+                  3D
+                </button>
+              )}
             </div>
-            <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{test?.cliente || '-'}</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{test?.tipoBomba || test?.modelo || '-'}</p>
-            {test?.ordenTrabajo && (
-              <p className="text-[10px] font-mono text-slate-400 mt-1">OT: {test.ordenTrabajo}</p>
-            )}
+            <div onClick={() => router.push(`/supervisor/protocolo/${test?.id}`)} className="cursor-pointer">
+              <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{test?.cliente || '-'}</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{test?.tipoBomba || test?.modelo || '-'}</p>
+              {test?.ordenTrabajo && (
+                <p className="text-[10px] font-mono text-slate-400 mt-1">OT: {test.ordenTrabajo}</p>
+              )}
+            </div>
           </div>
         );
       },

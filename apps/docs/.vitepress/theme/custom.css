@@ -1,0 +1,20 @@
+/* Custom styles for VitePress documentation */
+
+.mermaid-diagram {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0;
+    padding: 1rem;
+    background-color: var(--vp-c-bg-soft);
+    border-radius: 8px;
+}
+
+.mermaid-diagram svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Diagram container styling */
+.mermaid {
+    margin: 1rem 0;
+}

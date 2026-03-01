@@ -15,6 +15,7 @@ import {
   LogOut,
   Wifi,
   WifiOff,
+  Wrench,
 } from "lucide-react";
 import { HubConnectionState } from "@microsoft/signalr";
 import { useJob, Job } from "@/contexts/JobProvider";
@@ -40,7 +41,8 @@ import { getTestPdf } from "@pump-iot/core/api";
 type TabType = "pendientes" | "historial";
 
 import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIconImport } from "lucide-react";
+const CalendarIcon = CalendarIconImport as any;
 import { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -146,6 +148,11 @@ export const Dashboard: React.FC = () => {
       onClick: () => window.scrollTo({ top: 0, behavior: "smooth" }),
     },
     {
+      icon: Wrench,
+      label: "Programación",
+      onClick: () => setCurrentView("programacion"),
+    },
+    {
       icon: BarChart3,
       label: "Reportes",
       onClick: () => setActiveTab("historial"),
@@ -157,8 +164,8 @@ export const Dashboard: React.FC = () => {
     },
     {
       icon: Settings,
-      label: "Ajustes",
-      onClick: () => setIsSettingsOpen(true),
+      label: "Configuración",
+      onClick: () => setCurrentView("setup"),
     },
     {
       icon: LogOut,
