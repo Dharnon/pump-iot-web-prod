@@ -81,6 +81,7 @@ import {
   Check,
   Sun,
   Moon,
+  Settings,
 } from "lucide-react";
 
 // (Image de Next.js - no usado actualmente, usando <img> por flexibilidad)
@@ -204,6 +205,11 @@ export default function SupervisorLayout({
       href: "/supervisor/programacion",
     },
     { title: "Usuarios", icon: Users, href: "/supervisor/user-management" },
+    {
+      title: "Configuración",
+      icon: Settings,
+      href: "/supervisor/configuracion",
+    },
   ];
 
   // =========================================================================
@@ -243,7 +249,10 @@ export default function SupervisorLayout({
 
   return (
     // SidebarProvider: Provee context para estado del sidebar (open/collapsed)
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider
+      defaultOpen={false}
+      style={{ "--sidebar-width": "200px" } as React.CSSProperties}
+    >
       {/* Container principal: flex horizontal, altura completa */}
       <div className="h-screen flex w-full overflow-hidden">
         {/* ============================================================
@@ -251,44 +260,36 @@ export default function SupervisorLayout({
                     ============================================================
                     collapsible="icon": Puede colapsar a solo iconos
                     El sidebar usa data-attributes para estilos condicionales:
-                    - group-data-[collapsible=icon]:... → estilos cuando está colapsado
                 */}
         <Sidebar collapsible="icon" className="border-r shrink-0">
-          {/* --------------------------------------------------------
-                        HEADER: Logo
-                        -------------------------------------------------------- */}
-          <SidebarHeader className="p-4 group-data-[collapsible=icon]:p-2">
-            <div className="flex items-center justify-between group-data-[collapsible=icon]:flex-col group-data-[collapsible=icon]:gap-2">
-              {/* Logo completo (visible cuando sidebar expandido) */}
-              <div className="relative w-full flex justify-center group-data-[collapsible=icon]:hidden">
-                <Link
-                  href="/supervisor"
-                  className="flex items-center justify-center"
+          <SidebarHeader className="h-16 flex items-center px-2 shrink-0">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  size="lg"
+                  asChild
+                  className="hover:bg-transparent active:bg-transparent"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/flowserve-logo.png"
-                    alt="Flowserve Logo"
-                    className="w-50 h-18 object-cover object-center"
-                  />
-                </Link>
-              </div>
-
-              {/* Icono pequeño (visible cuando sidebar colapsado) */}
-              <div className="hidden group-data-[collapsible=icon]:flex items-center justify-center w-full pt-2">
-                <Link
-                  href="/supervisor"
-                  className="flex items-center justify-center"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/flowserve-icon.png"
-                    alt="Flowserve Icon"
-                    className="w-8 h-8 object-contain"
-                  />
-                </Link>
-              </div>
-            </div>
+                  <Link
+                    href="/supervisor"
+                    className="relative flex items-center w-full"
+                  >
+                    {/* Icon Container - FIXED POSITION */}
+                    <div className="flex items-center justify-center w-8 h-8 shrink-0">
+                      <img
+                        src="/flowserve-icon.png"
+                        alt="Flowserve Icon"
+                        className="w-8 h-8 object-contain"
+                      />
+                    </div>
+                    {/* Text - Absolutely positioned relative to the container to avoid shifting the icon */}
+                    <span className="absolute left-11 text-xl font-black tracking-tight text-[#E11D48] transition-all duration-200 group-data-[collapsible=icon]:opacity-0 group-data-[collapsible=icon]:pointer-events-none truncate">
+                      FLOWSERVE
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
           </SidebarHeader>
 
           {/* --------------------------------------------------------
@@ -302,11 +303,15 @@ export default function SupervisorLayout({
                     asChild
                     // isActive marca visualmente el item si es la ruta actual
                     isActive={pathname === item.href}
-                    className="w-full justify-start"
+                    className="w-full justify-start overflow-hidden"
                   >
                     <Link href={item.href} className="flex items-center gap-3">
-                      <item.icon className="w-4 h-4" />
-                      <span>{item.title}</span>
+                      <div className="flex items-center justify-center w-4 h-4 shrink-0">
+                        <item.icon className="w-4 h-4" />
+                      </div>
+                      <span className="truncate transition-opacity duration-200 group-data-[collapsible=icon]:opacity-0">
+                        {item.title}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -348,21 +353,23 @@ export default function SupervisorLayout({
                   <DropdownMenuTrigger asChild>
                     <SidebarMenuButton
                       size="lg"
-                      className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                      className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground overflow-hidden"
                       tooltip={user.username}
                     >
-                      <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
-                          {user.username.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                      <div className="flex items-center justify-center h-8 w-8 shrink-0">
+                        <Avatar className="h-8 w-8 rounded-lg">
+                          <AvatarFallback className="rounded-lg bg-primary text-primary-foreground text-xs">
+                            {user.username.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      </div>
+                      <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden transition-opacity duration-200">
                         <span className="truncate font-semibold">
                           {user.username}
                         </span>
                         <span className="truncate text-xs">{user.role}</span>
                       </div>
-                      <ChevronsUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden" />
+                      <ChevronsUpDown className="ml-auto size-4 group-data-[collapsible=icon]:hidden shrink-0" />
                     </SidebarMenuButton>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent

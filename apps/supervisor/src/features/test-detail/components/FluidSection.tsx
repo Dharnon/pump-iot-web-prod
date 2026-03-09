@@ -22,15 +22,15 @@ export function FluidSection({
   allFieldsEditable = false,
 }: FluidSectionProps) {
   return (
-    <section className="space-y-4">
-      <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
+    <section className="space-y-2">
+      <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
       <div>
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
           <Droplets className="w-3.5 h-3.5 text-orange-500" /> Punto Garantizado
           en Fluido
         </span>
       </div>
-      <div className="flex flex-wrap gap-4 items-start">
+      <div className="flex flex-wrap gap-2 items-start">
         <CleanAutoInput
           label="Fluido"
           value={pdfData?.liquidDescription}
@@ -66,7 +66,7 @@ export function FluidSection({
           type="number"
         />
 
-        <div className="w-full md:w-auto md:border-l md:pl-4 md:ml-2 flex flex-wrap gap-4">
+        <div className="w-full md:w-auto md:border-l md:pl-2 md:ml-1 flex flex-wrap gap-2">
           <CleanAutoInput
             label="Caudal"
             value={pdfData?.fluidFlowRate}
@@ -114,7 +114,7 @@ export function FluidSection({
           />
         </div>
       </div>
-      <div className="flex flex-wrap gap-4 items-start pt-2">
+      <div className="flex flex-wrap gap-2 items-start pt-1">
         <CleanAutoInput
           label="CQ"
           value={pdfData?.cq}

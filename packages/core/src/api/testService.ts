@@ -11,6 +11,8 @@ export interface Test {
   id: string;
   status: 'PENDING' | 'IN_PROGRESS' | 'GENERATED' | 'COMPLETED' | 'SIN_PROCESAR' | 'EN_PROCESO' | 'GENERADO' | 'PROCESADO' | 'EN_BANCO';
   numeroSerie?: string;
+  orden?: number;
+  bancoId?: number;
   generalInfo: {
     pedido: string;
     cliente: string;
@@ -25,7 +27,6 @@ export interface Test {
   };
   createdAt?: string;
   numeroProtocolo?: number;
-  bancoId?: number;
   fecha?: string;
   [key: string]: any; // Allow additional properties for detailed test data
 }

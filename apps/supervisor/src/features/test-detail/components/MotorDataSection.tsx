@@ -22,15 +22,15 @@ export function MotorDataSection({
   allFieldsEditable = false,
 }: MotorDataSectionProps) {
   return (
-    <section className="space-y-4">
-      <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
+    <section className="space-y-2">
+      <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
       <div className="flex items-center justify-between pt-2">
         <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
           <Settings2 className="w-4 h-4" />
           Motor
         </h3>
       </div>
-      <div className="flex flex-wrap gap-4 items-start">
+      <div className="flex flex-wrap gap-2 items-start">
         <CleanAutoInput
           label="Marca"
           value={pdfData?.motorMarca}
@@ -73,7 +73,7 @@ export function MotorDataSection({
           type="number"
         />
       </div>
-      <div className="flex flex-wrap gap-4 items-start pt-2">
+      <div className="flex flex-wrap gap-2 items-start pt-1">
         <CleanAutoInput
           label="η 25%"
           value={pdfData?.motorRendimiento25}

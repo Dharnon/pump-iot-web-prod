@@ -11,6 +11,9 @@ import {
   ArrowUp,
   ArrowDown,
   Trash2,
+  Wrench,
+  FileText,
+  FileX,
 } from "lucide-react";
 
 import {
@@ -30,6 +33,8 @@ export interface ProtocolItem {
   status: string;
   numeroSerie?: string;
   fecha: string;
+  bancoId?: number;
+  hasPdf?: boolean;
   generalInfo: {
     pedido: string;
     cliente: string;
@@ -51,7 +56,7 @@ const getStatusConfig = (status: string, t: (key: string) => string) => {
     string,
     {
       label: string;
-      icon: React.ElementType;
+      icon: React.ComponentType<{ className?: string }>;
       className: string;
       iconClassName: string;
     }
@@ -79,6 +84,12 @@ const getStatusConfig = (status: string, t: (key: string) => string) => {
       icon: CheckCircle2,
       className: baseClass,
       iconClassName: "text-green-500 dark:text-green-400",
+    },
+    EN_BANCO: {
+      label: "En Banco",
+      icon: Wrench,
+      className: baseClass,
+      iconClassName: "text-amber-600 dark:text-amber-500",
     },
   };
 
@@ -211,6 +222,40 @@ export const getProtocolColumns = (
       return (
         <span className="font-mono text-sm text-muted-foreground">
           {orden || "-"}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "bancoId",
+    id: "banco",
+    header: "Banco",
+    cell: ({ row }) => {
+      const bancoId = row.original.bancoId;
+      if (!bancoId) return null;
+      const letter = ["A", "B", "C", "D", "E"][bancoId - 1] ?? "-";
+      return (
+        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs border border-amber-500/20">
+          {letter}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "hasPdf",
+    id: "pdf",
+    header: "PDF",
+    cell: ({ row }) => {
+      const hasPdf = row.original.hasPdf;
+      return hasPdf ? (
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-green-600 dark:text-green-400">
+          <FileText className="w-3.5 h-3.5" />
+          Sí
+        </span>
+      ) : (
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
+          <FileX className="w-3.5 h-3.5" />
+          No
         </span>
       );
     },

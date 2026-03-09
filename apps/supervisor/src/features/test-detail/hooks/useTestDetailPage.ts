@@ -13,7 +13,8 @@ import { usePdfExtraction } from './usePdfExtraction';
 import { useTestSave } from './useTestSave';
 import { usePdfPanel } from './usePdfPanel';
 import { useTestsToPerform } from './useTestsToPerform';
-import { getTestPdf, deleteTest as deleteApi } from '@/lib/api';
+import type { TestsToPerform } from '@/lib/schemas';
+import { getTestPdf, deleteTest as deleteApi, getBancoById } from '@/lib/api';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import type { UseLanguageReturn } from '@/lib/language-context';
@@ -60,6 +61,10 @@ export interface UseTestDetailPageResult {
 
   // Data updates
   handlePdfDataChange: (field: string, value: string) => void;
+  handleBankChange: (bankId: number) => Promise<void>;
+
+  // Test data manipulation
+  setTest: React.Dispatch<React.SetStateAction<any>>;
 
   // Mobile detection
   isMobile: boolean;
@@ -84,7 +89,7 @@ export function useTestDetailPage(
   const viewConfig = getViewConfig(viewMode);
 
   // Core functionality hooks
-  const { test, loading, error, updateTestData, setTest } = useTestDetail(testId);
+  const { test, loading, error, updateTestData, setTest: setTestFn } = useTestDetail(testId);
   const { testsToPerform, toggleTest, autoSetTests } = useTestsToPerform();
   const { saving, saveTest } = useTestSave();
   const { isPdfExpanded, pdfPanelRef, togglePdf, onPanelResize } = usePdfPanel();
@@ -107,7 +112,7 @@ export function useTestDetailPage(
   const { extracting, extractPdfData } = usePdfExtraction({
     onExtracted: (specs) => {
       // Update test with extracted data
-      setTest(prev => {
+      setTestFn(prev => {
         if (!prev) return null;
         return { ...prev, pdfData: specs, status: "EN_PROCESO" };
       });
@@ -223,6 +228,83 @@ export function useTestDetailPage(
     }
   }, [updateTestData, test]);
 
+  /**
+   * Handles toggling tests and special logic for Motor Pedido
+   */
+  const handleToggleTest = useCallback((key: string) => {
+    const isNowActive = !testsToPerform[key as keyof TestsToPerform];
+    toggleTest(key);
+    
+    // If motorDelPedido is toggled ON, clear motor fields to allow manual entry (Customer Motor)
+    if (key === 'motorDelPedido' && isNowActive) {
+      setTestFn(prev => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          pdfData: {
+            ...prev.pdfData,
+            motorMarca: "",
+            motorTipo: "",
+            motorPotencia: undefined,
+            motorVelocidad: undefined,
+            motorIntensidad: undefined,
+            motorRendimiento25: undefined,
+            motorRendimiento50: undefined,
+            motorRendimiento75: undefined,
+            motorRendimiento100: undefined,
+            motorRendimiento125: undefined,
+          }
+        };
+      });
+      toast.info(t("test.motorFieldsCleared") || "Motor del pedido seleccionado. Campos de motor limpiados.");
+    }
+  }, [toggleTest, testsToPerform, setTestFn, t]);
+
+  /**
+   * Handles bank change and auto-fills motor data if a template exists
+   */
+  const handleBankChange = useCallback(async (bankId: number) => {
+    try {
+      // Update bank ID immediately for UI responsiveness
+      setTestFn(prev => prev ? { ...prev, bancoId: bankId } : null);
+      
+      // Fetch full bank data to get motor template
+      const bankData = await getBancoById(bankId);
+      
+      if (bankData.motorPlantilla) {
+        const mp = bankData.motorPlantilla;
+        toast.info(t("test.loadingMotorTemplate") || `Cargando plantilla de motor: ${mp.nombre || mp.marca}`);
+        
+        // Update multiple fields at once in test state
+        setTestFn(prev => {
+          if (!prev) return null;
+          
+          return {
+            ...prev,
+            pdfData: {
+              ...prev.pdfData,
+              motorMarca: mp.marca || prev.pdfData?.motorMarca,
+              motorTipo: mp.tipo || prev.pdfData?.motorTipo,
+              motorPotencia: mp.potencia ?? prev.pdfData?.motorPotencia,
+              motorVelocidad: mp.velocidad ?? prev.pdfData?.motorVelocidad,
+              motorIntensidad: mp.intensidad ?? prev.pdfData?.motorIntensidad,
+              motorRendimiento25: mp.rendimiento25 ?? prev.pdfData?.motorRendimiento25,
+              motorRendimiento50: mp.rendimiento50 ?? prev.pdfData?.motorRendimiento50,
+              motorRendimiento75: mp.rendimiento75 ?? prev.pdfData?.motorRendimiento75,
+              motorRendimiento100: mp.rendimiento100 ?? prev.pdfData?.motorRendimiento100,
+              motorRendimiento125: mp.rendimiento125 ?? prev.pdfData?.motorRendimiento125,
+            }
+          };
+        });
+        toast.success(t("test.motorTemplateLoaded") || "Datos del motor actualizados");
+      }
+    } catch (err) {
+      console.error("Error auto-filling motor data:", err);
+      // Don't show error toast if it's just a missing endpoint (graceful degradation)
+      // but if it's a real failure, we might want to know.
+    }
+  }, [setTestFn, t]);
+
   return {
     // Test data
     test,
@@ -259,10 +341,14 @@ export function useTestDetailPage(
 
     // Tests to perform
     testsToPerform,
-    toggleTest,
+    toggleTest: handleToggleTest,
 
     // Data updates
     handlePdfDataChange,
+    handleBankChange,
+
+    // Test data manipulation
+    setTest: setTestFn,
 
     // Mobile
     isMobile,

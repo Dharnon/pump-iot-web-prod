@@ -1,5 +1,7 @@
 "use client";
 
+// UI for columns definitions
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,10 @@ import {
   ArrowDown,
   Trash2,
   Lock,
+  FileCheck,
+  Plus,
+  Clock,
+  Wrench,
 } from "lucide-react";
 
 import {
@@ -58,9 +64,15 @@ const getStatusConfig = (status: string, t: (key: string) => string) => {
   > = {
     PENDING: {
       label: t("status.PENDING"),
-      icon: CircleDashed,
+      icon: Clock,
       className: baseStatusClass,
       iconClassName: "text-orange-500 dark:text-orange-400",
+    },
+    EN_BANCO: {
+      label: "En Banco",
+      icon: Wrench,
+      className: baseStatusClass,
+      iconClassName: "text-amber-600 dark:text-amber-500",
     },
     IN_PROGRESS: {
       label: t("status.IN_PROGRESS"),

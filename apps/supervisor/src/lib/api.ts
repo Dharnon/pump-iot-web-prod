@@ -40,7 +40,21 @@
  * @example En .env.local:
  * NEXT_PUBLIC_API_URL=http://192.168.1.100:4000
  */
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5002';
+const getApiBaseUrl = () => {
+    const envUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (envUrl) return envUrl;
+
+    // Dynamic detection for local network access
+    if (typeof window !== 'undefined' && window.location.hostname) {
+        const hostname = window.location.hostname;
+        if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+            return `http://${hostname}:5002`;
+        }
+    }
+    return 'http://127.0.0.1:5002';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // =============================================================================
 // CLIENTE HTTP GENÉRICO
@@ -256,6 +270,8 @@ export interface Test {
     status: 'PENDING' | 'IN_PROGRESS' | 'GENERATED' | 'GENERADO' | 'COMPLETED' | 'EN_BANCO';
     numeroSerie?: string;
     banco?: string; // Banco assigned to (A, B, C, D, E)
+    bancoId?: number;
+    orden: number;
     generalInfo: {
         pedido: string;        // Número de pedido (ej: "PED-2024-001")
         cliente: string;       // Nombre del cliente
@@ -264,6 +280,7 @@ export interface Test {
         numeroBombas: number;  // Cantidad de bombas en el pedido
     };
     createdAt: string;
+    hasPdf?: boolean;
 }
 
 /**
@@ -342,6 +359,19 @@ export async function generateProtocols(
 }
 
 /**
+ * Reorders tests in a bank.
+ * 
+ * @param ids - Ordered list of test IDs (NumeroProtocolo)
+ * @param bancoId - Optional bank ID to move the tests to
+ */
+export async function reorderTests(ids: number[], bancoId?: number): Promise<any> {
+    return fetchApi('/api/tests/reorder', {
+        method: 'POST',
+        body: JSON.stringify({ ids, bancoId })
+    });
+}
+
+/**
  * Get all available Bancos (test benches).
  * 
  * @returns Array of Banco objects with id and nombre
@@ -350,10 +380,96 @@ export interface Banco {
     id: number;
     nombre: string;
     estado: boolean;
+    motorPlantillaId?: number | null;
+    motorPlantilla?: {
+        id: number;
+        nombre?: string;
+        marca?: string;
+        tipo?: string;
+        potencia?: number;
+        velocidad?: number;
+        intensidad?: number;
+        rendimiento25?: number;
+        rendimiento50?: number;
+        rendimiento75?: number;
+        rendimiento100?: number;
+        rendimiento125?: number;
+    } | null;
 }
 
 export async function getBancos(): Promise<Banco[]> {
     return fetchApi<Banco[]>('/api/bancos');
+}
+
+export async function getAllBancos(): Promise<Banco[]> {
+    return fetchApi<Banco[]>('/api/bancos/all');
+}
+
+export async function getBancoById(id: number): Promise<Banco> {
+    return fetchApi<Banco>(`/api/bancos/${id}`);
+}
+
+export async function createBanco(data: Partial<Banco>): Promise<Banco> {
+    return fetchApi<Banco>('/api/bancos', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function updateBanco(id: number, data: Partial<Banco>): Promise<Banco> {
+    return fetchApi<Banco>(`/api/bancos/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function deleteBanco(id: number): Promise<any> {
+    return fetchApi<any>(`/api/bancos/${id}`, {
+        method: 'DELETE'
+    });
+}
+
+// =============================================================================
+// MOTORES (Plantillas de Motor)
+// =============================================================================
+
+export interface MotorPlantilla {
+    id: number;
+    nombre: string;
+    marca?: string | null;
+    tipo?: string | null;
+    potencia?: number | null;
+    velocidad?: number | null;
+    intensidad?: number | null;
+    rendimiento25?: number | null;
+    rendimiento50?: number | null;
+    rendimiento75?: number | null;
+    rendimiento100?: number | null;
+    rendimiento125?: number | null;
+}
+
+export async function getMotores(): Promise<MotorPlantilla[]> {
+    return fetchApi<MotorPlantilla[]>('/api/motores');
+}
+
+export async function createMotor(data: Partial<MotorPlantilla>): Promise<MotorPlantilla> {
+    return fetchApi<MotorPlantilla>('/api/motores', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function updateMotor(id: number, data: Partial<MotorPlantilla>): Promise<MotorPlantilla> {
+    return fetchApi<MotorPlantilla>(`/api/motores/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function deleteMotor(id: number): Promise<any> {
+    return fetchApi<any>(`/api/motores/${id}`, {
+        method: 'DELETE'
+    });
 }
 
 // =============================================================================

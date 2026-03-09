@@ -123,6 +123,42 @@ const translations: Record<Language, Record<string, string>> = {
     "pdf.discharge": "Discharge",
     "pdf.tolerance": "Tolerance",
     "pdf.seal": "Seal Type",
+
+    // Configuration
+    "config.title": "Configuration",
+    "config.desc": "Manage test benches and motor templates.",
+    "config.bancos": "Benches",
+    "config.motores": "Motors",
+    "config.bancos.total": "Total Benches",
+    "config.bancos.active": "Active Benches",
+    "config.bancos.inactive": "Inactive Benches",
+    "config.bancos.manage": "Bench Management",
+    "config.bancos.desc":
+      "Manage test benches and their associated motor templates.",
+    "config.bancos.new": "New Bench",
+    "config.bancos.edit": "Edit Bench",
+    "config.bancos.deleteTitle": "Are you sure you want to delete this bench?",
+    "config.bancos.deleteDesc":
+      "This action cannot be undone. The bench will be permanently deleted.",
+    "config.motores.total": "Total Motor Templates",
+    "config.motores.manage": "Motor Templates",
+    "config.motores.desc":
+      "Manage motor templates that can be associated with benches.",
+    "config.motores.new": "New Template",
+    "config.motores.edit": "Edit Motor Template",
+    "config.motores.deleteTitle":
+      "Are you sure you want to delete this motor template?",
+    "config.motores.deleteDesc":
+      "This action cannot be undone. The template will be permanently deleted.",
+    "config.motores.performance": "Performance (%) - Optional",
+    "config.motores.performanceDesc":
+      "Enter the motor performance values at different loads.",
+    "config.save": "Save",
+    "config.cancel": "Cancel",
+    "config.delete": "Delete",
+    "config.active": "Active",
+    "config.inactive": "Inactive",
+    "config.noMotor": "No motor assigned",
   },
   es: {
     // Login
@@ -230,6 +266,43 @@ const translations: Record<Language, Record<string, string>> = {
     "pdf.discharge": "Descarga",
     "pdf.tolerance": "Tolerancia",
     "pdf.seal": "Tipo Cierre",
+
+    // Configuración
+    "config.title": "Configuración",
+    "config.desc":
+      "Administre los bancos de pruebas y las plantillas de motor.",
+    "config.bancos": "Bancos",
+    "config.motores": "Motores",
+    "config.bancos.total": "Total Bancos",
+    "config.bancos.active": "Bancos Activos",
+    "config.bancos.inactive": "Bancos Inactivos",
+    "config.bancos.manage": "Gestión de Bancos",
+    "config.bancos.desc":
+      "Administra los bancos de pruebas y sus plantillas de motor asociadas.",
+    "config.bancos.new": "Nuevo Banco",
+    "config.bancos.edit": "Editar Banco",
+    "config.bancos.deleteTitle": "¿Está seguro de eliminar este banco?",
+    "config.bancos.deleteDesc":
+      "Esta acción no se puede deshacer. El banco será eliminado permanentemente.",
+    "config.motores.total": "Total Plantillas de Motor",
+    "config.motores.manage": "Plantillas de Motor",
+    "config.motores.desc":
+      "Administra las plantillas de motor que pueden asociarse a bancos.",
+    "config.motores.new": "Nueva Plantilla",
+    "config.motores.edit": "Editar Plantilla de Motor",
+    "config.motores.deleteTitle":
+      "¿Está seguro de eliminar esta plantilla de motor?",
+    "config.motores.deleteDesc":
+      "Esta acción no se puede deshacer. La plantilla será eliminada permanentemente.",
+    "config.motores.performance": "Rendimientos (%) - Opcional",
+    "config.motores.performanceDesc":
+      "Ingrese los valores de rendimiento del motor a diferentes cargas.",
+    "config.save": "Guardar",
+    "config.cancel": "Cancelar",
+    "config.delete": "Eliminar",
+    "config.active": "Activo",
+    "config.inactive": "Inactivo",
+    "config.noMotor": "Sin motor asignado",
   },
 };
 

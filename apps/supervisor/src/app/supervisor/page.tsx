@@ -31,9 +31,10 @@ import {
   CheckSquare,
   ChevronRight,
   TrendingUp,
-  Lock,
   FileCheck,
   Plus,
+  Clock,
+  Wrench,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -75,7 +76,6 @@ export default function DashboardPage() {
   const { t } = useLanguage();
   const [creating, setCreating] = useState(false);
   const [isReady, setIsReady] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
   // SWR Hook for data fetching
   const { tests, isLoading, isValidating, mutate } = useTests();
 
@@ -93,7 +93,6 @@ export default function DashboardPage() {
 
     if (savedViewMode) setViewMode(savedViewMode);
     if (savedStatusFilter) setStatusFilter(savedStatusFilter);
-    setSidebarOpen(localStorage.getItem("dashboardSidebarOpen") !== "false");
     setIsReady(true);
   }, []);
 
@@ -102,9 +101,8 @@ export default function DashboardPage() {
     if (isReady) {
       localStorage.setItem("dashboardViewMode", viewMode);
       localStorage.setItem("dashboardStatusFilter", statusFilter);
-      localStorage.setItem("dashboardSidebarOpen", String(sidebarOpen));
     }
-  }, [viewMode, statusFilter, sidebarOpen, isReady]);
+  }, [viewMode, statusFilter, isReady]);
 
   // Reset status filter when switching views (only if not restoring from mount)
   useEffect(() => {
@@ -312,8 +310,10 @@ export default function DashboardPage() {
           <div className="grid grid-cols-5 border-b">
             <StatCell
               label={t("dash.stat.pending")}
-              value={pendingTests.filter((t) => t.status === "PENDING").length}
-              icon={<Lock className="w-4 h-4" />}
+              value={
+                pendingTests.filter((t: any) => t.status === "PENDING").length
+              }
+              icon={<Clock className="w-4 h-4" />}
               color="text-yellow-600"
               active={viewMode === "pending"}
               onClick={() => {
@@ -338,7 +338,7 @@ export default function DashboardPage() {
             <StatCell
               label="En Banco"
               value={enBancoTests.length}
-              icon={<Lock className="w-4 h-4" />}
+              icon={<Wrench className="w-4 h-4" />}
               color="text-amber-600"
               active={viewMode === "protocols" && statusFilter === "EN_BANCO"}
               onClick={() => {
@@ -388,9 +388,7 @@ export default function DashboardPage() {
                       <SelectItem value="PENDING">
                         {t("status.PENDING")}
                       </SelectItem>
-                      <SelectItem value="EN_BANCO">
-                        En Banco
-                      </SelectItem>
+                      <SelectItem value="EN_BANCO">En Banco</SelectItem>
                       <SelectItem value="GENERATED">
                         {t("status.PROCESSED")}
                       </SelectItem>
@@ -400,9 +398,7 @@ export default function DashboardPage() {
                       <SelectItem value="IN_PROGRESS">
                         {t("status.IN_PROGRESS")}
                       </SelectItem>
-                      <SelectItem value="EN_BANCO">
-                        En Banco
-                      </SelectItem>
+                      <SelectItem value="EN_BANCO">En Banco</SelectItem>
                       <SelectItem value="GENERATED">
                         {t("status.GENERATED")}
                       </SelectItem>
@@ -522,93 +518,6 @@ export default function DashboardPage() {
               />
             )}
           </div>
-        </div>
-
-        {/* Sidebar - Collapsible Panel */}
-        <div
-          className={[
-            "hidden lg:flex flex-col border-l bg-background overflow-hidden transition-all duration-300",
-            sidebarOpen ? "w-[320px] min-w-[320px]" : "w-10 min-w-10",
-          ].join(" ")}
-        >
-          {/* Header - always visible, acts as toggle */}
-          <button
-            onClick={() => setSidebarOpen((v) => !v)}
-            className="flex items-center justify-between px-3 py-2.5 border-b w-full hover:bg-muted/30 transition-colors group shrink-0"
-          >
-            {sidebarOpen && (
-              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
-                Actividad Reciente
-              </span>
-            )}
-            <ChevronRight
-              className={[
-                "w-3.5 h-3.5 text-muted-foreground/60 group-hover:text-foreground transition-all shrink-0",
-                sidebarOpen ? "rotate-180" : "",
-              ].join(" ")}
-            />
-          </button>
-
-          {/* Content — only shown when open */}
-          {sidebarOpen && (
-            <div className="flex-1 overflow-auto p-3 space-y-3">
-              {/* Last Import */}
-              {lastImport ? (
-                <div className="p-3 border border-border/40 hover:border-primary/30 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-all rounded-sm">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <FileSpreadsheet className="w-3.5 h-3.5 text-primary shrink-0" />
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                      Última Importación
-                    </span>
-                  </div>
-                  <p className="text-xs font-semibold text-foreground truncate mb-0.5">
-                    {lastImport.filename}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {lastImport.count} registros •{" "}
-                    {new Date(lastImport.time).toLocaleString("es-ES", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
-              ) : (
-                <div className="flex items-center justify-center h-12 text-[10px] text-muted-foreground/60">
-                  Sin actividad
-                </div>
-              )}
-
-              {/* Quick Stats */}
-              <div className="space-y-1 pt-2 border-t">
-                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">
-                  Estadísticas
-                </h3>
-                <QuickStatRow label="Total" value={tests.length} />
-                <QuickStatRow
-                  label="Pendientes"
-                  value={pendingTests.length}
-                  color="text-yellow-600"
-                />
-                <QuickStatRow
-                  label="En Proceso"
-                  value={tests.filter((t) => t.status === "IN_PROGRESS").length}
-                  color="text-blue-600"
-                />
-                <QuickStatRow
-                  label="En Banco"
-                  value={enBancoTests.length}
-                  color="text-amber-600"
-                />
-                <QuickStatRow
-                  label="Completadas"
-                  value={generatedTests.length}
-                  color="text-green-600"
-                />
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>

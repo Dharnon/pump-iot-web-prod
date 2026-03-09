@@ -58,6 +58,7 @@ export interface Job {
   targetFlow: number;
   impeller: string;
   bancoId?: number; // 1-5 mapping to A-E
+  orden?: number;
   errorMessage?: string;
   completedAt?: Date;
   testResults?: TestResults;
@@ -159,8 +160,8 @@ interface JobContextType {
 // =============================================================================
 
 export function getBankLetter(bancoId: number | undefined): string {
-  const letters = ['A', 'B', 'C', 'D', 'E'];
-  return letters[(bancoId || 1) - 1] || 'A';
+  const letters = ["A", "B", "C", "D", "E"];
+  return letters[(bancoId || 1) - 1] || "A";
 }
 
 const generateDefaultPoints = (targetFlow: number): TestPoint[] => [
@@ -564,8 +565,8 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     const fetchJobs = async () => {
-      // Check if mock mode is enabled
-      const isMock = typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
+      // Check if mock mode is enabled - FORCED TO FALSE for real usage
+      const isMock = false; // typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
 
       if (isMock) {
         console.log("JobProvider: Working in MOCK MODE");
@@ -579,27 +580,22 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         const data = await getTests();
         console.log("Raw API Response:", data);
 
-        // Filtrar protocolos generados, en banco, en proceso y completados (admitiendo variantes de status)
+        // Only show tests that are currently at a bench or being tested right now.
+        // GENERATED/GENERADO/PROCESADO/COMPLETED are historical — exclude from Kanban.
         const mappedJobs: Job[] = data
           .filter(
             (t) =>
-              (t.status === "GENERATED" ||
-                t.status === "GENERADO" ||
-                t.status === "PROCESADO" ||
-                t.status === "EN_BANCO" ||
-                t.status === "IN_PROGRESS" ||
-                t.status === "COMPLETED") &&
+              (t.status === "EN_BANCO" || t.status === "IN_PROGRESS") &&
               !String(t.id).startsWith("pending-"),
           )
+          .sort((a, b) => (a.orden || 0) - (b.orden || 0))
           .map((t) => {
             // Map API status to local status
             let localStatus: JobStatus;
             if (t.status === "IN_PROGRESS") {
               localStatus = "EN_PROCESO";
-            } else if (t.status === "COMPLETED") {
-              localStatus = "OK";
             } else {
-              // GENERATED, GENERADO, PROCESADO, EN_BANCO all map to GENERADA (pending at bench)
+              // EN_BANCO → GENERADA (waiting at bench, not started yet)
               localStatus = "GENERADA";
             }
 
@@ -613,6 +609,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
               targetFlow: 0,
               impeller: info.item || "",
               bancoId: t.bancoId || 1,
+              orden: t.orden || 0,
               createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
               protocolSpec: {
                 customerOrder: info.pedidoCliente || info.pedido,
@@ -648,7 +645,9 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     // Check if mock mode is enabled
-    const isMock = typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
+    const isMock =
+      typeof window !== "undefined" &&
+      localStorage.getItem("USE_MOCK_DATA") === "true";
     if (isMock) {
       console.log("selectJob: Skipping detail fetch in MOCK MODE");
       return;

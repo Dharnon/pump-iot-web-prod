@@ -20,8 +20,22 @@ import {
 } from "@microsoft/signalr";
 
 
-const API_BASE_URL =
-  import.meta.env?.VITE_API_URL ?? "http://127.0.0.1:5002";
+const getApiUrl = () => {
+  const envUrl = import.meta.env?.VITE_API_URL;
+  if (envUrl) return envUrl;
+
+  // Dynamic detection for local network access
+  if (typeof window !== 'undefined' && window.location.hostname) {
+    const hostname = window.location.hostname;
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return `http://${hostname}:5002`;
+    }
+  }
+
+  return "http://127.0.0.1:5002";
+};
+
+const API_BASE_URL = getApiUrl();
 
 const HUB_URL = `${API_BASE_URL}/hubs/protocol`;
 

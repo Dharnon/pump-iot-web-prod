@@ -49,6 +49,7 @@ import {
   EmptyContent,
 } from "@/components/ui/empty";
 import { PdfViewer } from "@/components/PdfViewer";
+import { BankSelect } from "@/components/supervisor/BankSelect";
 import type { UseLanguageReturn } from "@/lib/language-context";
 import type { UseTestDetailPageResult } from "@/features/test-detail";
 
@@ -105,6 +106,8 @@ export function DetailView({
     viewConfig,
     deleting,
     handleDelete,
+    setTest,
+    handleBankChange,
   } = hookResult;
 
   // Loading state
@@ -141,7 +144,7 @@ export function DetailView({
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">
       {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between px-3 py-2 border-b bg-background/50 backdrop-blur-sm shrink-0 gap-2">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between px-2 py-1.5 border-b bg-background/50 backdrop-blur-sm shrink-0 gap-2">
         <div className="flex items-center gap-2 min-w-0">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4" />
@@ -157,7 +160,9 @@ export function DetailView({
             <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-medium shrink-0">
               <span>{t(breadcrumbLabel)}</span>
               <ChevronRight className="w-3 h-3" />
-              <span className="truncate max-w-[100px] sm:max-w-[200px]">{test.generalInfo.pedido}</span>
+              <span className="truncate max-w-[100px] sm:max-w-[200px]">
+                {test.generalInfo.pedido}
+              </span>
             </div>
             <span className="text-muted-foreground/30 text-sm font-light">
               /
@@ -173,17 +178,18 @@ export function DetailView({
         <div className="flex items-center gap-2">
           <StatusBadge status={test.status} />
 
-          {onMoveToBank && (test.status === 'GENERATED' || test.status === 'GENERADO') && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 px-3 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
-              onClick={() => onMoveToBank(test.id)}
-            >
-              <Wrench className="w-3.5 h-3.5 mr-1.5" />
-              Banco
-            </Button>
-          )}
+          {onMoveToBank &&
+            (test.status === "GENERATED" || test.status === "GENERADO") && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-3 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+                onClick={() => onMoveToBank(test.id)}
+              >
+                <Wrench className="w-3.5 h-3.5 mr-1.5" />
+                Banco
+              </Button>
+            )}
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -295,7 +301,7 @@ export function DetailView({
             className="bg-background/50 backdrop-blur-sm"
           >
             <Tabs defaultValue="data" className="h-full flex flex-col">
-              <div className="px-3 md:px-4 border-b bg-background/50 backdrop-blur-sm shrink-0">
+              <div className="px-2 md:px-3 border-b bg-background/50 backdrop-blur-sm shrink-0">
                 <TabsList
                   variant="line"
                   className="h-9 w-full justify-start gap-4"
@@ -339,15 +345,18 @@ export function DetailView({
               </div>
 
               <ScrollArea className="flex-1">
-                <div className="p-2 md:p-3 space-y-4">
-                  <TabsContent value="data" className="space-y-4 mt-0">
+                <div className="p-1.5 md:p-2 space-y-3">
+                  <TabsContent value="data" className="space-y-3 mt-0">
                     {/* General Info Section */}
                     <GeneralInfoSection
                       generalInfo={test.generalInfo}
+                      bancoId={test.bancoId ?? null}
+                      onBankChange={handleBankChange}
                       t={t}
                       onDataChange={handlePdfDataChange}
                       allFieldsEditable={viewConfig.allFieldsEditable}
                       showQty={viewConfig.mode === "PENDING"}
+                      isPending={viewConfig.mode === "PENDING"}
                     />
 
                     {/* Tests to Perform Section - Only in PENDING mode */}

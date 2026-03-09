@@ -165,7 +165,7 @@ export const Dashboard: React.FC = () => {
     {
       icon: Settings,
       label: "Configuración",
-      onClick: () => setCurrentView("setup"),
+      onClick: () => setIsSettingsOpen(true),
     },
     {
       icon: LogOut,

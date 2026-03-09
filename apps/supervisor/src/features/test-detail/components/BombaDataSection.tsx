@@ -28,14 +28,14 @@ export function BombaDataSection({
   allFieldsEditable = false,
 }: BombaDataSectionProps) {
   return (
-    <section className="space-y-4">
-      <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
+    <section className="space-y-2">
+      <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
       <div>
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
           <Settings2 className="w-3.5 h-3.5 text-primary" /> Datos Bomba
         </span>
       </div>
-      <div className="flex flex-wrap gap-4 items-start">
+      <div className="flex flex-wrap gap-2 items-start">
         <CleanAutoInput
           label="Item"
           value={generalInfo?.item || pdfData?.item || ""}
@@ -99,7 +99,7 @@ export function BombaDataSection({
           className="h-9 text-sm"
           minWidth={120}
         />
-        <div className="flex items-center gap-2 pt-6 min-w-[120px]">
+        <div className="flex items-center gap-2 pt-3 min-w-[120px]">
           <div className="relative flex items-center">
             <input
               type="checkbox"
