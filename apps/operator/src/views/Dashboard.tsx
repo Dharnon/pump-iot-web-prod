@@ -21,6 +21,7 @@ import { HubConnectionState } from "@microsoft/signalr";
 import { useJob, Job } from "@/contexts/JobProvider";
 import { useUser } from "@/contexts/UserProvider";
 import { useNavigation } from "@/contexts/NavigationProvider";
+import { useTestSessionNavigation } from "@/hooks/useTestSessionNavigation";
 
 import { JobCard } from "@/components/testing/JobCard";
 import { FloatingSidebar } from "@/components/testing/FloatingSidebar";
@@ -57,13 +58,12 @@ import { es } from "date-fns/locale";
 export const Dashboard: React.FC = () => {
   const {
     jobs,
-    selectJob,
-    setTestConfig,
     connectionState,
     locks,
     myLockedProtocols,
   } = useJob();
   const { setCurrentView } = useNavigation();
+  const { openTestSession } = useTestSessionNavigation();
 
   const isConnected = connectionState === HubConnectionState.Connected;
   const isReconnecting = connectionState === HubConnectionState.Reconnecting;
@@ -126,18 +126,12 @@ export const Dashboard: React.FC = () => {
 
   const displayedJobs = activeTab === "pendientes" ? pendingJobs : historyJobs;
 
-  const handleStartJob = (job: Job) => {
-    selectJob(job);
-    setCurrentView("setup");
+  const handleStartJob = async (job: Job) => {
+    await openTestSession(job, "setup");
   };
 
-  const handleAnalyze = (job: Job) => {
-    selectJob(job);
-    // Load historical test results if available
-    if (job.testResults) {
-      setTestConfig(job.testResults.testConfig);
-    }
-    setCurrentView("analytics");
+  const handleAnalyze = async (job: Job) => {
+    await openTestSession(job, "analytics");
   };
 
   const handleViewPdf = async (job: Job) => {
@@ -419,3 +413,4 @@ export const Dashboard: React.FC = () => {
     </div>
   );
 };
+

@@ -176,7 +176,7 @@ export const Programacion: React.FC = () => {
                 </div>
 
                 {/* Cards List — same card style as Supervisor */}
-                <div className="p-2 h-[calc(100%-50px)] overflow-y-auto space-y-1.5">
+                <div className="p-2 h-[calc(100%-50px)] overflow-y-auto space-y-1.5 scrollbar-hide">
                   <AnimatePresence>
                     {col.jobs.map((job, idx) => {
                       const isInProgress = job.status === "EN_PROCESO";

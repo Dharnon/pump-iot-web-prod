@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useJob } from "@/contexts/JobProvider";
-import { useNavigation } from "@/contexts/NavigationProvider";
+import { useTestSessionNavigation } from "@/hooks/useTestSessionNavigation";
 import { useTelemetry } from "@/contexts/TelemetryProvider";
 import { getTestPdf } from "@pump-iot/core/api";
 import { toast } from "sonner";
@@ -47,9 +47,9 @@ const generateTheoreticalCurve = (nominalFlow: number) => {
 };
 
 export const Analytics: React.FC = () => {
-  const { currentJob, testConfig, clearJob } = useJob();
-  const { setCurrentView } = useNavigation();
-  const { capturedPoints, resetTelemetry } = useTelemetry();
+  const { currentJob, testConfig } = useJob();
+  const { leaveTestSession, goToTestView } = useTestSessionNavigation();
+  const { capturedPoints } = useTelemetry();
 
   const isApproved = currentJob?.status === "OK" || currentJob?.status !== "KO";
   const isHistorical =
@@ -84,25 +84,17 @@ export const Analytics: React.FC = () => {
 
   const failedPoints = chartData.captured.filter((p) => p.isOutOfTolerance);
 
-  // Combined reset function
-  const resetTest = useCallback(() => {
-    resetTelemetry();
-    clearJob();
-    setCurrentView("dashboard");
-  }, [resetTelemetry, clearJob, setCurrentView]);
+  const handleFinish = useCallback(() => {
+    leaveTestSession("dashboard");
+  }, [leaveTestSession]);
 
-  const handleFinish = () => {
-    // In a real app, this would save the report
-    resetTest();
-  };
-
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (isHistorical) {
-      resetTest();
+      leaveTestSession("dashboard");
     } else {
-      setCurrentView("cockpit");
+      goToTestView("cockpit");
     }
-  };
+  }, [goToTestView, isHistorical, leaveTestSession]);
 
   const handleExportPdf = async () => {
     if (!currentJob) return;
@@ -426,7 +418,7 @@ export const Analytics: React.FC = () => {
             <>
               <Button
                 variant="outline"
-                onClick={() => setCurrentView("cockpit")}
+                onClick={() => goToTestView("cockpit")}
                 className="h-14 px-8 rounded-full font-semibold"
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
@@ -446,3 +438,4 @@ export const Analytics: React.FC = () => {
     </div>
   );
 };
+

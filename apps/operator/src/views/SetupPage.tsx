@@ -35,6 +35,7 @@ import { Label } from "@/components/ui/label";
 import { useJob, TestPoint } from "@/contexts/JobProvider";
 import { getTestPdf } from "@pump-iot/core/api";
 import { useNavigation } from "@/contexts/NavigationProvider";
+import { useTestSessionNavigation } from "@/hooks/useTestSessionNavigation";
 import { cn } from "@/lib/utils";
 import { Toaster, toast } from "sonner";
 
@@ -58,9 +59,9 @@ const AlertCircleFixed = AlertCircleImport as any;
 const PlayFixed = PlayImport as any;
 
 export const SetupPage: React.FC = () => {
-  const { currentJob, testConfig, setTestConfig, updateJob, clearJob } =
-    useJob();
-  const { setCurrentView, currentView } = useNavigation();
+  const { currentJob, testConfig, setTestConfig, updateJob } = useJob();
+  const { setCurrentView } = useNavigation();
+  const { leaveTestSession } = useTestSessionNavigation();
 
   const [selectedBank, setSelectedBank] = useState<
     (typeof BANK_OPTIONS)[number]
@@ -154,20 +155,19 @@ export const SetupPage: React.FC = () => {
   };
 
   const handleClose = () => {
-    clearJob();
-    setCurrentView("dashboard");
+    leaveTestSession("dashboard");
   };
 
   const sidebarItems = [
     {
       icon: HomeIcon,
       label: "Inicio",
-      onClick: () => setCurrentView("dashboard"),
+      onClick: () => leaveTestSession("dashboard"),
     },
     {
       icon: WrenchIcon,
       label: "Programación",
-      onClick: () => setCurrentView("programacion"),
+      onClick: () => leaveTestSession("programacion"),
     },
     {
       icon: BarChart3Icon,
@@ -312,15 +312,15 @@ export const SetupPage: React.FC = () => {
               className="m-0 h-full focus-visible:outline-none"
             >
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 w-full">
-                {/* Row 1: General Info - 4 columns in 1 row */}
-                <div className="lg:col-span-2 xl:col-span-4 bg-card/60 rounded-xl border border-border/50 p-2">
-                  <h3 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                {/* Balanced Grid for Protocol Fields - 2 Rows of 4 Cards */}
+                <div className="bg-card/60 rounded-xl border border-border/50 p-2">
+                  <h3 className="text-[11px] font-bold text-foreground mb-1.5 flex items-center gap-1.5 uppercase tracking-wider">
                     <FileTextIconFixed className="w-3 h-3 text-primary" />
                     Información General
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Pedido Cliente
                       </label>
                       <input
@@ -329,11 +329,11 @@ export const SetupPage: React.FC = () => {
                         onChange={(e) =>
                           handleProtocolChange("customerOrder", e.target.value)
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-medium"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-medium"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Fecha
                       </label>
                       <input
@@ -349,11 +349,11 @@ export const SetupPage: React.FC = () => {
                         onChange={(e) =>
                           handleProtocolChange("jobDate", e.target.value)
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-medium"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-medium"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Cant. Bombas
                       </label>
                       <input
@@ -365,11 +365,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono font-bold"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono font-bold"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Tolerancia
                       </label>
                       <input
@@ -378,34 +378,46 @@ export const SetupPage: React.FC = () => {
                         onChange={(e) =>
                           handleProtocolChange("tolerance", e.target.value)
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-medium"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-medium"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Row 2: Pump & Motor - 2 columns */}
+                {/* Row 2: Main Grid - 4 columns */}
                 <div className="bg-card/60 rounded-xl border border-border/50 p-2">
-                  <h3 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                  <h3 className="text-[11px] font-bold text-foreground mb-1.5 flex items-center gap-1.5">
                     <SettingsIcon className="w-3 h-3 text-primary" />
-                    Datos Bomba
+                    Bomba
                   </h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="col-span-2 space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                        Orden Trabajo
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <div className="col-span-2 space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
+                        Orden Trabajo / SN
                       </label>
-                      <input
-                        type="text"
-                        value={protocolForm.workOrder || ""}
-                        onChange={(e) =>
-                          handleProtocolChange("workOrder", e.target.value)
-                        }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs"
-                      />
+                      <div className="flex gap-1">
+                        <input
+                          type="text"
+                          value={protocolForm.workOrder || ""}
+                          onChange={(e) =>
+                            handleProtocolChange("workOrder", e.target.value)
+                          }
+                          className="flex-1 bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs"
+                          placeholder="OT"
+                        />
+                        <input
+                          type="text"
+                          value={protocolForm.serialNumber || ""}
+                          onChange={(e) =>
+                            handleProtocolChange("serialNumber", e.target.value)
+                          }
+                          className="flex-1 bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs"
+                          placeholder="SN"
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Item
                       </label>
                       <input
@@ -414,11 +426,11 @@ export const SetupPage: React.FC = () => {
                         onChange={(e) =>
                           handleProtocolChange("itemNumber", e.target.value)
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Tipo
                       </label>
                       <input
@@ -427,24 +439,11 @@ export const SetupPage: React.FC = () => {
                         onChange={(e) =>
                           handleProtocolChange("pumpType", e.target.value)
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs"
                       />
                     </div>
-                    <div className="col-span-2 space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                        Número de Serie
-                      </label>
-                      <input
-                        type="text"
-                        value={protocolForm.serialNumber || ""}
-                        onChange={(e) =>
-                          handleProtocolChange("serialNumber", e.target.value)
-                        }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Asp. Ø
                       </label>
                       <input
@@ -456,11 +455,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Desc. Ø
                       </label>
                       <input
@@ -472,11 +471,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Rodete
                       </label>
                       <input
@@ -488,11 +487,11 @@ export const SetupPage: React.FC = () => {
                             e.target.value,
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Cierre
                       </label>
                       <select
@@ -500,14 +499,14 @@ export const SetupPage: React.FC = () => {
                         onChange={(e) =>
                           handleProtocolChange("sealType", e.target.value)
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-0.5 text-xs h-[26px]"
                       >
                         <option value="MECANICO">MECANICO</option>
                         <option value="CARTUCHO">CARTUCHO</option>
                         <option value="EMPAQUETADURA">EMPAQUETADURA</option>
                       </select>
                     </div>
-                    <div className="col-span-2 flex items-center gap-2 bg-secondary/20 p-2 rounded-lg">
+                    <div className="col-span-2 flex items-center gap-2 bg-secondary/20 px-2 py-1.5 rounded-lg mt-0.5">
                       <input
                         type="checkbox"
                         id="isVertical"
@@ -515,11 +514,11 @@ export const SetupPage: React.FC = () => {
                         onChange={(e) =>
                           handleProtocolChange("isVertical", e.target.checked)
                         }
-                        className="w-4 h-4"
+                        className="w-3.5 h-3.5"
                       />
                       <label
                         htmlFor="isVertical"
-                        className="text-xs font-medium"
+                        className="text-[10px] font-medium"
                       >
                         Bomba Vertical
                       </label>
@@ -527,15 +526,14 @@ export const SetupPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Motor Section */}
                 <div className="bg-card/60 rounded-xl border border-border/50 p-2">
-                  <h3 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                  <h3 className="text-[11px] font-bold text-foreground mb-1.5 flex items-center gap-1.5">
                     <ActivityIcon className="w-3 h-3 text-primary" />
                     Motor
                   </h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Marca
                       </label>
                       <input
@@ -544,11 +542,11 @@ export const SetupPage: React.FC = () => {
                         onChange={(e) =>
                           handleProtocolChange("motorBrand", e.target.value)
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Tipo
                       </label>
                       <input
@@ -557,11 +555,11 @@ export const SetupPage: React.FC = () => {
                         onChange={(e) =>
                           handleProtocolChange("motorType", e.target.value)
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Potencia (kW)
                       </label>
                       <input
@@ -573,11 +571,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Velocidad
                       </label>
                       <input
@@ -589,17 +587,17 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="col-span-2 space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="col-span-2 space-y-1 mt-1">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Rendimiento (%)
                       </label>
                       <div className="grid grid-cols-5 gap-1">
                         {["25", "50", "75", "100", "125"].map((point) => (
                           <div key={point} className="text-center">
-                            <span className="text-[8px] text-muted-foreground">
+                            <span className="text-[7px] text-muted-foreground">
                               {point}%
                             </span>
                             <input
@@ -611,7 +609,7 @@ export const SetupPage: React.FC = () => {
                                   Number(e.target.value),
                                 )
                               }
-                              className="w-full bg-secondary/30 border border-white/5 rounded px-1 py-1 text-[10px] font-mono text-center"
+                              className="w-full bg-secondary/30 border border-white/5 rounded px-1 py-1 text-[9px] font-mono text-center"
                             />
                           </div>
                         ))}
@@ -620,152 +618,14 @@ export const SetupPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Row 3: Pressures & Temperatures — merged into one wide card */}
-                <div className="lg:col-span-2 bg-card/60 rounded-xl border border-border/50 p-2">
-                  <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-                    {/* Presiones column */}
-                    <div>
-                      <h3 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
-                        <DropletsIcon className="w-3 h-3 text-primary" />
-                        Presiones
-                      </h3>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
-                          <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                            Correc. Manom.
-                          </label>
-                          <input
-                            type="number"
-                            value={protocolForm.manometricCorrection || ""}
-                            onChange={(e) =>
-                              handleProtocolChange(
-                                "manometricCorrection",
-                                Number(e.target.value),
-                              )
-                            }
-                            className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                            P. Atmosférica
-                          </label>
-                          <input
-                            type="number"
-                            value={protocolForm.atmosphericPressure || ""}
-                            onChange={(e) =>
-                              handleProtocolChange(
-                                "atmosphericPressure",
-                                Number(e.target.value),
-                              )
-                            }
-                            className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Temperaturas column */}
-                    <div>
-                      <h3 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
-                        <DropletsIcon className="w-3 h-3 text-orange-400" />
-                        Temperatura (°C)
-                      </h3>
-                      <div className="grid grid-cols-3 gap-2">
-                        <div className="space-y-1">
-                          <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                            Agua
-                          </label>
-                          <input
-                            type="number"
-                            value={protocolForm.waterTemperature || ""}
-                            onChange={(e) =>
-                              handleProtocolChange(
-                                "waterTemperature",
-                                Number(e.target.value),
-                              )
-                            }
-                            className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                            Ambiente
-                          </label>
-                          <input
-                            type="number"
-                            value={protocolForm.ambientTemperature || ""}
-                            onChange={(e) =>
-                              handleProtocolChange(
-                                "ambientTemperature",
-                                Number(e.target.value),
-                              )
-                            }
-                            className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                            Tiempo op.
-                          </label>
-                          <input
-                            type="number"
-                            value={protocolForm.runTime || ""}
-                            onChange={(e) =>
-                              handleProtocolChange(
-                                "runTime",
-                                Number(e.target.value),
-                              )
-                            }
-                            className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                            Lado Acople
-                          </label>
-                          <input
-                            type="number"
-                            value={protocolForm.couplingTemperature || ""}
-                            onChange={(e) =>
-                              handleProtocolChange(
-                                "couplingTemperature",
-                                Number(e.target.value),
-                              )
-                            }
-                            className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
-                          />
-                        </div>
-                        <div className="space-y-1">
-                          <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
-                            Lado Bomba
-                          </label>
-                          <input
-                            type="number"
-                            value={protocolForm.pumpTemperature || ""}
-                            onChange={(e) =>
-                              handleProtocolChange(
-                                "pumpTemperature",
-                                Number(e.target.value),
-                              )
-                            }
-                            className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Row 4: Guaranteed Points - 2 columns */}
                 <div className="bg-card/60 rounded-xl border border-border/50 p-2">
-                  <h3 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                  <h3 className="text-[11px] font-bold text-foreground mb-1.5 flex items-center gap-1.5">
                     <FileCheckIcon className="w-3 h-3 text-green-500" />
                     Punto Garantizado (Agua)
                   </h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Caudal (m³/h)
                       </label>
                       <input
@@ -777,11 +637,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Altura (m)
                       </label>
                       <input
@@ -793,11 +653,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Velocidad
                       </label>
                       <input
@@ -809,11 +669,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Potencia (kW)
                       </label>
                       <input
@@ -825,11 +685,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Rendimiento (%)
                       </label>
                       <input
@@ -841,11 +701,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         NPSH Req. (m)
                       </label>
                       <input
@@ -857,11 +717,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-red-400 font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-red-500 font-semibold">
                         Q Min (m³/h)
                       </label>
                       <input
@@ -873,11 +733,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/10 border border-red-500/20 rounded-lg px-2 py-1 text-xs font-mono text-red-400"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-red-400 font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-red-500 font-semibold">
                         BEP (m³/h)
                       </label>
                       <input
@@ -889,21 +749,155 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/10 border border-red-500/20 rounded-lg px-2 py-1 text-xs font-mono text-red-400"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Fluid Point */}
-                <div className="bg-card/60 rounded-xl border border-border/50 p-2">
-                  <h3 className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
+                <div className="bg-card/60 rounded-xl border border-border/50 p-2 flex flex-col gap-3">
+                  {/* Presiones */}
+                  <div>
+                    <h3 className="text-[11px] font-bold text-foreground mb-1.5 flex items-center gap-1.5">
+                      <DropletsIcon className="w-3 h-3 text-primary" />
+                      Presiones
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-0.5">
+                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
+                          Correc. Manom.
+                        </label>
+                        <input
+                          type="number"
+                          value={protocolForm.manometricCorrection || ""}
+                          onChange={(e) =>
+                            handleProtocolChange(
+                              "manometricCorrection",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
+                        />
+                      </div>
+                      <div className="space-y-0.5">
+                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
+                          P. Atmosférica
+                        </label>
+                        <input
+                          type="number"
+                          value={protocolForm.atmosphericPressure || ""}
+                          onChange={(e) =>
+                            handleProtocolChange(
+                              "atmosphericPressure",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Temperaturas */}
+                  <div className="border-t border-border/50 pt-2">
+                    <h3 className="text-[11px] font-bold text-foreground mb-1.5 flex items-center gap-1.5">
+                      <DropletsIcon className="w-3 h-3 text-orange-400" />
+                      Temp. (°C)
+                    </h3>
+                    <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                      <div className="space-y-0.5">
+                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
+                          Agua
+                        </label>
+                        <input
+                          type="number"
+                          value={protocolForm.waterTemperature || ""}
+                          onChange={(e) =>
+                            handleProtocolChange(
+                              "waterTemperature",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
+                        />
+                      </div>
+                      <div className="space-y-0.5">
+                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
+                          Ambiente
+                        </label>
+                        <input
+                          type="number"
+                          value={protocolForm.ambientTemperature || ""}
+                          onChange={(e) =>
+                            handleProtocolChange(
+                              "ambientTemperature",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
+                        />
+                      </div>
+                      <div className="space-y-0.5">
+                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
+                          Lado Acople
+                        </label>
+                        <input
+                          type="number"
+                          value={protocolForm.couplingTemperature || ""}
+                          onChange={(e) =>
+                            handleProtocolChange(
+                              "couplingTemperature",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
+                        />
+                      </div>
+                      <div className="space-y-0.5">
+                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
+                          Lado Bomba
+                        </label>
+                        <input
+                          type="number"
+                          value={protocolForm.pumpTemperature || ""}
+                          onChange={(e) =>
+                            handleProtocolChange(
+                              "pumpTemperature",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
+                        />
+                      </div>
+                      <div className="col-span-2 space-y-0.5">
+                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
+                          Tiempo op.
+                        </label>
+                        <input
+                          type="number"
+                          value={protocolForm.runTime || ""}
+                          onChange={(e) =>
+                            handleProtocolChange(
+                              "runTime",
+                              Number(e.target.value),
+                            )
+                          }
+                          className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 3: Fluid Point (Wide 2Cols) & Comments (Wide 2Cols) */}
+                <div className="md:col-span-3 lg:col-span-2 bg-card/60 rounded-xl border border-border/50 p-2">
+                  <h3 className="text-[11px] font-bold text-foreground mb-1.5 flex items-center gap-1.5">
                     <DropletsIcon className="w-3 h-3 text-primary" />
                     Punto Garantizado (Fluido Esp.)
                   </h3>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="col-span-2 space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div className="col-span-2 space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Fluido
                       </label>
                       <input
@@ -912,11 +906,11 @@ export const SetupPage: React.FC = () => {
                         onChange={(e) =>
                           handleProtocolChange("fluidName", e.target.value)
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Temp. (°C)
                       </label>
                       <input
@@ -928,11 +922,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Viscosidad
                       </label>
                       <input
@@ -944,11 +938,12 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Densidad
                       </label>
                       <input
@@ -960,11 +955,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Caudal
                       </label>
                       <input
@@ -976,11 +971,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Altura
                       </label>
                       <input
@@ -992,11 +987,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Velocidad
                       </label>
                       <input
@@ -1008,11 +1003,12 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Potencia
                       </label>
                       <input
@@ -1024,11 +1020,11 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold">
+                    <div className="space-y-0.5">
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Rendimiento
                       </label>
                       <input
@@ -1040,64 +1036,49 @@ export const SetupPage: React.FC = () => {
                             Number(e.target.value),
                           )
                         }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1.5 text-xs font-mono"
+                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
                       />
                     </div>
                     <div className="col-span-2">
-                      <label className="text-[9px] uppercase tracking-wider text-muted-foreground font-semibold mb-1 block">
-                        Coeficientes
+                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold mb-0.5 block">
+                        Coeficientes (cq, ch, ce)
                       </label>
-                      <div className="grid grid-cols-3 gap-1">
-                        <div>
-                          <label className="text-[8px] text-muted-foreground">
-                            Cq
-                          </label>
-                          <input
-                            type="number"
-                            value={protocolForm.cq || ""}
-                            onChange={(e) =>
-                              handleProtocolChange("cq", Number(e.target.value))
-                            }
-                            className="w-full bg-secondary/30 border border-white/5 rounded px-1.5 py-1 text-[10px] font-mono"
-                            step="0.0001"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[8px] text-muted-foreground">
-                            Ch
-                          </label>
-                          <input
-                            type="number"
-                            value={protocolForm.ch || ""}
-                            onChange={(e) =>
-                              handleProtocolChange("ch", Number(e.target.value))
-                            }
-                            className="w-full bg-secondary/30 border border-white/5 rounded px-1.5 py-1 text-[10px] font-mono"
-                            step="0.0001"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-[8px] text-muted-foreground">
-                            Ce
-                          </label>
-                          <input
-                            type="number"
-                            value={protocolForm.ce || ""}
-                            onChange={(e) =>
-                              handleProtocolChange("ce", Number(e.target.value))
-                            }
-                            className="w-full bg-secondary/30 border border-white/5 rounded px-1.5 py-1 text-[10px] font-mono"
-                            step="0.0001"
-                          />
-                        </div>
+                      <div className="flex gap-1">
+                        <input
+                          type="number"
+                          value={protocolForm.cq || ""}
+                          onChange={(e) =>
+                            handleProtocolChange("cq", Number(e.target.value))
+                          }
+                          className="flex-1 bg-secondary/30 border border-white/5 rounded px-2 py-1 text-[11px] font-mono"
+                          step="0.0001"
+                        />
+                        <input
+                          type="number"
+                          value={protocolForm.ch || ""}
+                          onChange={(e) =>
+                            handleProtocolChange("ch", Number(e.target.value))
+                          }
+                          className="flex-1 bg-secondary/30 border border-white/5 rounded px-2 py-1 text-[11px] font-mono"
+                          step="0.0001"
+                        />
+                        <input
+                          type="number"
+                          value={protocolForm.ce || ""}
+                          onChange={(e) =>
+                            handleProtocolChange("ce", Number(e.target.value))
+                          }
+                          className="flex-1 bg-secondary/30 border border-white/5 rounded px-2 py-1 text-[11px] font-mono"
+                          step="0.0001"
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
 
-                {/* Comments */}
-                <div className="lg:col-span-2 xl:col-span-3 2xl:col-span-4 bg-card/60 rounded-xl border border-border/50 p-2">
-                  <h3 className="text-xs font-semibold text-foreground uppercase tracking-wider mb-2">
+                <div className="bg-card/60 rounded-xl border border-border/50 p-2">
+                  <h3 className="text-[11px] font-bold text-foreground mb-1.5 flex items-center gap-1.5 uppercase tracking-wider">
+                    <FileTextIconFixed className="w-3 h-3 text-primary" />
                     Comentarios Internos
                   </h3>
                   <textarea
@@ -1105,8 +1086,8 @@ export const SetupPage: React.FC = () => {
                     onChange={(e) =>
                       handleProtocolChange("internalComment", e.target.value)
                     }
-                    className="w-full bg-secondary/30 border border-white/5 rounded-lg px-3 py-2 text-xs min-h-[60px] resize-none"
-                    placeholder="Agregar comentarios..."
+                    className="w-full h-[152px] bg-secondary/20 border border-white/5 rounded-lg px-3 py-2 text-xs resize-none"
+                    placeholder="Escribe aquí notas sobre la prueba..."
                   />
                 </div>
               </div>

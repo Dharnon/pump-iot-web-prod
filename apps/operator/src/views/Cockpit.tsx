@@ -12,7 +12,7 @@ import { ControlPanel } from '@/components/testing/ControlPanel';
 import { TelemetryCard } from '@/components/testing/TelemetryCard';
 import { Stepper } from '@/components/testing/Stepper';
 import { useJob } from '@/contexts/JobProvider';
-import { useNavigation } from '@/contexts/NavigationProvider';
+import { useTestSessionNavigation } from '@/hooks/useTestSessionNavigation';
 import { useTelemetry } from '@/contexts/TelemetryProvider';
 import { useCaptureLogic } from '@/hooks/useCaptureLogic';
 import { useIsTabletPortrait } from '@/hooks/use-media-query';
@@ -23,7 +23,7 @@ import { cn } from '@/lib/utils';
 export const Cockpit: React.FC = () => {
   // Separated concerns from different providers
   const { currentJob, testConfig } = useJob();
-  const { setCurrentView } = useNavigation();
+  const { leaveTestSession } = useTestSessionNavigation();
   const {
     controls,
     setMotorOn,
@@ -66,7 +66,7 @@ export const Cockpit: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setCurrentView('dashboard')}
+            onClick={() => leaveTestSession('dashboard')}
             className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-card/90 backdrop-blur-xl shadow-soft"
           >
             <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
@@ -252,3 +252,4 @@ export const Cockpit: React.FC = () => {
     </div>
   );
 };
+

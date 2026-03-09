@@ -6,6 +6,11 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 
 export type AppView = 'dashboard' | 'setup' | 'cockpit' | 'analytics' | 'programacion';
 
+export const TEST_SESSION_VIEWS: AppView[] = ['setup', 'cockpit', 'analytics'];
+
+export const isTestSessionView = (view: AppView): boolean =>
+    TEST_SESSION_VIEWS.includes(view);
+
 interface NavigationContextType {
     currentView: AppView;
     setCurrentView: (view: AppView) => void;
@@ -60,3 +65,4 @@ export const useNavigation = () => {
     }
     return context;
 };
+

@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { HubConnectionState } from "@microsoft/signalr";
 import { useSignalR, type Locks } from "../hooks/useSignalR";
+import { useNavigation, isTestSessionView } from "./NavigationProvider";
 
 // =============================================================================
 // TYPES (Extracted from original TestingContext)
@@ -154,6 +155,7 @@ interface JobContextType {
   unlockProtocol: (id: string) => void;
   /** Set of protocol IDs locked by THIS device/session */
   myLockedProtocols: Set<string>;
+  isTestSessionActive: boolean;
   bancos: any[];
 }
 
@@ -512,6 +514,8 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const fetchJobsRef = useRef<() => Promise<void>>();
+  const { currentView } = useNavigation();
+  const isTestSessionActive = isTestSessionView(currentView);
 
   const { connectionState, locks, lockProtocol, unlockProtocol, isConnected } =
     useSignalR({
@@ -525,11 +529,10 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
   const currentJobIdRef = useRef<string | null>(null);
   currentJobIdRef.current = currentJob?.id ?? null;
 
-  // Effect 1: Lock when a job is selected, unlock when deselected or job changes
+  // Effect 1: Lock only while the operator is inside the active test session flow.
   useEffect(() => {
-    if (!currentJob?.id) return;
+    if (!currentJob?.id || !isTestSessionActive) return;
 
-    // Only lock if we're connected. If not, Effect 2 will handle it on reconnect.
     if (isConnected) {
       console.log(`[JobProvider] Locking protocol ${currentJob.id}`);
       lockProtocol(currentJob.id);
@@ -537,8 +540,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     return () => {
-      // Cleanup: unlock the job that was locked by THIS effect run
-      const jobId = currentJob.id; // captured at effect creation time
+      const jobId = currentJob.id;
       if (jobId) {
         console.log(`[JobProvider] Unlocking protocol ${jobId}`);
         unlockProtocol(jobId);
@@ -549,13 +551,12 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         });
       }
     };
-    // Only re-run when the job actually changes — NOT when isConnected flips
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentJob?.id, lockProtocol, unlockProtocol]);
+  }, [currentJob?.id, isTestSessionActive, lockProtocol, unlockProtocol]);
 
-  // Effect 2: Re-lock on reconnect (without triggering an unlock on cleanup)
+  // Effect 2: Re-lock on reconnect only if the operator is still inside the test flow.
   useEffect(() => {
-    if (!isConnected) return;
+    if (!isConnected || !isTestSessionActive) return;
     if (!currentJobIdRef.current) return;
 
     console.log(
@@ -563,8 +564,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
     );
     lockProtocol(currentJobIdRef.current);
     setMyLockedProtocols((prev) => new Set(prev).add(currentJobIdRef.current!));
-    // No unlock in cleanup — Effect 1 owns the unlock lifecycle
-  }, [isConnected, lockProtocol]);
+  }, [isConnected, isTestSessionActive, lockProtocol]);
 
   useEffect(() => {
     const fetchJobs = async () => {
@@ -893,6 +893,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         lockProtocol,
         unlockProtocol,
         myLockedProtocols,
+        isTestSessionActive,
         bancos,
       }}
     >
@@ -912,3 +913,4 @@ export const useJob = () => {
   }
   return context;
 };
+
