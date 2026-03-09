@@ -30,21 +30,29 @@ export default function ProgramacionPage() {
     },
   });
 
-  const [boardData] = useMemo(() => {
+  const [boardData, isLoaded] = useMemo(() => {
     const data: BoardData = {
       root: {
         id: "root",
         title: "Bancos",
-        children: bancos?.map((b: any) => `col-${b.id}`) || [],
-        totalChildrenCount: bancos?.length || 0,
+        children: [],
+        totalChildrenCount: 0,
         parentId: null,
       },
     };
 
     if (!bancos) return [data, false];
 
+    // Sort banks by name to ensure A, B, C... order regardless of ID
+    const sortedBancos = [...bancos].sort((a: any, b: any) =>
+      (a.nombre || "").localeCompare(b.nombre || "", undefined, {
+        numeric: true,
+        sensitivity: "base",
+      }),
+    );
+
     // Initialize columns for each active bank
-    bancos.forEach((bank: any) => {
+    sortedBancos.forEach((bank: any) => {
       data[`col-${bank.id}`] = {
         id: `col-${bank.id}`,
         title: bank.nombre,
@@ -54,6 +62,10 @@ export default function ProgramacionPage() {
         content: { bankId: bank.id },
       };
     });
+
+    // Update root children with sorted IDs
+    data.root.children = sortedBancos.map((b: any) => `col-${b.id}`);
+    data.root.totalChildrenCount = sortedBancos.length;
 
     if (!tests) return [data, false];
 

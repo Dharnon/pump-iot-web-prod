@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { HubConnectionState } from "@microsoft/signalr";
 import { useJob, Job } from "@/contexts/JobProvider";
+import { useUser } from "@/contexts/UserProvider";
 import { useNavigation } from "@/contexts/NavigationProvider";
 
 import { JobCard } from "@/components/testing/JobCard";
@@ -74,7 +75,11 @@ export const Dashboard: React.FC = () => {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
+  const { user } = useUser();
+  const { bancos } = useJob();
+
   const filteredJobs = jobs.filter((job) => {
+    // Basic search/date filters
     const matchesSearch =
       job.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -83,7 +88,6 @@ export const Dashboard: React.FC = () => {
     let matchesDate = true;
     if (dateRange?.from) {
       const jobDate = new Date(job.createdAt);
-
       if (dateRange.to) {
         matchesDate = isWithinInterval(jobDate, {
           start: startOfDay(dateRange.from),
@@ -100,9 +104,22 @@ export const Dashboard: React.FC = () => {
     return matchesSearch && matchesDate;
   });
 
-  const pendingJobs = filteredJobs.filter(
+  // Helper to extract letter (A, B, C...) from bank name for user matching
+  const getBankLetter = (name: string) => name.split(" ").pop() || "";
+
+  // 1. Filter by status
+  const allPending = filteredJobs.filter(
     (job) => job.status === "GENERADA" || job.status === "EN_PROCESO",
   );
+
+  // 2. Further filter pending by ASSIGNED BANK (Operator preference)
+  const pendingJobs = allPending.filter((job) => {
+    const bank = bancos.find((b) => b.id === job.bancoId);
+    if (!bank) return false;
+    const letter = getBankLetter(bank.nombre);
+    return letter === user.assignedBank;
+  });
+
   const historyJobs = filteredJobs.filter(
     (job) => job.status === "OK" || job.status === "KO",
   );

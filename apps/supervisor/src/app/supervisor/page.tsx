@@ -52,7 +52,8 @@ import {
 } from "@/components/supervisor/protocol-columns";
 import { useLanguage } from "@/lib/language-context";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { deleteTest, createListado } from "@/lib/api";
+import useSWR from "swr";
+import { deleteTest, createListado, swrFetcher } from "@/lib/api";
 import { toast } from "sonner";
 import { useSignalR } from "@/hooks/useSignalR";
 import { HubConnectionState } from "@microsoft/signalr";
@@ -72,6 +73,7 @@ export default function DashboardPage() {
     count: number;
     time: Date;
   } | null>(null);
+  const { data: bancos } = useSWR("/api/bancos", swrFetcher);
   const router = useRouter();
   const { t } = useLanguage();
   const [creating, setCreating] = useState(false);
@@ -158,8 +160,8 @@ export default function DashboardPage() {
   );
 
   const protocolColumns = useMemo(
-    () => getProtocolColumns(t, handleDelete, locks),
-    [t, handleDelete, locks],
+    () => getProtocolColumns(t, handleDelete, locks, bancos),
+    [t, handleDelete, locks, bancos],
   );
 
   // Separate pending and generated tests

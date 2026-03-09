@@ -120,6 +120,7 @@ export const getProtocolColumns = (
   t: (key: string) => string,
   onDelete?: (id: string) => void,
   locks?: Record<string, string>, // protocolId → device name (from SignalR)
+  bancos?: any[],
 ): ColumnDef<ProtocolItem>[] => [
   {
     accessorKey: "id",
@@ -233,10 +234,28 @@ export const getProtocolColumns = (
     cell: ({ row }) => {
       const bancoId = row.original.bancoId;
       if (!bancoId) return null;
-      const letter = ["A", "B", "C", "D", "E"][bancoId - 1] ?? "-";
+
+      // Match the bank name from the database to ensure consistency with Kanban names
+      const bank = bancos?.find((b: any) => b.id === bancoId);
+
+      // If we found the bank, use its name. Usually "BANCO A" -> "A"
+      // If not found in the list (maybe inactive?), fallback to the numeric logic but warn
+      let identification = "-";
+      if (bank) {
+        // Extract the last part of the name if it's "BANCO X"
+        identification = bank.nombre.split(" ").pop() || bank.nombre;
+      } else {
+        // Fallback for banks not in the current list
+        identification =
+          ["A", "B", "C", "D", "E"][bancoId - 1] ?? bancoId.toString();
+      }
+
       return (
-        <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs border border-amber-500/20">
-          {letter}
+        <span
+          className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs border border-amber-500/20"
+          title={bank?.nombre || `ID: ${bancoId}`}
+        >
+          {identification}
         </span>
       );
     },

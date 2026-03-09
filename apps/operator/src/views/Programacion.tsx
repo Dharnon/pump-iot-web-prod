@@ -9,43 +9,47 @@ import { Settings, Home, BarChart3, Wrench, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-// All 5 banks — same as Supervisor
-const BANKS: { id: BankId; bankNum: number; label: string }[] = [
-  { id: "A", bankNum: 1, label: "Banco A" },
-  { id: "B", bankNum: 2, label: "Banco B" },
-  { id: "C", bankNum: 3, label: "Banco C" },
-  { id: "D", bankNum: 4, label: "Banco D" },
-  { id: "E", bankNum: 5, label: "Banco E" },
-];
-
 export const Programacion: React.FC = () => {
-  const { jobs, locks, myLockedProtocols } = useJob();
+  const { jobs, locks, myLockedProtocols, bancos } = useJob();
   const { user } = useUser();
   const { setCurrentView } = useNavigation();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
 
-  // Build columnar data sorted by orden — mirrors Supervisor's boardData
+  // Helper to extract letter (A, B, C...) from bank name for user matching
+  const getBankLetter = (name: string) => name.split(" ").pop() || "";
+
+  // Build columnar data sorted by name — mirrors Supervisor's boardData
   const columnData = useMemo(() => {
-    return BANKS.map(({ id, bankNum, label }) => {
+    // Sort banks by name to ensure A, B, C... order
+    const sortedBancos = [...bancos].sort((a: any, b: any) =>
+      (a.nombre || "").localeCompare(b.nombre || "", undefined, {
+        numeric: true,
+        sensitivity: "base",
+      }),
+    );
+
+    return sortedBancos.map((bank: any) => {
       const bankJobs = jobs
         .filter(
           (j) =>
-            j.bancoId === bankNum &&
+            j.bancoId === bank.id &&
             (j.status === "GENERADA" || j.status === "EN_PROCESO"),
         )
         .sort((a, b) => (a.orden || 0) - (b.orden || 0));
 
+      const bankLetter = getBankLetter(bank.nombre);
+
       return {
-        id,
-        bankNum,
-        label,
-        isUserBank: id === user.assignedBank,
+        id: bank.id.toString(),
+        bankNum: bank.id,
+        label: bank.nombre,
+        isUserBank: bankLetter === user.assignedBank,
         jobs: bankJobs,
         total: bankJobs.length,
       };
     });
-  }, [jobs, user.assignedBank]);
+  }, [jobs, bancos, user.assignedBank]);
 
   const stats = useMemo(() => {
     const allVisible = columnData.flatMap((c) => c.jobs);

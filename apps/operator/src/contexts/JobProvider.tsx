@@ -10,6 +10,7 @@ import {
   getTests,
   getTestById,
   patchTest,
+  getBancos,
   type Test,
 } from "@pump-iot/core/api";
 import { toast } from "sonner";
@@ -153,6 +154,7 @@ interface JobContextType {
   unlockProtocol: (id: string) => void;
   /** Set of protocol IDs locked by THIS device/session */
   myLockedProtocols: Set<string>;
+  bancos: any[];
 }
 
 // =============================================================================
@@ -500,6 +502,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [bancos, setBancos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentJob, setCurrentJob] = useState<Job | null>(null);
   const [testConfig, setTestConfig] = useState<TestConfig | null>(null);
@@ -577,12 +580,21 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
 
       try {
         setLoading(true);
-        const data = await getTests();
-        console.log("Raw API Response:", data);
+
+        // Fetch banks and tests in parallel
+        const [testsData, bancosData] = await Promise.all([
+          getTests(),
+          getBancos(),
+        ]);
+
+        console.log("Raw API Response (Tests):", testsData);
+        console.log("Raw API Response (Bancos):", bancosData);
+
+        setBancos(bancosData);
 
         // Only show tests that are currently at a bench or being tested right now.
         // GENERATED/GENERADO/PROCESADO/COMPLETED are historical — exclude from Kanban.
-        const mappedJobs: Job[] = data
+        const mappedJobs: Job[] = testsData
           .filter(
             (t) =>
               (t.status === "EN_BANCO" || t.status === "IN_PROGRESS") &&
@@ -881,6 +893,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         lockProtocol,
         unlockProtocol,
         myLockedProtocols,
+        bancos,
       }}
     >
       {children}

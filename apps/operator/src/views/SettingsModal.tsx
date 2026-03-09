@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Moon, Sun, Monitor, User, Building2 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { useUser, type BankId } from "@/contexts/UserProvider";
+import { useJob } from "@/contexts/JobProvider";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -12,20 +13,24 @@ interface SettingsModalProps {
   onClose: () => void;
 }
 
-const BANK_OPTIONS: { id: BankId; label: string }[] = [
-  { id: "A", label: "Banco A" },
-  { id: "B", label: "Banco B" },
-  { id: "C", label: "Banco C" },
-  { id: "D", label: "Banco D" },
-  { id: "E", label: "Banco E" },
-];
-
 export const SettingsModal: React.FC<SettingsModalProps> = ({
   isOpen,
   onClose,
 }) => {
   const { theme, setTheme } = useTheme();
   const { user, setAssignedBank } = useUser();
+  const { bancos } = useJob();
+
+  // Helper to extract letter (A, B, C...) from bank name for user matching
+  const getBankLetter = (name: string) => name.split(" ").pop() || "";
+
+  // Sort banks by name to ensure A, B, C... order
+  const sortedBancos = [...bancos].sort((a: any, b: any) =>
+    (a.nombre || "").localeCompare(b.nombre || "", undefined, {
+      numeric: true,
+      sensitivity: "base",
+    }),
+  );
 
   return (
     <AnimatePresence>
@@ -87,21 +92,24 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <p className="text-xs text-muted-foreground mb-2">
                     Cambiar banco asignado
                   </p>
-                  <div className="grid grid-cols-5 gap-1.5">
-                    {BANK_OPTIONS.map(({ id, label }) => (
-                      <button
-                        key={id}
-                        onClick={() => setAssignedBank(id)}
-                        className={[
-                          "py-2 rounded-lg text-xs font-semibold transition-all border",
-                          user.assignedBank === id
-                            ? "bg-primary text-primary-foreground border-primary shadow-md"
-                            : "bg-muted/40 text-muted-foreground border-border hover:bg-muted hover:text-foreground",
-                        ].join(" ")}
-                      >
-                        {label}
-                      </button>
-                    ))}
+                  <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-5">
+                    {sortedBancos.map((bank: any) => {
+                      const letter = getBankLetter(bank.nombre) as any;
+                      return (
+                        <button
+                          key={bank.id}
+                          onClick={() => setAssignedBank(letter)}
+                          className={[
+                            "py-2 rounded-lg text-[10px] sm:text-xs font-semibold transition-all border",
+                            user.assignedBank === letter
+                              ? "bg-primary text-primary-foreground border-primary shadow-md"
+                              : "bg-muted/40 text-muted-foreground border-border hover:bg-muted hover:text-foreground",
+                          ].join(" ")}
+                        >
+                          {bank.nombre}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
