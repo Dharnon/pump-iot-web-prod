@@ -1,5 +1,8 @@
 # 🚀 Guía de Despliegue - Pump IoT Web Platform
 
+> 📢 **IMPORTANTE**: ¿Vas a desplegar en un entorno sin internet (air-gapped)?  
+> → Lee la **[Guía de Despliegue Offline](./OFFLINE_DEPLOYMENT.md)** o el **[Inicio Rápido Air-Gapped](./AIRGAP_QUICKSTART.md)**
+
 ## 📋 Tabla de Contenidos
 1. [Requisitos del Sistema](#requisitos-del-sistema)
 2. [Instalación Paso a Paso](#instalación-paso-a-paso)
