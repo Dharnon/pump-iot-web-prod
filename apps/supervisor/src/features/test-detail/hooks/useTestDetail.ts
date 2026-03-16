@@ -16,7 +16,7 @@ interface TestDetail {
   numeroProtocolo?: number;
   bancoId?: number;
   fecha?: string;
-  status: "PENDING" | "SIN_PROCESAR" | "EN_PROCESO" | "GENERADO" | "GENERATED" | "COMPLETED";
+  status: "PENDING" | "SIN_PROCESAR" | "EN_PROCESO" | "EN_BANCO" | "GENERADO" | "GENERATED" | "COMPLETED";
   generalInfo: {
     pedido: string;
     posicion?: string;

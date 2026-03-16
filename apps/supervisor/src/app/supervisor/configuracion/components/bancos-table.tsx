@@ -32,7 +32,7 @@ export function BancosTable({
   const { t } = useLanguage();
 
   return (
-    <div className="rounded-md border">
+    <div className="w-full rounded-md border">
       <Table>
         <TableHeader>
           <TableRow>

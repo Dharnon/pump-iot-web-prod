@@ -1,16 +1,15 @@
 "use client";
 
-import { useMemo, useCallback } from "react";
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Kanban } from "react-kanban-kit";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { useTests } from "@/hooks/useTests";
-import { getBancos, patchTest, reorderTests, swrFetcher } from "@/lib/api";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { useRouter } from "next/navigation";
-
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useSignalR } from "@/hooks/useSignalR";
+import { useTests } from "@/hooks/useTests";
+import { reorderTests, swrFetcher } from "@/lib/api";
 
 interface BoardData {
   root: any;
@@ -22,15 +21,13 @@ export default function ProgramacionPage() {
   const { data: bancos } = useSWR("/api/bancos", swrFetcher);
   const router = useRouter();
 
-  // Integrated SignalR for real-time updates and locks
   const { locks } = useSignalR({
     onListUpdated: () => {
-      console.log("[SignalR] List updated, refreshing tests...");
       mutateTests();
     },
   });
 
-  const [boardData, isLoaded] = useMemo(() => {
+  const [boardData] = useMemo(() => {
     const data: BoardData = {
       root: {
         id: "root",
@@ -43,7 +40,6 @@ export default function ProgramacionPage() {
 
     if (!bancos) return [data, false];
 
-    // Sort banks by name to ensure A, B, C... order regardless of ID
     const sortedBancos = [...bancos].sort((a: any, b: any) =>
       (a.nombre || "").localeCompare(b.nombre || "", undefined, {
         numeric: true,
@@ -51,7 +47,6 @@ export default function ProgramacionPage() {
       }),
     );
 
-    // Initialize columns for each active bank
     sortedBancos.forEach((bank: any) => {
       data[`col-${bank.id}`] = {
         id: `col-${bank.id}`,
@@ -63,13 +58,11 @@ export default function ProgramacionPage() {
       };
     });
 
-    // Update root children with sorted IDs
     data.root.children = sortedBancos.map((b: any) => `col-${b.id}`);
     data.root.totalChildrenCount = sortedBancos.length;
 
     if (!tests) return [data, false];
 
-    // Filter and Sort tests by "orden" before adding to columns
     const kanbanTests = tests
       .filter(
         (t: any) =>
@@ -114,25 +107,13 @@ export default function ProgramacionPage() {
   }, [tests, bancos, locks]);
 
   const handleCardMove = async (move: any) => {
-    // react-kanban-kit provides: cardId, fromColumnId, toColumnId, position, taskAbove, taskBelow
-    const {
-      cardId,
-      toColumnId,
-      position: toIndex,
-      taskAbove,
-      taskBelow,
-    } = move;
+    const { cardId, toColumnId, position: toIndex } = move;
     const movingTestIdStr = cardId.replace("task-", "");
     const toBankId = boardData[toColumnId]?.content?.bankId;
     const bankName = boardData[toColumnId]?.title;
 
     if (!tests || !toBankId) return;
 
-    console.log(
-      `[Kanban] Dropping Card ${movingTestIdStr} into Bank ${toBankId} at pos=${toIndex} (above=${taskAbove}, below=${taskBelow})`,
-    );
-
-    // 1. Get tests currently in target bank (sorted by order)
     const currentTargetBankTests = tests
       .filter(
         (t) => t.bancoId === toBankId && t.id.toString() !== movingTestIdStr,
@@ -143,63 +124,57 @@ export default function ProgramacionPage() {
           a.id.toString().localeCompare(b.id.toString()),
       );
 
-    // 2. Find the moving test object
     const movingTest = tests.find((t) => t.id.toString() === movingTestIdStr);
     if (!movingTest) return;
 
-    // 3. Insert into the target sequence at the PRECISE index where the placeholder was
     const newSequenceInBank = [...currentTargetBankTests];
     newSequenceInBank.splice(toIndex, 0, { ...movingTest, bancoId: toBankId });
 
     const protocolIdsInOrder = newSequenceInBank.map((t) =>
-      parseInt(t.id.toString()),
+      parseInt(t.id.toString(), 10),
     );
 
-    // 4. Create OPTIMISTIC state for all tests
     const optimisticTests = tests.map((t) => {
-      const pIdInt = parseInt(t.id.toString());
-      const pos = protocolIdsInOrder.indexOf(pIdInt);
+      const protocolId = parseInt(t.id.toString(), 10);
+      const position = protocolIdsInOrder.indexOf(protocolId);
 
-      if (pos !== -1) {
-        // This test is now in the destination sequence
+      if (position !== -1) {
         return {
           ...t,
           bancoId: toBankId,
-          orden: pos + 1,
+          orden: position + 1,
           status:
-            pIdInt === parseInt(movingTestIdStr)
+            protocolId === parseInt(movingTestIdStr, 10)
               ? t.status === "IN_PROGRESS"
                 ? "IN_PROGRESS"
                 : "EN_BANCO"
               : t.status,
         } as any;
       }
+
       return t;
     });
 
     try {
-      // 5. Update UI instantly
       mutateTests(optimisticTests, { revalidate: false });
-
-      // 6. Persist to API
       await reorderTests(protocolIdsInOrder, toBankId);
-
-      // 5. Final sync and toast
       mutateTests();
       toast.success(`Movido y reordenado en ${bankName}`);
     } catch (error: any) {
       toast.error(error.message || "Error al mover");
-      mutateTests(); // Rollback
+      mutateTests();
     }
   };
 
+  const statPillClass =
+    "inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-foreground/85";
+
   const configMap = {
     card: {
-      render: ({ data, index }: any) => {
+      render: ({ data }: any) => {
         const test = data.content;
         const isCompleted = test?.status === "COMPLETED";
         const isInProgress = test?.status === "IN_PROGRESS";
-        const isEnBanco = test?.status === "EN_BANCO";
         const isLocked = test?.isLocked;
 
         const statusDot = isCompleted
@@ -210,25 +185,33 @@ export default function ProgramacionPage() {
 
         return (
           <div
-            className={`block bg-white dark:bg-slate-800 border ${isLocked ? "border-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" : "border-slate-200 dark:border-slate-700"} rounded-md p-2.5 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-all cursor-move relative overflow-hidden`}
+            className={`group relative block cursor-move overflow-hidden rounded-xl border p-2.5 transition-all ${
+              isLocked
+                ? "border-sky-500/80 bg-sky-950/30"
+                : "border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-[#1b2637] dark:hover:border-slate-600 dark:hover:bg-[#223148]"
+            }`}
           >
             {isLocked && (
-              <div className="absolute top-0 left-0 w-1 h-full bg-blue-500 animate-pulse" />
+              <div className="absolute left-0 top-0 h-full w-1 bg-sky-400 animate-pulse" />
             )}
-            <div className="flex items-start justify-between mb-1.5">
-              <div className="flex items-center gap-2">
+
+            <div className="mb-1.5 flex items-start justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2">
                 <div
-                  className={`w-1.5 h-1.5 rounded-full ${statusDot} ${isLocked ? "animate-ping" : ""}`}
+                  className={`h-1.5 w-1.5 rounded-full ${statusDot} ${
+                    isLocked ? "animate-ping" : ""
+                  }`}
                 />
-                <span className="text-[10px] font-mono text-slate-400">
+                <span className="text-[10px] font-mono text-slate-500 dark:text-slate-300/70">
                   #{test?.id}
                 </span>
                 {isLocked && (
-                  <span className="text-[9px] font-medium text-blue-500 animate-pulse">
-                    LOCKED ({test.lockedBy})
+                  <span className="truncate rounded-full border border-sky-400/35 bg-sky-400/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.08em] text-sky-300">
+                    Locked ({test.lockedBy})
                   </span>
                 )}
               </div>
+
               {isInProgress && (
                 <button
                   onClick={(e) => {
@@ -239,24 +222,25 @@ export default function ProgramacionPage() {
                       "width=1200,height=800",
                     );
                   }}
-                  className="text-[9px] px-1.5 py-0.5 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors"
+                  className="rounded bg-blue-500 px-1.5 py-0.5 text-[9px] text-white transition-colors hover:bg-blue-600"
                 >
                   3D
                 </button>
               )}
             </div>
+
             <div
               onClick={() => router.push(`/supervisor/protocolo/${test?.id}`)}
               className="cursor-pointer"
             >
-              <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+              <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-50">
                 {test?.cliente || "-"}
               </p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+              <p className="truncate text-[11px] text-slate-500 dark:text-slate-300/80">
                 {test?.tipoBomba || test?.modelo || "-"}
               </p>
               {test?.ordenTrabajo && (
-                <p className="text-[10px] font-mono text-slate-400 mt-1">
+                <p className="mt-1 text-[10px] font-mono text-slate-500 dark:text-slate-300/65">
                   OT: {test.ordenTrabajo}
                 </p>
               )}
@@ -280,50 +264,58 @@ export default function ProgramacionPage() {
   }, [tests]);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-background">
-      <header className="flex items-center justify-between px-4 py-3 border-b shrink-0">
+    <div className="flex h-screen w-full flex-col overflow-hidden bg-background">
+      <header className="flex shrink-0 flex-col gap-3 border-b border-border/80 bg-background/95 px-4 py-3 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4" />
-          <h1 className="text-sm font-medium text-foreground">Programación</h1>
+          <h1 className="text-sm font-semibold tracking-tight text-foreground">
+            Programacion
+          </h1>
         </div>
-        <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+
+        <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground sm:gap-3">
+          <span className={statPillClass}>
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+            Generados
             {stats.pending}
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+          <span className={statPillClass}>
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+            En proceso
             {stats.inProgress}
           </span>
-          <span className="flex items-center gap-1.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+          <span className={statPillClass}>
+            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+            Completados
             {stats.completed}
           </span>
         </div>
       </header>
 
-      <div className="flex-1 overflow-hidden p-3 min-h-0 flex items-center justify-center">
-        <div className="h-full w-full max-w-[95%]">
+      <div className="flex min-h-0 flex-1 overflow-hidden p-3">
+        <div className="programacion-board h-full w-full max-w-none">
           <Kanban
             dataSource={boardData}
             configMap={configMap}
             onCardMove={handleCardMove}
             columnWrapperClassName={() => "h-full min-w-0"}
-            columnClassName={() => "h-full min-w-[180px] flex-1 max-w-[350px]"}
+            columnClassName={() =>
+              "h-full min-w-[220px] max-w-[360px] flex-1 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/92 shadow-none backdrop-blur-sm dark:border-slate-800/90 dark:bg-[linear-gradient(180deg,rgba(36,24,18,0.96)_0%,rgba(26,18,14,0.98)_100%)]"
+            }
             columnHeaderClassName={() =>
-              "px-3 py-2 border-b border-slate-200 dark:border-slate-700"
+              "border-b border-slate-200/70 bg-slate-100/90 px-3 py-3 dark:border-amber-950/60 dark:bg-[linear-gradient(180deg,rgba(60,38,28,0.94)_0%,rgba(42,28,21,0.9)_100%)]"
             }
             columnListContentClassName={() =>
-              "p-2 h-[calc(100%-50px)] overflow-y-auto space-y-1.5"
+              "h-[calc(100%-56px)] space-y-2 overflow-y-auto p-2.5 dark:bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.08),transparent_32%),linear-gradient(180deg,rgba(120,53,15,0.14)_0%,rgba(41,24,18,0)_24%)]"
             }
             cardsGap={6}
             renderColumnHeader={(column: any) => (
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-100">
                   {column.title}
                 </span>
-                <span className="text-[10px] font-mono text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">
+                <span className="rounded-full border border-border/70 bg-background/70 px-2 py-0.5 text-[10px] font-mono text-slate-500 dark:bg-[#151718] dark:text-slate-300/80">
                   {column.totalChildrenCount}
                 </span>
               </div>

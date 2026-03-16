@@ -254,7 +254,7 @@ export default function SupervisorLayout({
       style={{ "--sidebar-width": "200px" } as React.CSSProperties}
     >
       {/* Container principal: flex horizontal, altura completa */}
-      <div className="h-screen flex w-full overflow-hidden">
+      <div className="flex h-screen w-screen max-w-none overflow-hidden">
         {/* ============================================================
                     SIDEBAR
                     ============================================================
@@ -472,7 +472,7 @@ export default function SupervisorLayout({
                     flex-1: Ocupa todo el espacio restante.
                     min-h-0 min-w-0: Previene overflow issues con flex.
                 */}
-        <main className="flex-1 flex flex-col min-h-0 min-w-0 bg-background">
+        <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-background w-full">
           {children}
         </main>
       </div>

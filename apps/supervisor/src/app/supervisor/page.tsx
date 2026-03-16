@@ -53,7 +53,7 @@ import {
 import { useLanguage } from "@/lib/language-context";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import useSWR from "swr";
-import { deleteTest, createListado, swrFetcher } from "@/lib/api";
+import { deleteTest, createListado, patchTest, swrFetcher } from "@/lib/api";
 import { toast } from "sonner";
 import { useSignalR } from "@/hooks/useSignalR";
 import { HubConnectionState } from "@microsoft/signalr";
@@ -153,6 +153,47 @@ export default function DashboardPage() {
     }
   };
 
+  const handleMoveProtocolToBank = useCallback(
+    async (id: string, bancoId?: number) => {
+      try {
+        if (!bancoId) {
+          toast.warning("Debe seleccionar un banco antes de enviarlo a banco");
+          return;
+        }
+
+        await patchTest(id, {
+          status: "EN_BANCO",
+          bancoId,
+        });
+
+        toast.success("Prueba enviada a banco");
+        mutate();
+      } catch (error) {
+        console.error("Error moving protocol to bank:", error);
+        toast.error("Error al enviar la prueba a banco");
+      }
+    },
+    [mutate],
+  );
+
+  const handleReturnProtocolToGenerated = useCallback(
+    async (id: string, bancoId?: number) => {
+      try {
+        await patchTest(id, {
+          status: "GENERATED",
+          bancoId,
+        });
+
+        toast.success("Prueba devuelta a procesados");
+        mutate();
+      } catch (error) {
+        console.error("Error returning protocol to generated:", error);
+        toast.error("Error al devolver la prueba a procesados");
+      }
+    },
+    [mutate],
+  );
+
   // Get translated columns — pass locks so status cell shows "En Ejecución"
   const pendingColumns = useMemo(
     () => getColumns(t, handleDelete, locks),
@@ -160,8 +201,23 @@ export default function DashboardPage() {
   );
 
   const protocolColumns = useMemo(
-    () => getProtocolColumns(t, handleDelete, locks, bancos),
-    [t, handleDelete, locks, bancos],
+    () =>
+      getProtocolColumns(
+        t,
+        handleDelete,
+        handleMoveProtocolToBank,
+        handleReturnProtocolToGenerated,
+        locks,
+        bancos,
+      ),
+    [
+      t,
+      handleDelete,
+      handleMoveProtocolToBank,
+      handleReturnProtocolToGenerated,
+      locks,
+      bancos,
+    ],
   );
 
   // Separate pending and generated tests

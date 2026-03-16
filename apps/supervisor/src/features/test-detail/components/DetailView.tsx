@@ -64,12 +64,22 @@ import {
   DetailsSection,
 } from "@/features/test-detail";
 
+const detailActionButtonClass =
+  "h-8 rounded-md px-3 text-xs font-medium shadow-xs transition-[background-color,border-color,color,box-shadow] focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-background";
+
+const detailMoveToBankButtonClass =
+  `${detailActionButtonClass} border-sky-200/80 bg-sky-50/90 text-sky-700 hover:border-sky-300 hover:bg-sky-100 focus-visible:ring-sky-400 dark:border-sky-900/80 dark:bg-sky-950/40 dark:text-sky-300 dark:hover:border-sky-800 dark:hover:bg-sky-950/70 dark:focus-visible:ring-sky-700`;
+
+const detailReturnToGeneratedButtonClass =
+  `${detailActionButtonClass} border-emerald-200/80 bg-emerald-50/90 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 focus-visible:ring-emerald-400 dark:border-emerald-900/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/70 dark:focus-visible:ring-emerald-700`;
+
 interface DetailViewProps {
   hookResult: UseTestDetailPageResult;
   t: UseLanguageReturn["t"];
   backRoute?: string;
   breadcrumbLabel?: string;
   onMoveToBank?: (id: string) => void;
+  onReturnToProcessed?: (id: string) => void;
 }
 
 export function DetailView({
@@ -78,6 +88,7 @@ export function DetailView({
   backRoute = "/supervisor",
   breadcrumbLabel = "test.tests",
   onMoveToBank,
+  onReturnToProcessed,
 }: DetailViewProps) {
   const router = useRouter();
   const {
@@ -183,13 +194,27 @@ export function DetailView({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 px-3 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200"
+                className={detailMoveToBankButtonClass}
                 onClick={() => onMoveToBank(test.id)}
+                aria-label="Enviar a banco"
               >
                 <Wrench className="w-3.5 h-3.5 mr-1.5" />
-                Banco
+                Enviar a banco
               </Button>
             )}
+
+          {onReturnToProcessed && test.status === "EN_BANCO" && (
+            <Button
+              variant="outline"
+              size="sm"
+              className={detailReturnToGeneratedButtonClass}
+              onClick={() => onReturnToProcessed(test.id)}
+              aria-label="Regresar a generado"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+              Regresar a generado
+            </Button>
+          )}
 
           <AlertDialog>
             <AlertDialogTrigger asChild>
@@ -260,7 +285,7 @@ export function DetailView({
           <ResizablePanel
             id="pdf-panel"
             ref={pdfPanelRef}
-            defaultSize={45}
+            defaultSize={33}
             minSize={0}
             collapsible
             onResize={onPanelResize}
@@ -296,19 +321,19 @@ export function DetailView({
 
           {/* Data Panel */}
           <ResizablePanel
-            defaultSize={55}
+            defaultSize={67}
             minSize={30}
             className="bg-background/50 backdrop-blur-sm"
           >
             <Tabs defaultValue="data" className="h-full flex flex-col">
-              <div className="px-2 md:px-3 border-b bg-background/50 backdrop-blur-sm shrink-0">
+              <div className="px-2 max-[2048px]:px-1 max-[1600px]:px-0.75 md:px-3 border-b bg-background/50 backdrop-blur-sm shrink-0">
                 <TabsList
                   variant="line"
-                  className="h-9 w-full justify-start gap-4"
+                  className="h-9 max-[2048px]:h-7 max-[1600px]:h-6.5 w-full justify-start gap-4 max-[2048px]:gap-2.5 max-[1600px]:gap-2"
                 >
                   <TabsTrigger
                     value="data"
-                    className="px-0 py-1.5 text-xs uppercase tracking-widest"
+                    className="px-0 py-1.5 max-[2048px]:py-0.75 max-[1600px]:py-0.5 text-xs max-[2048px]:text-[10px] max-[1600px]:text-[9px] uppercase tracking-widest"
                   >
                     Datos
                   </TabsTrigger>
@@ -321,20 +346,20 @@ export function DetailView({
                         e.stopPropagation();
                         togglePdf();
                       }}
-                      className="h-7 gap-1.5 text-muted-foreground hover:text-primary transition-colors ml-2"
+                      className="h-7 max-[2048px]:h-6 max-[1600px]:h-5.5 gap-1 text-muted-foreground hover:text-primary transition-colors ml-2"
                       title={isPdfExpanded ? "Colapsar PDF" : "Expandir PDF"}
                     >
                       {isPdfExpanded ? (
                         <>
                           <EyeOff className="w-3 h-3" />
-                          <span className="text-[9px] uppercase tracking-wider font-bold">
+                          <span className="text-[9px] max-[1600px]:text-[8px] uppercase tracking-wider font-bold">
                             PDF
                           </span>
                         </>
                       ) : (
                         <>
                           <Eye className="w-3 h-3" />
-                          <span className="text-[9px] uppercase tracking-wider font-bold">
+                          <span className="text-[9px] max-[1600px]:text-[8px] uppercase tracking-wider font-bold">
                             PDF
                           </span>
                         </>
@@ -345,8 +370,8 @@ export function DetailView({
               </div>
 
               <ScrollArea className="flex-1">
-                <div className="p-1.5 md:p-2 space-y-3">
-                  <TabsContent value="data" className="space-y-3 mt-0">
+                <div className="p-1.5 max-[2048px]:p-0.75 max-[1600px]:p-0.5 md:p-2 space-y-3 max-[2048px]:space-y-1.5 max-[1600px]:space-y-1">
+                  <TabsContent value="data" className="space-y-3 max-[2048px]:space-y-1.5 max-[1600px]:space-y-1 mt-0">
                     {/* General Info Section */}
                     <GeneralInfoSection
                       generalInfo={test.generalInfo}

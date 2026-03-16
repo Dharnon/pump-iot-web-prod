@@ -36,11 +36,26 @@ export default function ProtocolDetailPage() {
         bancoId: hookResult.test.bancoId,
       });
 
-      toast.success("Prueba movida a banco");
+      toast.success("Prueba enviada a banco");
       router.push("/supervisor/programacion");
     } catch (error) {
       console.error("Error moving test to bank:", error);
       toast.error("Error al mover la prueba a banco");
+    }
+  };
+
+  const handleReturnToProcessed = async (id: string) => {
+    try {
+      await patchTest(id, {
+        status: "GENERATED",
+        bancoId: hookResult.test?.bancoId,
+      });
+
+      toast.success("Prueba regresada a procesados");
+      router.push("/supervisor");
+    } catch (error) {
+      console.error("Error returning test to processed:", error);
+      toast.error("Error al devolver la prueba a procesados");
     }
   };
 
@@ -51,6 +66,7 @@ export default function ProtocolDetailPage() {
       backRoute="/supervisor"
       breadcrumbLabel="Protocolos"
       onMoveToBank={handleMoveToBank}
+      onReturnToProcessed={handleReturnToProcessed}
     />
   );
 }

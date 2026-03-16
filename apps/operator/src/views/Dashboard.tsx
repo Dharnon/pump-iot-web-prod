@@ -56,12 +56,7 @@ import {
 import { es } from "date-fns/locale";
 
 export const Dashboard: React.FC = () => {
-  const {
-    jobs,
-    connectionState,
-    locks,
-    myLockedProtocols,
-  } = useJob();
+  const { jobs, connectionState, locks, myLockedProtocols } = useJob();
   const { setCurrentView } = useNavigation();
   const { openTestSession } = useTestSessionNavigation();
 
@@ -227,7 +222,7 @@ export const Dashboard: React.FC = () => {
         >
           <div className="flex items-center gap-3">
             <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">
-              Banco de Pruebas
+              Banco de Pruebas Flowserve
             </h1>
             {/* SignalR connection indicator */}
             <div
@@ -413,4 +408,3 @@ export const Dashboard: React.FC = () => {
     </div>
   );
 };
-
