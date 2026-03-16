@@ -188,7 +188,7 @@ export default function ProgramacionPage() {
             className={`group relative block cursor-move overflow-hidden rounded-xl border p-2.5 transition-all ${
               isLocked
                 ? "border-sky-500/80 bg-sky-950/30"
-                : "border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700/80 dark:bg-[#1b2637] dark:hover:border-slate-600 dark:hover:bg-[#223148]"
+                : "border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50 dark:border-[#2c2e30] dark:bg-[#1d1f20] dark:hover:border-[#35383a] dark:hover:bg-[#202121]"
             }`}
           >
             {isLocked && (
@@ -301,13 +301,13 @@ export default function ProgramacionPage() {
             onCardMove={handleCardMove}
             columnWrapperClassName={() => "h-full min-w-0"}
             columnClassName={() =>
-              "h-full min-w-[220px] max-w-[360px] flex-1 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/92 shadow-none backdrop-blur-sm dark:border-slate-800/90 dark:bg-[linear-gradient(180deg,rgba(36,24,18,0.96)_0%,rgba(26,18,14,0.98)_100%)]"
+              "h-full min-w-[220px] max-w-[360px] flex-1 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50/92 shadow-none backdrop-blur-sm dark:border-[#222425] dark:bg-[#181a1b]"
             }
             columnHeaderClassName={() =>
-              "border-b border-slate-200/70 bg-slate-100/90 px-3 py-3 dark:border-amber-950/60 dark:bg-[linear-gradient(180deg,rgba(60,38,28,0.94)_0%,rgba(42,28,21,0.9)_100%)]"
+              "border-b border-slate-200 dark:bg-[#1d1f20] px-3 py-3 dark:border-[#222425]"
             }
             columnListContentClassName={() =>
-              "h-[calc(100%-56px)] space-y-2 overflow-y-auto p-2.5 dark:bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.08),transparent_32%),linear-gradient(180deg,rgba(120,53,15,0.14)_0%,rgba(41,24,18,0)_24%)]"
+              "h-[calc(100%-56px)] space-y-2 overflow-y-auto p-2.5 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0)_18%)]"
             }
             cardsGap={6}
             renderColumnHeader={(column: any) => (
@@ -315,7 +315,7 @@ export default function ProgramacionPage() {
                 <span className="text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-100">
                   {column.title}
                 </span>
-                <span className="rounded-full border border-border/70 bg-background/70 px-2 py-0.5 text-[10px] font-mono text-slate-500 dark:bg-[#151718] dark:text-slate-300/80">
+                <span className="rounded-full border border-border/70 bg-slate-100 px-2 py-0.5 text-[10px] font-mono text-slate-500 dark:bg-[#141515] dark:text-slate-300/80">
                   {column.totalChildrenCount}
                 </span>
               </div>
