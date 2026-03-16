@@ -23,7 +23,6 @@ export interface Test {
     posicion?: string;
     fecha?: string;
     item?: string;
-    pedidoCliente?: string;
   };
   createdAt?: string;
   numeroProtocolo?: number;

@@ -226,9 +226,6 @@ export interface GeneralInfo {
     /** Número de item en el pedido del cliente */
     item?: string;
 
-    /** Referencia del pedido del cliente */
-    pedidoCliente?: string;
-
     /** Cantidad de bombas en este pedido/posición */
     numeroBombas: number;
 }

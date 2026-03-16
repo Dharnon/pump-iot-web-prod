@@ -119,7 +119,6 @@ function handleMockEndpoint(endpoint: string): any {
           modeloBomba: job.model,
           ordenDeTrabajo: job.protocolSpec?.workOrder,
           numeroBombas: job.protocolSpec?.pumpQuantity || 1,
-          pedidoCliente: job.protocolSpec?.customerOrder,
         },
         numeroProtocolo: parseInt(job.id),
         bancoId: job.bancoId || 1,

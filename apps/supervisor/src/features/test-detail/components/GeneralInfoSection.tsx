@@ -8,7 +8,6 @@ interface GeneralInfoSectionProps {
   generalInfo: {
     pedido: string;
     cliente: string;
-    pedidoCliente?: string;
     fecha?: string;
     numeroBombas: number;
   };
@@ -81,13 +80,6 @@ export function GeneralInfoSection({
             minWidth={240}
           />
           <CleanAutoInput
-            label={t("field.clientOrder")}
-            value={generalInfo.pedidoCliente || ""}
-            onChange={(val) => onDataChange("pedidoCliente", val)}
-            className="h-8 text-xs font-mono"
-            minWidth={150}
-          />
-          <CleanAutoInput
             label={t("field.date")}
             value={generalInfo.fecha || new Date().toLocaleDateString("es-ES")}
             onChange={(val) => onDataChange("fecha", val)}
@@ -125,10 +117,6 @@ export function GeneralInfoSection({
             highlight
           />
           <InfoField label={t("field.client")} value={generalInfo.cliente} />
-          <InfoField
-            label={t("field.clientOrder")}
-            value={generalInfo.pedidoCliente || "-"}
-          />
           <InfoField
             label={t("field.date")}
             value={generalInfo.fecha || new Date().toLocaleDateString("es-ES")}

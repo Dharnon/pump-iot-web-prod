@@ -29,7 +29,6 @@ Ubicación: Cabecera de Supervisor / Sección "Datos de Pedido".
 | :-------------- | :---------------------- | :------------------------- | :--------- | :--------------------------------- |
 | `pedido`        | `Prueba.Listado.Pedido` | `ListadoProduccion.Pedido` | `string`   | Viene del listado importado.       |
 | `cliente`       | `Cliente.Nombre`        | `Cliente.Nombre`           | `string`   | Autocompletado desde BD.           |
-| `pedidoCliente` | `Cliente.PedidoCliente` | `Cliente.PedidoCliente`    | `string`   | Referencia externa del cliente.    |
 | `item`          | `Bomba.Item`            | `Bomba.Item`               | `string`   | Identificador de línea en pedido.  |
 | `modeloBomba`   | `Bomba.Tipo`            | `Bomba.Tipo`               | `string`   | Modelo comercial.                  |
 | `ordenTrabajo`  | `Bomba.OrdenDeTrabajo`  | `Bomba.OrdenDeTrabajo`     | `string`   | OT interna (ej: 9000-01).          |

@@ -26,7 +26,6 @@ interface TestDetail {
     numeroBombas: number;
     fecha?: string;
     item?: string;
-    pedidoCliente?: string;
   };
   bomba?: any;
   cliente?: any;
@@ -97,14 +96,6 @@ export function useTestDetail(testId: string): UseTestDetailResult {
           motor: data.motor
         });
 
-        // Sync pedidoCliente from cliente entity into generalInfo (they may diverge)
-        if (data.cliente?.pedidoCliente && !data.generalInfo?.pedidoCliente) {
-          data.generalInfo = {
-            ...data.generalInfo,
-            pedidoCliente: data.cliente.pedidoCliente
-          };
-        }
-
         // Sync item from bomba entity into generalInfo (bomba.item is the canonical source)
         if (data.bomba?.item) {
           data.generalInfo = {
@@ -137,7 +128,7 @@ export function useTestDetail(testId: string): UseTestDetailResult {
       if (!prev) return null;
 
       // Fields that belong to generalInfo
-      const generalInfoFields = ['pedido', 'cliente', 'pedidoCliente', 'fecha', 'numeroBombas', 'modeloBomba', 'ordenTrabajo', 'item'];
+      const generalInfoFields = ['pedido', 'cliente', 'fecha', 'numeroBombas', 'modeloBomba', 'ordenTrabajo', 'item'];
 
       if (generalInfoFields.includes(field)) {
         return {

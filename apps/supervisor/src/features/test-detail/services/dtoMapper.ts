@@ -15,7 +15,6 @@ export interface TestGeneralInfo {
   numeroBombas: number;
   fecha?: string;
   item?: string;
-  pedidoCliente?: string;
 }
 
 export interface TestPdfData {
@@ -89,7 +88,6 @@ export interface TestSaveDTO {
     numeroBombas: number;
     fecha?: string;
     item?: string;
-    pedidoCliente?: string;
     posicion?: string;
   };
   pdfData?: {
@@ -182,7 +180,6 @@ export function mapTestToSaveDTO(
       numeroBombas: generalInfo.numeroBombas,
       fecha: generalInfo.fecha,
       item: generalInfo.item,
-      pedidoCliente: generalInfo.pedidoCliente,
       posicion: generalInfo.posicion
     },
     pdfData: pdfData ? {

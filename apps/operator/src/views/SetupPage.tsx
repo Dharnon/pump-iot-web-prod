@@ -321,19 +321,6 @@ export const SetupPage: React.FC = () => {
                   <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                     <div className="space-y-0.5">
                       <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
-                        Pedido Cliente
-                      </label>
-                      <input
-                        type="text"
-                        value={protocolForm.customerOrder || ""}
-                        onChange={(e) =>
-                          handleProtocolChange("customerOrder", e.target.value)
-                        }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-medium"
-                      />
-                    </div>
-                    <div className="space-y-0.5">
-                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Fecha
                       </label>
                       <input

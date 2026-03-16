@@ -66,7 +66,6 @@ export interface Job {
   testResults?: TestResults;
   protocolSpec?: {
     // Generic
-    customerOrder?: string;
     jobDate?: string;
     pumpQuantity?: number;
     workOrder?: string;
@@ -614,7 +613,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
             const info = t.generalInfo as any;
             return {
               id: t.id.toString(),
-              orderId: info.pedidoCliente || info.pedido || `JOB-${t.id}`,
+              orderId: info.pedido || `JOB-${t.id}`,
               model: info.modeloBomba || "Desconocido",
               client: info.cliente || "Desconocido",
               status: localStatus,
@@ -624,7 +623,6 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
               orden: t.orden || 0,
               createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
               protocolSpec: {
-                customerOrder: info.pedidoCliente || info.pedido,
                 workOrder: info.ordenTrabajo,
                 itemNumber: info.item,
                 jobDate: info.fecha,
@@ -676,11 +674,10 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
       const updatedJob: Job = {
         ...job,
         // Update orderId logic for Detail View
-        orderId: info.pedidoCliente || info.pedido || job.orderId,
+        orderId: info.pedido || job.orderId,
         protocolSpec: {
           ...job.protocolSpec,
           // Generic
-          customerOrder: info.pedidoCliente,
           jobDate: info.fecha,
           pumpQuantity: info.numeroBombas,
           workOrder: info.ordenTrabajo,
@@ -770,15 +767,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
 
       try {
         // 1. Optimistic update
-        let updatedJob = { ...currentJob, ...updates };
-
-        // Update orderId if customerOrder changed (since it's now the main ID)
-        if (updates.protocolSpec?.customerOrder) {
-          updatedJob = {
-            ...updatedJob,
-            orderId: updates.protocolSpec.customerOrder,
-          };
-        }
+        const updatedJob = { ...currentJob, ...updates };
 
         setCurrentJob(updatedJob);
 
@@ -855,7 +844,6 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
           generalInfo: {
             item: spec.itemNumber,
             modeloBomba: spec.pumpType,
-            pedidoCliente: spec.customerOrder,
             fecha: spec.jobDate,
             numeroBombas: spec.pumpQuantity,
             ordenTrabajo: spec.workOrder,

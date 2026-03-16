@@ -262,19 +262,6 @@ export const SetupModal: React.FC = () => {
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
-                        Pedido Cliente
-                      </label>
-                      <input
-                        type="text"
-                        value={protocolForm.customerOrder || ""}
-                        onChange={(e) =>
-                          handleProtocolChange("customerOrder", e.target.value)
-                        }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-medium text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
                         Fecha
                       </label>
                       <input
