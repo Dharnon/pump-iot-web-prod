@@ -45,7 +45,7 @@
     "react-hook-form": "^7.70.0",
     "react-kanban-kit": "0.0.2-beta.6",
     "react-resizable-panels": "^4.3.3",
-    "recharts": "^2.15.4",
+    "recharts": "^2.15.3",
     "sharp": "^0.34.5",
     "sonner": "^2.0.7",
     "styled-jsx": "^5.1.0",
