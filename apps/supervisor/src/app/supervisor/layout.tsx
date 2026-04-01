@@ -291,7 +291,7 @@ export default function SupervisorLayout({
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarHeader>
-
+          cre{" "}
           <SidebarContent className="px-2">
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -315,7 +315,6 @@ export default function SupervisorLayout({
               ))}
             </SidebarMenu>
           </SidebarContent>
-
           {/* --------------------------------------------------------
                         FOOTER: Branding + Info de usuario
                         -------------------------------------------------------- */}
@@ -457,7 +456,6 @@ export default function SupervisorLayout({
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarFooter>
-
           {/* Rail: Barra delgada para toggle del sidebar */}
           <SidebarRail />
         </Sidebar>

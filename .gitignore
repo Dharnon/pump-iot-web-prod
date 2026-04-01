@@ -40,3 +40,6 @@ pnpm-debug.log*
 # IDEs
 .vscode
 .idea
+
+# VitePress
+**/.vitepress/cache
