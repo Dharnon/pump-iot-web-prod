@@ -3,10 +3,16 @@
 import * as React from "react";
 import {
 <<<<<<< HEAD
+<<<<<<< HEAD
   type ColumnDef,
   type SortingState,
   type VisibilityState,
   flexRender,
+=======
+  ColumnDef,
+  SortingState,
+  VisibilityState,
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 =======
   ColumnDef,
   SortingState,
@@ -61,6 +67,7 @@ interface DataTableProps<TData extends object, TValue> {
   onRowClick?: (row: TData) => void;
   globalFilter?: string;
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
@@ -75,6 +82,8 @@ function getColumnLabel(column: { columnDef: { header?: unknown }; id: string })
     .replace(/\b\w/g, (character) => character.toUpperCase());
 =======
 >>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
+=======
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 }
 
 export function DataTable<TData extends object, TValue>({
@@ -86,7 +95,12 @@ export function DataTable<TData extends object, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 <<<<<<< HEAD
+<<<<<<< HEAD
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+=======
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 =======
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -100,11 +114,17 @@ export function DataTable<TData extends object, TValue>({
     data,
     columns,
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
     getRowId: (originalRow, index) => {
       const rowWithId = originalRow as { id?: unknown };
       return rowWithId.id != null ? String(rowWithId.id) : String(index);
     },
+<<<<<<< HEAD
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
+=======
 >>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
     state: {
       sorting,
@@ -121,6 +141,7 @@ export function DataTable<TData extends object, TValue>({
     getSortedRowModel: getSortedRowModel(),
   });
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   React.useEffect(() => {
     setPagination((current) => ({ ...current, pageIndex: 0 }));
@@ -341,12 +362,43 @@ export function DataTable<TData extends object, TValue>({
           </ScrollArea>
         </DataGridContainer>
 
+=======
+  return (
+    <DataGrid
+      table={table}
+      recordCount={data.length}
+      isLoading={loading}
+      onRowClick={onRowClick}
+      tableLayout={{
+        headerSticky: true,
+        headerBackground: false,
+        rowBorder: true,
+        cellBorder: false,
+        stripped: false,
+        width: "auto",
+        dense: true,
+      }}
+      className="flex-1 w-full"
+    >
+      <div className="w-full flex flex-col h-full">
+        <DataGridContainer className="overflow-hidden border-x border-t border-border/50">
+          <ScrollArea className="h-[calc(100vh-260px)]">
+            <DataGridTable />
+            <ScrollBar orientation="horizontal" />
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
+        </DataGridContainer>
+
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
         <DataGridPagination
           info="{from} - {to} de {count}"
           rowsPerPageLabel="Filas por página"
         />
       </div>
     </DataGrid>
+<<<<<<< HEAD
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
+=======
 >>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
   );
 }

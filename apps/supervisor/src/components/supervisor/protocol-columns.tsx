@@ -299,6 +299,7 @@ export const getProtocolColumns = (
   },
   {
 <<<<<<< HEAD
+<<<<<<< HEAD
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => (
@@ -310,6 +311,8 @@ export const getProtocolColumns = (
           <AlertDialog>
             <AlertDialogTrigger asChild>
 =======
+=======
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
     id: "bankAction",
     header: "",
     cell: ({ row }) => {
@@ -322,6 +325,9 @@ export const getProtocolColumns = (
         return (
           <Tooltip>
             <TooltipTrigger asChild>
+<<<<<<< HEAD
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
+=======
 >>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
               <Button
                 variant="outline"
