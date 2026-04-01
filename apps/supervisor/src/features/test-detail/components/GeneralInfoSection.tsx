@@ -1,27 +1,23 @@
-/**
- * GeneralInfoSection Component
- *
- * Displays general test information (order, client, date, etc.)
- * Follows SRP: Only responsible for displaying general information.
- */
-
-import { FileText } from "lucide-react";
-import { CleanInput } from "./CleanInput";
+import { FileText, Wrench } from "lucide-react";
 import { CleanAutoInput } from "./CleanAutoInput";
+import { ResponsiveFieldFlow } from "./ResponsiveFieldFlow";
+import { BankSelect } from "@/components/supervisor/BankSelect";
 import type { UseLanguageReturn } from "@/lib/language-context";
 
 interface GeneralInfoSectionProps {
   generalInfo: {
     pedido: string;
     cliente: string;
-    pedidoCliente?: string;
     fecha?: string;
     numeroBombas: number;
   };
+  bancoId?: number | null;
+  onBankChange?: (bankId: number) => void;
   t: UseLanguageReturn["t"];
   onDataChange?: (field: string, value: string) => void;
   allFieldsEditable?: boolean;
   showQty?: boolean;
+  isPending?: boolean;
 }
 
 function InfoField({
@@ -37,7 +33,7 @@ function InfoField({
 }) {
   return (
     <div className={className}>
-      <p className="text-[9px] text-muted-foreground uppercase tracking-wider mb-0.5">
+      <p className="text-sm max-[2048px]:text-xs max-[1600px]:text-[10px] text-muted-foreground uppercase font-bold tracking-tight mb-0.5">
         {label}
       </p>
       <p
@@ -51,97 +47,108 @@ function InfoField({
 
 export function GeneralInfoSection({
   generalInfo,
+  bancoId,
+  onBankChange,
   t,
   onDataChange,
   allFieldsEditable = false,
   showQty = true,
 }: GeneralInfoSectionProps) {
+  const editableLayoutClass = onBankChange
+    ? "grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(180px,1.1fr)_minmax(260px,1.7fr)_minmax(150px,0.95fr)_minmax(100px,0.7fr)_minmax(180px,1.15fr)] xl:gap-x-4 xl:gap-y-3"
+    : "grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(180px,1.1fr)_minmax(260px,1.7fr)_minmax(150px,0.95fr)_minmax(100px,0.7fr)] xl:gap-x-4 xl:gap-y-3";
+
   return (
     <section className="space-y-3">
       <div>
-        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-          <FileText className="w-3.5 h-3.5" />
+        <h3 className="text-sm max-[2048px]:text-xs max-[1600px]:text-[11px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+          <FileText className="w-4 h-4" />
           {t("test.generalInfo")}
         </h3>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-x-3 gap-y-2">
-        {allFieldsEditable && onDataChange ? (
-          <>
+
+      {allFieldsEditable && onDataChange ? (
+        <div className={editableLayoutClass}>
+          <CleanAutoInput
+            label={t("field.order")}
+            value={generalInfo.pedido}
+            onChange={(val) => onDataChange("pedido", val)}
+            className="h-8 text-xs font-mono"
+            containerClassName="w-full"
+            minWidth={140}
+            fullWidth
+          />
+          <CleanAutoInput
+            label={t("field.client")}
+            value={generalInfo.cliente}
+            onChange={(val) => onDataChange("cliente", val)}
+            className="h-8 text-xs font-mono"
+            containerClassName="w-full"
+            minWidth={220}
+            fullWidth
+          />
+          <CleanAutoInput
+            label={t("field.date")}
+            value={generalInfo.fecha || new Date().toLocaleDateString("es-ES")}
+            onChange={(val) => onDataChange("fecha", val)}
+            className="h-8 text-xs font-mono"
+            containerClassName="w-full"
+            minWidth={130}
+            fullWidth
+          />
+          {showQty && (
             <CleanAutoInput
-              label={t("field.order")}
-              value={generalInfo.pedido}
-              onChange={(val) => onDataChange("pedido", val)}
-              className="h-8 text-xs"
-              minWidth={100}
-            />
-            <CleanAutoInput
-              label={t("field.client")}
-              value={generalInfo.cliente}
-              onChange={(val) => onDataChange("cliente", val)}
-              className="h-8 text-xs col-span-1 sm:col-span-2"
-              minWidth={150}
-            />
-            <CleanAutoInput
-              label={t("field.clientOrder")}
-              value={generalInfo.pedidoCliente || ""}
-              onChange={(val) => onDataChange("pedidoCliente", val)}
-              className="h-8 text-xs"
-              minWidth={100}
-            />
-            <CleanAutoInput
-              label={t("field.date")}
-              value={
-                generalInfo.fecha || new Date().toLocaleDateString("es-ES")
-              }
-              onChange={(val) => onDataChange("fecha", val)}
-              className="h-8 text-xs"
+              label={t("field.qty")}
+              value={String(generalInfo.numeroBombas)}
+              onChange={(val) => onDataChange("numeroBombas", val)}
+              className="h-8 text-xs font-mono text-center"
+              containerClassName="w-full"
               minWidth={90}
+              fullWidth
             />
-            {showQty && (
-              <CleanAutoInput
-                label={t("field.qty")}
-                value={String(generalInfo.numeroBombas)}
-                onChange={(val) => onDataChange("numeroBombas", val)}
-                className="h-8 text-xs w-16 text-center"
-                minWidth={50}
+          )}
+          {onBankChange && (
+            <div className="flex w-full flex-col gap-1.5 max-[2048px]:gap-0.75 max-[1600px]:gap-0.5">
+              <label className="text-sm max-[2048px]:text-xs max-[1600px]:text-[10px] uppercase font-bold tracking-tight leading-none text-muted-foreground flex items-center gap-1">
+                <Wrench className="w-3 h-3 text-primary/70" />
+                BOMBA
+              </label>
+              <BankSelect
+                currentBankId={bancoId ?? null}
+                onBankChange={onBankChange}
+                placeholder="Selec. Bomba"
+                className="h-8 text-xs"
               />
-            )}
-          </>
-        ) : (
-          <>
+            </div>
+          )}
+        </div>
+      ) : (
+        <ResponsiveFieldFlow className="gap-x-6 gap-y-2">
+          <InfoField
+            label={t("field.order")}
+            value={generalInfo.pedido}
+            highlight
+          />
+          <InfoField label={t("field.client")} value={generalInfo.cliente} />
+          <InfoField
+            label={t("field.date")}
+            value={generalInfo.fecha || new Date().toLocaleDateString("es-ES")}
+          />
+          {showQty && (
             <InfoField
-              label={t("field.order")}
-              value={generalInfo.pedido}
-              highlight
-              className="col-span-1"
+              label={t("field.qty")}
+              value={String(generalInfo.numeroBombas)}
             />
+          )}
+          {bancoId !== null && bancoId !== undefined && (
             <InfoField
-              label={t("field.client")}
-              value={generalInfo.cliente}
-              className="col-span-1 sm:col-span-2"
+              label={t("field.bank") || "Banco"}
+              value={`Banco ${bancoId}`}
+              className="bg-primary/5 px-2 py-1 rounded-sm border border-primary/10"
             />
-            <InfoField
-              label={t("field.clientOrder")}
-              value={generalInfo.pedidoCliente || "-"}
-              className="col-span-1"
-            />
-            <InfoField
-              label={t("field.date")}
-              value={
-                generalInfo.fecha || new Date().toLocaleDateString("es-ES")
-              }
-              className="col-span-1"
-            />
-            {showQty && (
-              <InfoField
-                label={t("field.qty")}
-                value={String(generalInfo.numeroBombas)}
-                className="col-span-1"
-              />
-            )}
-          </>
-        )}
-      </div>
+          )}
+        </ResponsiveFieldFlow>
+      )}
     </section>
   );
 }

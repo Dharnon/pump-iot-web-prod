@@ -19,6 +19,14 @@ const getBaseUrl = () => {
       const url = import.meta.env.VITE_API_URL;
       if (url) return url;
     }
+
+    // Dynamic detection for local network access (e.g. tablet accessing via PC IP)
+    if (typeof window !== 'undefined' && window.location.hostname) {
+      const hostname = window.location.hostname;
+      if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+        return `http://${hostname}:5002`;
+      }
+    }
   } catch (e) { }
   return 'http://localhost:5002';
 };
@@ -26,7 +34,7 @@ const getBaseUrl = () => {
 const API_BASE_URL = getBaseUrl();
 
 // Flag to use mock data when API is unavailable
-const USE_MOCK_DATA = true; // Set to false to use real API
+const USE_MOCK_DATA = false; // Set to true to use mock data instead of real API
 
 /**
  * Generic fetch wrapper with centralized error handling.
@@ -111,7 +119,6 @@ function handleMockEndpoint(endpoint: string): any {
           modeloBomba: job.model,
           ordenDeTrabajo: job.protocolSpec?.workOrder,
           numeroBombas: job.protocolSpec?.pumpQuantity || 1,
-          pedidoCliente: job.protocolSpec?.customerOrder,
         },
         numeroProtocolo: parseInt(job.id),
         bancoId: job.bancoId || 1,

@@ -18,7 +18,6 @@ export const mockJobs = [
     bancoId: 1 as MockBankId, // Banco A
     createdAt: new Date("2024-01-15"),
     protocolSpec: {
-      customerOrder: "PO-45678",
       jobDate: "2024-01-15",
       pumpQuantity: 2,
       workOrder: "OT-2024-001",
@@ -48,7 +47,6 @@ export const mockJobs = [
     bancoId: 2 as MockBankId, // Banco B
     createdAt: new Date("2024-01-16"),
     protocolSpec: {
-      customerOrder: "PO-45679",
       jobDate: "2024-01-16",
       pumpQuantity: 1,
       workOrder: "OT-2024-002",
@@ -78,7 +76,6 @@ export const mockJobs = [
     bancoId: 1 as MockBankId, // Banco A
     createdAt: new Date("2024-01-17"),
     protocolSpec: {
-      customerOrder: "PO-45680",
       jobDate: "2024-01-17",
       pumpQuantity: 3,
       workOrder: "OT-2024-003",
@@ -109,7 +106,6 @@ export const mockJobs = [
     createdAt: new Date("2024-01-10"),
     completedAt: new Date("2024-01-14"),
     protocolSpec: {
-      customerOrder: "PO-45670",
       jobDate: "2024-01-10",
       pumpQuantity: 1,
       workOrder: "OT-2024-004",
@@ -139,7 +135,6 @@ export const mockJobs = [
     bancoId: 2 as MockBankId, // Banco B
     createdAt: new Date("2024-01-18"),
     protocolSpec: {
-      customerOrder: "PO-45681",
       jobDate: "2024-01-18",
       pumpQuantity: 2,
       workOrder: "OT-2024-005",
@@ -169,7 +164,6 @@ export const mockJobs = [
     bancoId: 1 as MockBankId, // Banco A
     createdAt: new Date("2024-01-19"),
     protocolSpec: {
-      customerOrder: "PO-45682",
       jobDate: "2024-01-19",
       pumpQuantity: 1,
       workOrder: "OT-2024-006",
@@ -199,7 +193,6 @@ export const mockJobs = [
     bancoId: 5 as MockBankId, // Banco E
     createdAt: new Date("2024-01-20"),
     protocolSpec: {
-      customerOrder: "PO-45683",
       jobDate: "2024-01-20",
       pumpQuantity: 2,
       workOrder: "OT-2024-007",
@@ -230,7 +223,6 @@ export const mockJobs = [
     createdAt: new Date("2024-01-08"),
     completedAt: new Date("2024-01-12"),
     protocolSpec: {
-      customerOrder: "PO-45684",
       jobDate: "2024-01-08",
       pumpQuantity: 1,
       workOrder: "OT-2024-008",

@@ -16,8 +16,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "react": "^19.2.3",
     "zod": "^4.3.5"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1 || ^19.2.0"
   },
   "devDependencies": {
     "@types/node": "^22",

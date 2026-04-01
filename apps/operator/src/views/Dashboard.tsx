@@ -19,7 +19,9 @@ import {
 } from "lucide-react";
 import { HubConnectionState } from "@microsoft/signalr";
 import { useJob, Job } from "@/contexts/JobProvider";
+import { useUser } from "@/contexts/UserProvider";
 import { useNavigation } from "@/contexts/NavigationProvider";
+import { useTestSessionNavigation } from "@/hooks/useTestSessionNavigation";
 
 import { JobCard } from "@/components/testing/JobCard";
 import { FloatingSidebar } from "@/components/testing/FloatingSidebar";
@@ -54,15 +56,9 @@ import {
 import { es } from "date-fns/locale";
 
 export const Dashboard: React.FC = () => {
-  const {
-    jobs,
-    selectJob,
-    setTestConfig,
-    connectionState,
-    locks,
-    myLockedProtocols,
-  } = useJob();
+  const { jobs, connectionState, locks, myLockedProtocols } = useJob();
   const { setCurrentView } = useNavigation();
+  const { openTestSession } = useTestSessionNavigation();
 
   const isConnected = connectionState === HubConnectionState.Connected;
   const isReconnecting = connectionState === HubConnectionState.Reconnecting;
@@ -74,7 +70,11 @@ export const Dashboard: React.FC = () => {
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
+  const { user } = useUser();
+  const { bancos } = useJob();
+
   const filteredJobs = jobs.filter((job) => {
+    // Basic search/date filters
     const matchesSearch =
       job.orderId.toLowerCase().includes(searchQuery.toLowerCase()) ||
       job.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -83,7 +83,6 @@ export const Dashboard: React.FC = () => {
     let matchesDate = true;
     if (dateRange?.from) {
       const jobDate = new Date(job.createdAt);
-
       if (dateRange.to) {
         matchesDate = isWithinInterval(jobDate, {
           start: startOfDay(dateRange.from),
@@ -100,27 +99,34 @@ export const Dashboard: React.FC = () => {
     return matchesSearch && matchesDate;
   });
 
-  const pendingJobs = filteredJobs.filter(
+  // Helper to extract letter (A, B, C...) from bank name for user matching
+  const getBankLetter = (name: string) => name.split(" ").pop() || "";
+
+  // 1. Filter by status
+  const allPending = filteredJobs.filter(
     (job) => job.status === "GENERADA" || job.status === "EN_PROCESO",
   );
+
+  // 2. Further filter pending by ASSIGNED BANK (Operator preference)
+  const pendingJobs = allPending.filter((job) => {
+    const bank = bancos.find((b) => b.id === job.bancoId);
+    if (!bank) return false;
+    const letter = getBankLetter(bank.nombre);
+    return letter === user.assignedBank;
+  });
+
   const historyJobs = filteredJobs.filter(
     (job) => job.status === "OK" || job.status === "KO",
   );
 
   const displayedJobs = activeTab === "pendientes" ? pendingJobs : historyJobs;
 
-  const handleStartJob = (job: Job) => {
-    selectJob(job);
-    setCurrentView("setup");
+  const handleStartJob = async (job: Job) => {
+    await openTestSession(job, "setup");
   };
 
-  const handleAnalyze = (job: Job) => {
-    selectJob(job);
-    // Load historical test results if available
-    if (job.testResults) {
-      setTestConfig(job.testResults.testConfig);
-    }
-    setCurrentView("analytics");
+  const handleAnalyze = async (job: Job) => {
+    await openTestSession(job, "analytics");
   };
 
   const handleViewPdf = async (job: Job) => {
@@ -165,7 +171,7 @@ export const Dashboard: React.FC = () => {
     {
       icon: Settings,
       label: "Configuración",
-      onClick: () => setCurrentView("setup"),
+      onClick: () => setIsSettingsOpen(true),
     },
     {
       icon: LogOut,
@@ -216,7 +222,7 @@ export const Dashboard: React.FC = () => {
         >
           <div className="flex items-center gap-3">
             <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">
-              Banco de Pruebas
+              Banco de Pruebas Flowserve
             </h1>
             {/* SignalR connection indicator */}
             <div

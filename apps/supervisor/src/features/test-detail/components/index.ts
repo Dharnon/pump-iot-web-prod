@@ -4,6 +4,8 @@
 
 export { StatusBadge } from './StatusBadge';
 export { CleanInput } from './CleanInput';
+export { ResponsiveFieldGrid } from './ResponsiveFieldGrid';
+export { ResponsiveFieldFlow } from './ResponsiveFieldFlow';
 export { TestDetailHeader } from './TestDetailHeader';
 export { GeneralInfoSection } from './GeneralInfoSection';
 export { TestsToPerformSection } from './TestsToPerformSection';

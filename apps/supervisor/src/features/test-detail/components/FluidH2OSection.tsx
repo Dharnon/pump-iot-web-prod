@@ -7,14 +7,15 @@
  */
 
 import { useMemo } from "react";
-import { Droplets, Calculator } from "lucide-react";
+import { Calculator, Droplets } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { CleanInput } from "./CleanInput";
+import { ResponsiveFieldGrid } from "./ResponsiveFieldGrid";
 import type { TestPdfData } from "../services/dtoMapper";
 import {
   calculateWaterFromFluid,
   hasCalculatedValues,
-  type FluidData
+  type FluidData,
 } from "../utils/fluidCalculations";
 
 interface FluidH2OSectionProps {
@@ -28,8 +29,6 @@ export function FluidH2OSection({
   onDataChange,
   allFieldsEditable = false,
 }: FluidH2OSectionProps) {
-
-  // Extract fluid data from pdfData
   const fluidData: FluidData = {
     density: pdfData?.density,
     fluidFlowRate: pdfData?.fluidFlowRate,
@@ -40,7 +39,6 @@ export function FluidH2OSection({
     ce: pdfData?.ce,
   };
 
-  // Extract manual water values from pdfData
   const manualWater = {
     flowRate: pdfData?.flowRate,
     head: pdfData?.head,
@@ -52,30 +50,29 @@ export function FluidH2OSection({
     bepFlow: pdfData?.bepFlow,
   };
 
-  // Calculate water values from fluid data
   const calculatedWater = useMemo(() => {
     return calculateWaterFromFluid(fluidData, manualWater);
   }, [fluidData, manualWater]);
 
-  const showCalculatedIndicators = hasCalculatedValues(calculatedWater.isCalculated);
+  const showCalculatedIndicators = hasCalculatedValues(
+    calculatedWater.isCalculated,
+  );
 
-  // Handle change - this allows manual override
   const handleChange = (field: string, value: string) => {
     onDataChange(field, value);
   };
 
-  // Helper to check if a field is calculated
   const isCalculated = (key: keyof typeof calculatedWater.isCalculated) => {
     return calculatedWater.isCalculated[key];
   };
 
   return (
-    <section className="space-y-4">
-      <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-          <Droplets className="w-3.5 h-3.5 text-blue-500" /> Punto Garantizado
-          en Agua (H₂O)
+    <section className="space-y-2">
+      <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+          <Droplets className="w-4 h-4 text-blue-500" /> Punto Garantizado en
+          Agua (H2O)
         </span>
         {showCalculatedIndicators && (
           <div className="flex items-center gap-1 text-[10px] text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-full">
@@ -85,124 +82,171 @@ export function FluidH2OSection({
         )}
       </div>
 
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
-        {/* Caudal - calculated from fluid or manual */}
+      <ResponsiveFieldGrid
+        minItemWidth={140}
+        compactMinItemWidth={115}
+        denseMinItemWidth={95}
+      >
         <div className="relative">
           <CleanInput
             label="Caudal"
-            value={calculatedWater.flowRate !== null ? String(calculatedWater.flowRate) : (pdfData?.flowRate ?? '') || ''}
-            unit="m³/h"
+            value={
+              calculatedWater.flowRate !== null
+                ? String(calculatedWater.flowRate)
+                : (pdfData?.flowRate ?? "")
+            }
+            unit="m3/h"
             onChange={(val) => handleChange("flowRate", val)}
             className="h-8 text-xs font-mono"
+            containerClassName="min-w-0"
             type="number"
           />
-          {isCalculated('flowRate') && (
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full" title="Calculado automáticamente" />
+          {isCalculated("flowRate") && (
+            <div
+              className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"
+              title="Calculado automaticamente"
+            />
           )}
         </div>
 
-        {/* Altura - calculated from fluid or manual */}
         <div className="relative">
           <CleanInput
             label="Altura"
-            value={calculatedWater.head !== null ? String(calculatedWater.head) : (pdfData?.head ?? '') || ''}
+            value={
+              calculatedWater.head !== null
+                ? String(calculatedWater.head)
+                : (pdfData?.head ?? "")
+            }
             unit="m"
             onChange={(val) => handleChange("head", val)}
             className="h-8 text-xs font-mono"
+            containerClassName="min-w-0"
             type="number"
           />
-          {isCalculated('head') && (
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full" title="Calculado automáticamente" />
+          {isCalculated("head") && (
+            <div
+              className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"
+              title="Calculado automaticamente"
+            />
           )}
         </div>
 
-        {/* Velocidad - calculated from fluid or manual */}
         <div className="relative">
           <CleanInput
             label="Velocidad"
-            value={calculatedWater.rpm !== null ? String(calculatedWater.rpm) : (pdfData?.rpm ?? '') || ''}
+            value={
+              calculatedWater.rpm !== null
+                ? String(calculatedWater.rpm)
+                : (pdfData?.rpm ?? "")
+            }
             unit="rpm"
             onChange={(val) => handleChange("rpm", val)}
             className="h-8 text-xs font-mono"
+            containerClassName="min-w-0"
             type="number"
           />
-          {isCalculated('rpm') && (
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full" title="Calculado automáticamente" />
+          {isCalculated("rpm") && (
+            <div
+              className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"
+              title="Calculado automaticamente"
+            />
           )}
         </div>
 
-        {/* Potencia - calculated from fluid/density or manual */}
         <div className="relative">
           <CleanInput
             label="Potencia"
-            value={calculatedWater.maxPower !== null ? String(calculatedWater.maxPower) : (pdfData?.maxPower ?? '') || ''}
+            value={
+              calculatedWater.maxPower !== null
+                ? String(calculatedWater.maxPower)
+                : (pdfData?.maxPower ?? "")
+            }
             unit="kW"
             onChange={(val) => handleChange("maxPower", val)}
             className="h-8 text-xs font-mono"
+            containerClassName="min-w-0"
             type="number"
           />
-          {isCalculated('maxPower') && (
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full" title="Calculado: Potencia / Densidad" />
+          {isCalculated("maxPower") && (
+            <div
+              className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"
+              title="Calculado: Potencia / Densidad"
+            />
           )}
         </div>
 
-        {/* Rendimiento - calculated from fluid/CE or manual */}
         <div className="relative">
           <CleanInput
             label="Rendimiento"
-            value={calculatedWater.efficiency !== null ? String(calculatedWater.efficiency) : (pdfData?.efficiency ?? '') || ''}
+            value={
+              calculatedWater.efficiency !== null
+                ? String(calculatedWater.efficiency)
+                : (pdfData?.efficiency ?? "")
+            }
             unit="%"
             onChange={(val) => handleChange("efficiency", val)}
             className="h-8 text-xs font-mono"
+            containerClassName="min-w-0"
             type="number"
           />
-          {isCalculated('efficiency') && (
-            <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full" title="Calculado: Rendimiento / CE" />
+          {isCalculated("efficiency") && (
+            <div
+              className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full"
+              title="Calculado: Rendimiento / CE"
+            />
           )}
         </div>
 
-        {/* NPSHr - always manual */}
         <CleanInput
           label="NPSHr"
-          value={pdfData?.npshr ?? ''}
+          value={pdfData?.npshr ?? ""}
           unit="m"
           onChange={(val) => handleChange("npshr", val)}
           className="h-8 text-xs font-mono"
+          containerClassName="min-w-0"
           type="number"
         />
 
-        {/* Q Min - always manual */}
         <CleanInput
           label="Q Min"
-          value={pdfData?.qMin ?? ''}
-          unit="m³/h"
+          value={pdfData?.qMin ?? ""}
+          unit="m3/h"
           onChange={(val) => handleChange("qMin", val)}
           className="h-8 text-xs font-mono"
           labelClassName="text-red-500"
+          containerClassName="min-w-0"
           type="number"
         />
 
-        {/* BEP - always manual */}
         <CleanInput
           label="BEP"
-          value={pdfData?.bepFlow ?? ''}
-          unit="m³/h"
+          value={pdfData?.bepFlow ?? ""}
+          unit="m3/h"
           onChange={(val) => handleChange("bepFlow", val)}
           className="h-8 text-xs font-mono"
           labelClassName="text-red-500"
+          containerClassName="min-w-0"
           type="number"
         />
-      </div>
+      </ResponsiveFieldGrid>
 
-      {/* Info about calculations */}
       {showCalculatedIndicators && fluidData.density && (
-        <div className="text-[10px] text-muted-foreground bg-muted/30 p-2 rounded">
-          <p><strong>Valores calculados usando:</strong></p>
+        <div className="text-[10px] text-muted-foreground bg-muted/30 p-2 rounded-lg">
+          <p>
+            <strong>Valores calculados usando:</strong>
+          </p>
           <ul className="mt-1 space-y-0.5">
-            {fluidData.density > 0 && <li>• Densidad: {fluidData.density} kg/m³</li>}
-            {fluidData.ce && <li>• CE (Coeficiente Eficiencia): {fluidData.ce}</li>}
+            {fluidData.density > 0 && (
+              <li>- Densidad: {fluidData.density} kg/m3</li>
+            )}
+            {fluidData.ce && (
+              <li>- CE (Coeficiente Eficiencia): {fluidData.ce}</li>
+            )}
           </ul>
-          <p className="mt-1 text-blue-600">Los valores se actualizan automáticamente al cambiar los datos del fluido.</p>
+          <p className="mt-1 text-blue-600">
+            Los valores se actualizan automaticamente al cambiar los datos del
+            fluido.
+          </p>
         </div>
       )}
     </section>

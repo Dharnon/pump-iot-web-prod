@@ -40,7 +40,21 @@
  * @example En .env.local:
  * NEXT_PUBLIC_API_URL=http://192.168.1.100:4000
  */
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5002';
+const getApiBaseUrl = () => {
+    const envUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (envUrl) return envUrl;
+
+    // Dynamic detection for local network access
+    if (typeof window !== 'undefined' && window.location.hostname) {
+        const hostname = window.location.hostname;
+        if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+            return `http://${hostname}:5002`;
+        }
+    }
+    return 'http://127.0.0.1:5002';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // =============================================================================
 // CLIENTE HTTP GENÉRICO
@@ -73,9 +87,14 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5002';
  * ```
  */
 export async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    const method = (options?.method ?? 'GET').toUpperCase();
+    const cacheOption =
+        options?.cache ?? (method === 'GET' || method === 'HEAD' ? 'no-store' : undefined);
+
     // Construir URL completa combinando base + endpoint
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
+        ...(cacheOption ? { cache: cacheOption } : {}),
         headers: {
             'Content-Type': 'application/json',
             ...options?.headers, // Permite override de headers
@@ -84,13 +103,38 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
 
     // Manejo de errores HTTP
     if (!response.ok) {
-        // Intentar extraer mensaje de error del body JSON
-        const error = await response.json().catch(() => ({ error: null }));
-        throw new Error(error.error || `Error HTTP ${response.status}`);
+        const errorText = await response.text().catch(() => '');
+        if (errorText) {
+            try {
+                const errorJson = JSON.parse(errorText);
+                throw new Error(
+                    errorJson.error ||
+                        errorJson.message ||
+                        `Error HTTP ${response.status}`,
+                );
+            } catch {
+                throw new Error(errorText);
+            }
+        }
+
+        throw new Error(`Error HTTP ${response.status}`);
     }
 
-    // Parsear y retornar respuesta JSON
-    return response.json();
+    // Endpoints DELETE/PUT pueden devolver 204 No Content
+    if (response.status === 204 || response.status === 205) {
+        return undefined as T;
+    }
+
+    const rawBody = await response.text();
+    if (!rawBody.trim()) {
+        return undefined as T;
+    }
+
+    try {
+        return JSON.parse(rawBody) as T;
+    } catch {
+        return rawBody as T;
+    }
 }
 
 /**
@@ -256,6 +300,8 @@ export interface Test {
     status: 'PENDING' | 'IN_PROGRESS' | 'GENERATED' | 'GENERADO' | 'COMPLETED' | 'EN_BANCO';
     numeroSerie?: string;
     banco?: string; // Banco assigned to (A, B, C, D, E)
+    bancoId?: number;
+    orden: number;
     generalInfo: {
         pedido: string;        // Número de pedido (ej: "PED-2024-001")
         cliente: string;       // Nombre del cliente
@@ -264,6 +310,7 @@ export interface Test {
         numeroBombas: number;  // Cantidad de bombas en el pedido
     };
     createdAt: string;
+    hasPdf?: boolean;
 }
 
 /**
@@ -342,6 +389,19 @@ export async function generateProtocols(
 }
 
 /**
+ * Reorders tests in a bank.
+ * 
+ * @param ids - Ordered list of test IDs (NumeroProtocolo)
+ * @param bancoId - Optional bank ID to move the tests to
+ */
+export async function reorderTests(ids: number[], bancoId?: number): Promise<any> {
+    return fetchApi('/api/tests/reorder', {
+        method: 'POST',
+        body: JSON.stringify({ ids, bancoId })
+    });
+}
+
+/**
  * Get all available Bancos (test benches).
  * 
  * @returns Array of Banco objects with id and nombre
@@ -350,10 +410,121 @@ export interface Banco {
     id: number;
     nombre: string;
     estado: boolean;
+    motorPlantillaId?: number | null;
+    motorPlantilla?: {
+        id: number;
+        nombre?: string;
+        marca?: string;
+        tipo?: string;
+        potencia?: number;
+        velocidad?: number;
+        intensidad?: number;
+        rendimiento25?: number;
+        rendimiento50?: number;
+        rendimiento75?: number;
+        rendimiento100?: number;
+        rendimiento125?: number;
+    } | null;
 }
 
 export async function getBancos(): Promise<Banco[]> {
     return fetchApi<Banco[]>('/api/bancos');
+}
+
+export async function getAllBancos(): Promise<Banco[]> {
+    return fetchApi<Banco[]>('/api/bancos/all');
+}
+
+export async function getBancoById(id: number): Promise<Banco> {
+    return fetchApi<Banco>(`/api/bancos/${id}`);
+}
+
+export async function createBanco(data: Partial<Banco>): Promise<Banco> {
+    return fetchApi<Banco>('/api/bancos', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function updateBanco(id: number, data: Partial<Banco>): Promise<Banco> {
+    return fetchApi<Banco>(`/api/bancos/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function deleteBanco(
+    id: number,
+    options?: { hard?: boolean }
+): Promise<any> {
+    if (!options?.hard) {
+        return fetchApi<any>(`/api/bancos/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    const hardDeleteEndpoints = [
+        `/api/bancos/${id}?hardDelete=true`,
+        `/api/bancos/${id}?hard=true`,
+        `/api/bancos/${id}/hard-delete`,
+        `/api/bancos/${id}/hard`,
+        `/api/bancos/${id}/permanent`,
+    ];
+
+    for (const endpoint of hardDeleteEndpoints) {
+        try {
+            return await fetchApi<any>(endpoint, { method: 'DELETE' });
+        } catch {
+            // Keep trying alternative hard-delete endpoints.
+        }
+    }
+
+    return fetchApi<any>(`/api/bancos/${id}`, {
+        method: 'DELETE'
+    });
+}
+
+// =============================================================================
+// MOTORES (Plantillas de Motor)
+// =============================================================================
+
+export interface MotorPlantilla {
+    id: number;
+    nombre: string;
+    marca?: string | null;
+    tipo?: string | null;
+    potencia?: number | null;
+    velocidad?: number | null;
+    intensidad?: number | null;
+    rendimiento25?: number | null;
+    rendimiento50?: number | null;
+    rendimiento75?: number | null;
+    rendimiento100?: number | null;
+    rendimiento125?: number | null;
+}
+
+export async function getMotores(): Promise<MotorPlantilla[]> {
+    return fetchApi<MotorPlantilla[]>('/api/motores');
+}
+
+export async function createMotor(data: Partial<MotorPlantilla>): Promise<MotorPlantilla> {
+    return fetchApi<MotorPlantilla>('/api/motores', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function updateMotor(id: number, data: Partial<MotorPlantilla>): Promise<MotorPlantilla> {
+    return fetchApi<MotorPlantilla>(`/api/motores/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function deleteMotor(id: number): Promise<any> {
+    return fetchApi<any>(`/api/motores/${id}`, {
+        method: 'DELETE'
+    });
 }
 
 // =============================================================================

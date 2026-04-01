@@ -2,10 +2,16 @@
 
 import * as React from "react";
 import {
+<<<<<<< HEAD
   type ColumnDef,
   type SortingState,
   type VisibilityState,
   flexRender,
+=======
+  ColumnDef,
+  SortingState,
+  VisibilityState,
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -54,6 +60,7 @@ interface DataTableProps<TData extends object, TValue> {
   loading?: boolean;
   onRowClick?: (row: TData) => void;
   globalFilter?: string;
+<<<<<<< HEAD
 }
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
@@ -66,6 +73,8 @@ function getColumnLabel(column: { columnDef: { header?: unknown }; id: string })
   return column.id
     .replace(/[_-]/g, " ")
     .replace(/\b\w/g, (character) => character.toUpperCase());
+=======
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 }
 
 export function DataTable<TData extends object, TValue>({
@@ -76,7 +85,12 @@ export function DataTable<TData extends object, TValue>({
   globalFilter,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
+<<<<<<< HEAD
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+=======
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 50,
@@ -85,6 +99,13 @@ export function DataTable<TData extends object, TValue>({
   const table = useReactTable({
     data,
     columns,
+<<<<<<< HEAD
+=======
+    getRowId: (originalRow, index) => {
+      const rowWithId = originalRow as { id?: unknown };
+      return rowWithId.id != null ? String(rowWithId.id) : String(index);
+    },
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
     state: {
       sorting,
       columnVisibility,
@@ -100,6 +121,7 @@ export function DataTable<TData extends object, TValue>({
     getSortedRowModel: getSortedRowModel(),
   });
 
+<<<<<<< HEAD
   React.useEffect(() => {
     setPagination((current) => ({ ...current, pageIndex: 0 }));
   }, [data, globalFilter]);
@@ -292,5 +314,39 @@ export function DataTable<TData extends object, TValue>({
         </div>
       </div>
     </div>
+=======
+  return (
+    <DataGrid
+      table={table}
+      recordCount={data.length}
+      isLoading={loading}
+      onRowClick={onRowClick}
+      tableLayout={{
+        headerSticky: true,
+        headerBackground: false,
+        rowBorder: true,
+        cellBorder: false,
+        stripped: false,
+        width: "auto",
+        dense: true,
+      }}
+      className="flex-1 w-full"
+    >
+      <div className="w-full flex flex-col h-full">
+        <DataGridContainer className="overflow-hidden border-x border-t border-border/50">
+          <ScrollArea className="h-[calc(100vh-260px)]">
+            <DataGridTable />
+            <ScrollBar orientation="horizontal" />
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
+        </DataGridContainer>
+
+        <DataGridPagination
+          info="{from} - {to} de {count}"
+          rowsPerPageLabel="Filas por página"
+        />
+      </div>
+    </DataGrid>
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
   );
 }

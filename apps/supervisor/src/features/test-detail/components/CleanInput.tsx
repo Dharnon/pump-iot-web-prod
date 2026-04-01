@@ -8,6 +8,7 @@ interface CleanInputProps {
   unit?: string;
   onChange?: (val: string) => void;
   className?: string;
+  containerClassName?: string;
   labelClassName?: string;
   type?: "text" | "number";
 }
@@ -18,6 +19,7 @@ export function CleanInput({
   unit,
   onChange,
   className,
+  containerClassName,
   labelClassName,
   type = "text",
 }: CleanInputProps) {
@@ -40,10 +42,12 @@ export function CleanInput({
   };
 
   return (
-    <div className="space-y-1.5">
+    <div
+      className={`space-y-1.5 max-[2048px]:space-y-0.75 max-[1600px]:space-y-0.5 min-w-0 ${containerClassName || ""}`}
+    >
       <div className="flex justify-between">
         <label
-          className={`text-[10px] uppercase font-bold tracking-tight transition-colors ${error ? "text-destructive" : labelClassName || "text-muted-foreground"}`}
+          className={`text-sm max-[2048px]:text-xs max-[1600px]:text-[10px] uppercase font-bold tracking-tight leading-none transition-colors ${error ? "text-destructive" : labelClassName || "text-muted-foreground"}`}
         >
           {label}
         </label>
@@ -56,10 +60,10 @@ export function CleanInput({
           value={value ?? ""}
           onChange={(e) => handleChange(e.target.value)}
           placeholder="-"
-          className={`h-9 bg-muted/20 hover:bg-muted/40 focus:bg-background focus:border-input transition-all pr-12 font-mono text-sm ${className || ""}`}
+          className={`h-9 max-[2048px]:h-7 max-[1600px]:h-6.5 bg-muted/20 hover:bg-muted/40 focus:bg-background focus:border-input transition-all pr-12 max-[2048px]:pr-9 max-[1600px]:pr-8 font-mono text-sm max-[2048px]:text-[11px] max-[1600px]:text-[10px] ${className || ""}`}
         />
         {unit && (
-          <span className="absolute right-3 top-2.5 text-[10px] text-muted-foreground font-bold pointer-events-none">
+          <span className="absolute right-3 max-[2048px]:right-2 max-[1600px]:right-1.5 top-2.5 max-[2048px]:top-[0.45rem] max-[1600px]:top-[0.4rem] text-[10px] max-[2048px]:text-[8px] max-[1600px]:text-[7px] text-muted-foreground font-bold pointer-events-none">
             {unit}
           </span>
         )}

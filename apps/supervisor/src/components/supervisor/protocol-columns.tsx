@@ -4,16 +4,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  CheckCircle2,
-  Loader2,
-  ChevronRight,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Trash2,
-} from "lucide-react";
-
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -24,12 +14,40 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  ArrowDown,
+  ArrowUp,
+  ArrowUpDown,
+  CheckCircle2,
+  ChevronRight,
+  FileText,
+  FileX,
+  Loader2,
+  Trash2,
+  Wrench,
+} from "lucide-react";
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+const actionButtonIconClass =
+  "h-8 w-8 rounded-md border shadow-xs transition-[background-color,border-color,color,box-shadow] focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 flex items-center justify-center";
+
+const moveToBankButtonClass = `${actionButtonIconClass} border-sky-200/80 bg-sky-50/90 text-sky-700 hover:border-sky-300 hover:bg-sky-100 focus-visible:ring-sky-400 dark:border-sky-900/80 dark:bg-sky-950/40 dark:text-sky-300 dark:hover:border-sky-800 dark:hover:bg-sky-950/70 dark:focus-visible:ring-sky-700`;
+
+const returnToGeneratedButtonClass = `${actionButtonIconClass} border-emerald-200/80 bg-emerald-50/90 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 focus-visible:ring-emerald-400 dark:border-emerald-900/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/70 dark:focus-visible:ring-emerald-700`;
 
 export interface ProtocolItem {
   id: string;
   status: string;
   numeroSerie?: string;
   fecha: string;
+  bancoId?: number;
+  hasPdf?: boolean;
   generalInfo: {
     pedido: string;
     cliente: string;
@@ -51,7 +69,7 @@ const getStatusConfig = (status: string, t: (key: string) => string) => {
     string,
     {
       label: string;
-      icon: React.ElementType;
+      icon: React.ComponentType<{ className?: string }>;
       className: string;
       iconClassName: string;
     }
@@ -80,9 +98,15 @@ const getStatusConfig = (status: string, t: (key: string) => string) => {
       className: baseClass,
       iconClassName: "text-green-500 dark:text-green-400",
     },
+    EN_BANCO: {
+      label: "En Banco",
+      icon: Wrench,
+      className: baseClass,
+      iconClassName: "text-amber-600 dark:text-amber-500",
+    },
   };
 
-  return config[status] || config["GENERADO"];
+  return config[status] || config.GENERADO;
 };
 
 function SortableHeader({ column, title }: { column: any; title: string }) {
@@ -90,16 +114,16 @@ function SortableHeader({ column, title }: { column: any; title: string }) {
     <Button
       variant="ghost"
       size="sm"
-      className="-ml-3 h-8"
+      className="-ml-3 h-8 whitespace-nowrap"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
       {title}
       {column.getIsSorted() === "asc" ? (
-        <ArrowUp className="ml-2 h-4 w-4" />
+        <ArrowUp className="ml-2 h-4 w-4 shrink-0" />
       ) : column.getIsSorted() === "desc" ? (
-        <ArrowDown className="ml-2 h-4 w-4" />
+        <ArrowDown className="ml-2 h-4 w-4 shrink-0" />
       ) : (
-        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
+        <ArrowUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       )}
     </Button>
   );
@@ -108,20 +132,21 @@ function SortableHeader({ column, title }: { column: any; title: string }) {
 export const getProtocolColumns = (
   t: (key: string) => string,
   onDelete?: (id: string) => void,
-  locks?: Record<string, string>, // protocolId → device name (from SignalR)
+  onMoveToBank?: (id: string, bancoId?: number) => void,
+  onReturnToGenerated?: (id: string, bancoId?: number) => void,
+  locks?: Record<string, string>,
+  bancos?: Array<{ id: number; nombre: string }>,
 ): ColumnDef<ProtocolItem>[] => [
   {
     accessorKey: "id",
     header: ({ column }) => (
-      <SortableHeader column={column} title="Nº Protocolo" />
+      <SortableHeader column={column} title="N Protocolo" />
     ),
-    cell: ({ row }) => {
-      return (
-        <span className="font-mono font-bold text-primary">
-          {row.getValue("id")}
-        </span>
-      );
-    },
+    cell: ({ row }) => (
+      <span className="font-mono font-bold text-primary">
+        {row.getValue("id")}
+      </span>
+    ),
   },
   {
     accessorKey: "status",
@@ -132,7 +157,6 @@ export const getProtocolColumns = (
       const status = row.getValue("status") as string;
       const lockedBy = locks?.[row.original.id];
 
-      // *** When a tablet is executing this protocol, show IN_PROGRESS style ***
       if (lockedBy) {
         return (
           <div className="flex items-center gap-1.5">
@@ -152,6 +176,7 @@ export const getProtocolColumns = (
 
       const config = getStatusConfig(status, t);
       const Icon = config.icon;
+
       return (
         <Badge
           variant="outline"
@@ -169,51 +194,94 @@ export const getProtocolColumns = (
     header: ({ column }) => (
       <SortableHeader column={column} title={t("col.client")} />
     ),
-    cell: ({ row }) => {
-      const cliente = row.original.generalInfo?.cliente;
-      return (
-        <span className="font-medium truncate max-w-[200px] block">
-          {cliente || "-"}
-        </span>
-      );
-    },
+    cell: ({ row }) => (
+      <span className="font-medium truncate max-w-[200px] block">
+        {row.original.generalInfo?.cliente || "-"}
+      </span>
+    ),
   },
   {
     accessorKey: "generalInfo.pedido",
     id: "pedido",
     header: ({ column }) => (
-      <SortableHeader column={column} title="PEDIDO-POSICIÓN" />
+      <SortableHeader column={column} title="PEDIDO-POSICION" />
     ),
-    cell: ({ row }) => {
-      const pedido = row.original.generalInfo?.pedido;
-      return <span className="font-mono text-sm">{pedido || "-"}</span>;
-    },
+    cell: ({ row }) => (
+      <span className="font-mono text-sm">
+        {row.original.generalInfo?.pedido || "-"}
+      </span>
+    ),
   },
   {
     accessorKey: "generalInfo.modeloBomba",
     id: "modelo",
     header: "Modelo",
-    cell: ({ row }) => {
-      const modelo = row.original.generalInfo?.modeloBomba;
-      return (
-        <span className="font-mono text-sm text-muted-foreground truncate max-w-[200px] block">
-          {modelo || "-"}
-        </span>
-      );
-    },
+    cell: ({ row }) => (
+      <span className="font-mono text-sm text-muted-foreground truncate max-w-[200px] block">
+        {row.original.generalInfo?.modeloBomba || "-"}
+      </span>
+    ),
   },
   {
     accessorKey: "generalInfo.ordenTrabajo",
     id: "ordenTrabajo",
     header: "Orden Trabajo",
+    cell: ({ row }) => (
+      <span className="font-mono text-sm text-muted-foreground whitespace-nowrap block">
+        {row.original.generalInfo?.ordenTrabajo || "-"}
+      </span>
+    ),
+  },
+  {
+    accessorKey: "bancoId",
+    id: "banco",
+    header: "Banco",
     cell: ({ row }) => {
-      const orden = row.original.generalInfo?.ordenTrabajo;
+      const bancoId = row.original.bancoId;
+      if (!bancoId) {
+        return (
+          <span className="text-muted-foreground font-mono text-sm pl-3">
+            -
+          </span>
+        );
+      }
+
+      const bank = bancos?.find((b) => b.id === bancoId);
+      let identification = "-";
+
+      if (bank) {
+        identification = bank.nombre.split(" ").pop() || bank.nombre;
+      } else {
+        identification =
+          ["A", "B", "C", "D", "E"][bancoId - 1] ?? bancoId.toString();
+      }
+
       return (
-        <span className="font-mono text-sm text-muted-foreground">
-          {orden || "-"}
+        <span
+          className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold text-xs border border-amber-500/20"
+          title={bank?.nombre || `ID: ${bancoId}`}
+        >
+          {identification}
         </span>
       );
     },
+  },
+  {
+    accessorKey: "hasPdf",
+    id: "pdf",
+    header: "PDF",
+    cell: ({ row }) =>
+      row.original.hasPdf ? (
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-green-600 dark:text-green-400">
+          <FileText className="w-3.5 h-3.5" />
+          Si
+        </span>
+      ) : (
+        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground">
+          <FileX className="w-3.5 h-3.5" />
+          No
+        </span>
+      ),
   },
   {
     accessorKey: "fecha",
@@ -221,15 +289,16 @@ export const getProtocolColumns = (
     cell: ({ row }) => {
       const fecha = row.original.fecha;
       if (!fecha) return <span className="text-muted-foreground">-</span>;
-      const date = new Date(fecha);
+
       return (
-        <span className="text-sm text-muted-foreground">
-          {date.toLocaleDateString()}
+        <span className="text-sm text-muted-foreground whitespace-nowrap">
+          {new Date(fecha).toLocaleDateString()}
         </span>
       );
     },
   },
   {
+<<<<<<< HEAD
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => (
@@ -240,37 +309,112 @@ export const getProtocolColumns = (
         {onDelete && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
+=======
+    id: "bankAction",
+    header: "",
+    cell: ({ row }) => {
+      const { id, status, bancoId } = row.original;
+      const isGenerated = status === "GENERATED" || status === "GENERADO";
+      const isEnBanco = status === "EN_BANCO";
+      const isLocked = Boolean(locks?.[id]);
+
+      if (isGenerated && onMoveToBank) {
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
               <Button
-                variant="ghost"
+                variant="outline"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                title="Eliminar protocolo"
+                className={moveToBankButtonClass}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onMoveToBank(id, bancoId);
+                }}
+                disabled={isLocked}
               >
-                <Trash2 className="w-4 h-4" />
+                <Wrench className="w-3.5 h-3.5" />
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>¿Está absolutamente seguro?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Esta acción no se puede deshacer. Se eliminará permanentemente
-                  este protocolo y toda la información asociada del servidor.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => onDelete(row.original.id)}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                >
-                  Confirmar eliminación
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
-        <ChevronRight className="w-4 h-4 text-muted-foreground" />
-      </div>
-    ),
+            </TooltipTrigger>
+            <TooltipContent>Enviar a banco</TooltipContent>
+          </Tooltip>
+        );
+      }
+
+      if (isEnBanco && onReturnToGenerated) {
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className={returnToGeneratedButtonClass}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onReturnToGenerated(id, bancoId);
+                }}
+                disabled={isLocked}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Regresar a generado</TooltipContent>
+          </Tooltip>
+        );
+      }
+
+      return null;
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const { id } = row.original;
+
+      return (
+        <div
+          className="flex items-center justify-end gap-1.5"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {onDelete && (
+            <AlertDialog>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Eliminar protocolo</TooltipContent>
+              </Tooltip>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>¿Está seguro?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Esta acción no se puede deshacer. Se eliminará
+                    permanentemente este protocolo y toda la información
+                    asociada del servidor.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => onDelete(id)}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Confirmar eliminacion
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
+        </div>
+      );
+    },
   },
 ];

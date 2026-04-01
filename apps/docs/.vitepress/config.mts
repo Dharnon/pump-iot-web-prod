@@ -9,6 +9,7 @@ export default withMermaid(defineConfig({
             { text: 'Home', link: '/' },
             { text: 'Architecture', link: '/architecture' },
             { text: 'Backend', link: '/backend' },
+            { text: 'Database Mapping', link: '/database-mapping' },
             { text: 'Supervisor', link: '/supervisor' },
             { text: 'Operator', link: '/operator' },
             { text: 'Deployment', link: '/deployment' }
@@ -20,6 +21,7 @@ export default withMermaid(defineConfig({
                     { text: 'Home', link: '/' },
                     { text: 'Architecture', link: '/architecture' },
                     { text: 'Backend API', link: '/backend' },
+                    { text: 'Database Mapping', link: '/database-mapping' },
                     { text: 'Supervisor App', link: '/supervisor' },
                     { text: 'Operator App', link: '/operator' },
                     { text: 'Deployment', link: '/deployment' }

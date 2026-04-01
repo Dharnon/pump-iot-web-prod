@@ -6,6 +6,11 @@ import React, { createContext, useContext, useState, useCallback } from 'react';
 
 export type AppView = 'dashboard' | 'setup' | 'cockpit' | 'analytics' | 'programacion';
 
+export const TEST_SESSION_VIEWS: AppView[] = ['setup', 'cockpit', 'analytics'];
+
+export const isTestSessionView = (view: AppView): boolean =>
+    TEST_SESSION_VIEWS.includes(view);
+
 interface NavigationContextType {
     currentView: AppView;
     setCurrentView: (view: AppView) => void;
@@ -30,7 +35,7 @@ const NavigationContext = createContext<NavigationContextType | null>(null);
  *         no afecta a componentes que muestran datos en tiempo real.
  */
 export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [currentView, setCurrentView] = useState<AppView>('programacion');
+    const [currentView, setCurrentView] = useState<AppView>('dashboard');
 
     const navigateTo = useCallback((view: AppView) => {
         setCurrentView(view);
@@ -60,3 +65,4 @@ export const useNavigation = () => {
     }
     return context;
 };
+

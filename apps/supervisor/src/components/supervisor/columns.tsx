@@ -1,5 +1,7 @@
 "use client";
 
+// UI for columns definitions
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,11 +10,18 @@ import {
   CircleDashed,
   Loader2,
   AlertCircle,
-  ChevronRight,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
   Trash2,
+<<<<<<< HEAD
+=======
+  Lock,
+  FileCheck,
+  Plus,
+  Clock,
+  Wrench,
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 } from "lucide-react";
 
 import {
@@ -57,9 +66,15 @@ const getStatusConfig = (status: string, t: (key: string) => string) => {
   > = {
     PENDING: {
       label: t("status.PENDING"),
-      icon: CircleDashed,
+      icon: Clock,
       className: baseStatusClass,
       iconClassName: "text-orange-500 dark:text-orange-400",
+    },
+    EN_BANCO: {
+      label: "En Banco",
+      icon: Wrench,
+      className: baseStatusClass,
+      iconClassName: "text-amber-600 dark:text-amber-500",
     },
     IN_PROGRESS: {
       label: t("status.IN_PROGRESS"),
@@ -97,16 +112,16 @@ function SortableHeader({ column, title }: { column: any; title: string }) {
     <Button
       variant="ghost"
       size="sm"
-      className="-ml-3 h-8"
+      className="-ml-3 h-8 whitespace-nowrap"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
       {title}
       {column.getIsSorted() === "asc" ? (
-        <ArrowUp className="ml-2 h-4 w-4" />
+        <ArrowUp className="ml-2 h-4 w-4 shrink-0" />
       ) : column.getIsSorted() === "desc" ? (
-        <ArrowDown className="ml-2 h-4 w-4" />
+        <ArrowDown className="ml-2 h-4 w-4 shrink-0" />
       ) : (
-        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
+        <ArrowUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       )}
     </Button>
   );
@@ -205,7 +220,7 @@ export const getColumns = (
     cell: ({ row }) => {
       const orden = row.original.generalInfo.ordenTrabajo;
       return (
-        <span className="font-mono text-sm text-muted-foreground">
+        <span className="font-mono text-sm text-muted-foreground whitespace-nowrap block">
           {orden || "-"}
         </span>
       );
@@ -261,10 +276,9 @@ export const getColumns = (
                   Confirmar eliminación
                 </AlertDialogAction>
               </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
-        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
       </div>
     ),
   },

@@ -10,11 +10,13 @@ import {
   getTests,
   getTestById,
   patchTest,
+  getBancos,
   type Test,
 } from "@pump-iot/core/api";
 import { toast } from "sonner";
 import { HubConnectionState } from "@microsoft/signalr";
 import { useSignalR, type Locks } from "../hooks/useSignalR";
+import { useNavigation, isTestSessionView } from "./NavigationProvider";
 
 // =============================================================================
 // TYPES (Extracted from original TestingContext)
@@ -58,12 +60,12 @@ export interface Job {
   targetFlow: number;
   impeller: string;
   bancoId?: number; // 1-5 mapping to A-E
+  orden?: number;
   errorMessage?: string;
   completedAt?: Date;
   testResults?: TestResults;
   protocolSpec?: {
     // Generic
-    customerOrder?: string;
     jobDate?: string;
     pumpQuantity?: number;
     workOrder?: string;
@@ -152,6 +154,8 @@ interface JobContextType {
   unlockProtocol: (id: string) => void;
   /** Set of protocol IDs locked by THIS device/session */
   myLockedProtocols: Set<string>;
+  isTestSessionActive: boolean;
+  bancos: any[];
 }
 
 // =============================================================================
@@ -159,8 +163,8 @@ interface JobContextType {
 // =============================================================================
 
 export function getBankLetter(bancoId: number | undefined): string {
-  const letters = ['A', 'B', 'C', 'D', 'E'];
-  return letters[(bancoId || 1) - 1] || 'A';
+  const letters = ["A", "B", "C", "D", "E"];
+  return letters[(bancoId || 1) - 1] || "A";
 }
 
 const generateDefaultPoints = (targetFlow: number): TestPoint[] => [
@@ -499,6 +503,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [jobs, setJobs] = useState<Job[]>([]);
+  const [bancos, setBancos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentJob, setCurrentJob] = useState<Job | null>(null);
   const [testConfig, setTestConfig] = useState<TestConfig | null>(null);
@@ -508,6 +513,8 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   const fetchJobsRef = useRef<() => Promise<void>>();
+  const { currentView } = useNavigation();
+  const isTestSessionActive = isTestSessionView(currentView);
 
   const { connectionState, locks, lockProtocol, unlockProtocol, isConnected } =
     useSignalR({
@@ -521,11 +528,10 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
   const currentJobIdRef = useRef<string | null>(null);
   currentJobIdRef.current = currentJob?.id ?? null;
 
-  // Effect 1: Lock when a job is selected, unlock when deselected or job changes
+  // Effect 1: Lock only while the operator is inside the active test session flow.
   useEffect(() => {
-    if (!currentJob?.id) return;
+    if (!currentJob?.id || !isTestSessionActive) return;
 
-    // Only lock if we're connected. If not, Effect 2 will handle it on reconnect.
     if (isConnected) {
       console.log(`[JobProvider] Locking protocol ${currentJob.id}`);
       lockProtocol(currentJob.id);
@@ -533,8 +539,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
     }
 
     return () => {
-      // Cleanup: unlock the job that was locked by THIS effect run
-      const jobId = currentJob.id; // captured at effect creation time
+      const jobId = currentJob.id;
       if (jobId) {
         console.log(`[JobProvider] Unlocking protocol ${jobId}`);
         unlockProtocol(jobId);
@@ -545,13 +550,12 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         });
       }
     };
-    // Only re-run when the job actually changes — NOT when isConnected flips
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentJob?.id, lockProtocol, unlockProtocol]);
+  }, [currentJob?.id, isTestSessionActive, lockProtocol, unlockProtocol]);
 
-  // Effect 2: Re-lock on reconnect (without triggering an unlock on cleanup)
+  // Effect 2: Re-lock on reconnect only if the operator is still inside the test flow.
   useEffect(() => {
-    if (!isConnected) return;
+    if (!isConnected || !isTestSessionActive) return;
     if (!currentJobIdRef.current) return;
 
     console.log(
@@ -559,13 +563,12 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
     );
     lockProtocol(currentJobIdRef.current);
     setMyLockedProtocols((prev) => new Set(prev).add(currentJobIdRef.current!));
-    // No unlock in cleanup — Effect 1 owns the unlock lifecycle
-  }, [isConnected, lockProtocol]);
+  }, [isConnected, isTestSessionActive, lockProtocol]);
 
   useEffect(() => {
     const fetchJobs = async () => {
-      // Check if mock mode is enabled
-      const isMock = typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
+      // Check if mock mode is enabled - FORCED TO FALSE for real usage
+      const isMock = false; // typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
 
       if (isMock) {
         console.log("JobProvider: Working in MOCK MODE");
@@ -576,49 +579,54 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
 
       try {
         setLoading(true);
-        const data = await getTests();
-        console.log("Raw API Response:", data);
 
-        // Filtrar protocolos generados, en banco, en proceso y completados (admitiendo variantes de status)
-        const mappedJobs: Job[] = data
+        // Fetch banks and tests in parallel
+        const [testsData, bancosData] = await Promise.all([
+          getTests(),
+          getBancos(),
+        ]);
+
+        console.log("Raw API Response (Tests):", testsData);
+        console.log("Raw API Response (Bancos):", bancosData);
+
+        setBancos(bancosData);
+
+        // Only show tests that are currently at a bench or being tested right now.
+        // GENERATED/GENERADO/PROCESADO/COMPLETED are historical — exclude from Kanban.
+        const mappedJobs: Job[] = testsData
           .filter(
             (t) =>
-              (t.status === "GENERATED" ||
-                t.status === "GENERADO" ||
-                t.status === "PROCESADO" ||
-                t.status === "EN_BANCO" ||
-                t.status === "IN_PROGRESS" ||
-                t.status === "COMPLETED") &&
+              (t.status === "EN_BANCO" || t.status === "IN_PROGRESS") &&
               !String(t.id).startsWith("pending-"),
           )
+          .sort((a, b) => (a.orden || 0) - (b.orden || 0))
           .map((t) => {
             // Map API status to local status
             let localStatus: JobStatus;
             if (t.status === "IN_PROGRESS") {
               localStatus = "EN_PROCESO";
-            } else if (t.status === "COMPLETED") {
-              localStatus = "OK";
             } else {
-              // GENERATED, GENERADO, PROCESADO, EN_BANCO all map to GENERADA (pending at bench)
+              // EN_BANCO → GENERADA (waiting at bench, not started yet)
               localStatus = "GENERADA";
             }
 
             const info = t.generalInfo as any;
             return {
               id: t.id.toString(),
-              orderId: info.pedidoCliente || info.pedido || `JOB-${t.id}`,
+              orderId: info.pedido || `JOB-${t.id}`,
               model: info.modeloBomba || "Desconocido",
               client: info.cliente || "Desconocido",
               status: localStatus,
               targetFlow: 0,
               impeller: info.item || "",
               bancoId: t.bancoId || 1,
+              orden: t.orden || 0,
               createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
               protocolSpec: {
-                customerOrder: info.pedidoCliente || info.pedido,
                 workOrder: info.ordenTrabajo,
                 itemNumber: info.item,
-                jobDate: info.fecha,
+                jobDate: t.fecha,
+                pumpQuantity: info.numeroBombas,
                 pumpType: info.tipoDeBomba || info.modeloBomba, // Fallback to model if type is missing
                 serialNumber: t.numeroSerie,
               },
@@ -648,7 +656,9 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
     });
 
     // Check if mock mode is enabled
-    const isMock = typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
+    const isMock =
+      typeof window !== "undefined" &&
+      localStorage.getItem("USE_MOCK_DATA") === "true";
     if (isMock) {
       console.log("selectJob: Skipping detail fetch in MOCK MODE");
       return;
@@ -665,12 +675,11 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
       const updatedJob: Job = {
         ...job,
         // Update orderId logic for Detail View
-        orderId: info.pedidoCliente || info.pedido || job.orderId,
+        orderId: info.pedido || job.orderId,
         protocolSpec: {
           ...job.protocolSpec,
           // Generic
-          customerOrder: info.pedidoCliente,
-          jobDate: info.fecha,
+          jobDate: fullTest.fecha,
           pumpQuantity: info.numeroBombas,
           workOrder: info.ordenTrabajo,
 
@@ -759,15 +768,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
 
       try {
         // 1. Optimistic update
-        let updatedJob = { ...currentJob, ...updates };
-
-        // Update orderId if customerOrder changed (since it's now the main ID)
-        if (updates.protocolSpec?.customerOrder) {
-          updatedJob = {
-            ...updatedJob,
-            orderId: updates.protocolSpec.customerOrder,
-          };
-        }
+        const updatedJob = { ...currentJob, ...updates };
 
         setCurrentJob(updatedJob);
 
@@ -844,7 +845,6 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
           generalInfo: {
             item: spec.itemNumber,
             modeloBomba: spec.pumpType,
-            pedidoCliente: spec.customerOrder,
             fecha: spec.jobDate,
             numeroBombas: spec.pumpQuantity,
             ordenTrabajo: spec.workOrder,
@@ -882,6 +882,8 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         lockProtocol,
         unlockProtocol,
         myLockedProtocols,
+        isTestSessionActive,
+        bancos,
       }}
     >
       {children}
@@ -900,3 +902,4 @@ export const useJob = () => {
   }
   return context;
 };
+

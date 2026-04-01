@@ -14,8 +14,7 @@ export const MOCK_TEST_DETAIL: any = {
     ordenTrabajo: "OT-2024-999",
     numeroBombas: 1,
     fecha: new Date().toISOString(),
-    item: "ITEM-1",
-    pedidoCliente: "OC-CLIENTE-123"
+    item: "ITEM-1"
   },
   testsToPerform: {},
   createdAt: new Date().toISOString(),

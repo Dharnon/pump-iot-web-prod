@@ -11,7 +11,21 @@ import {
   FolderClockIcon,
   PlusIcon,
   RefreshCw,
+<<<<<<< HEAD
   SearchIcon,
+=======
+  Search,
+  Filter,
+  Upload,
+  ClipboardList,
+  CheckSquare,
+  ChevronRight,
+  TrendingUp,
+  FileCheck,
+  Plus,
+  Clock,
+  Wrench,
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 } from "lucide-react";
 
 import { useTests } from "@/hooks/useTests";
@@ -42,6 +56,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataTable } from "@/components/supervisor/data-table";
+<<<<<<< HEAD
 import { getColumns } from "@/components/supervisor/columns";
 import { getProtocolColumns } from "@/components/supervisor/protocol-columns";
 
@@ -52,6 +67,42 @@ const ImportModal = dynamic(
 
 type ViewMode = "pending" | "protocols";
 
+=======
+import { getColumns, TestItem } from "@/components/supervisor/columns";
+import {
+  getProtocolColumns,
+  ProtocolItem,
+} from "@/components/supervisor/protocol-columns";
+import { useLanguage } from "@/lib/language-context";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import useSWR from "swr";
+import { deleteTest, createListado, patchTest, swrFetcher } from "@/lib/api";
+import { toast } from "sonner";
+import { useSignalR } from "@/hooks/useSignalR";
+import { HubConnectionState } from "@microsoft/signalr";
+
+type ViewMode = "pending" | "protocols";
+
+function normalizeStatusFilter(
+  nextViewMode: ViewMode,
+  nextStatusFilter: string | null,
+) {
+  if (nextViewMode === "pending") {
+    return nextStatusFilter === "EN_BANCO" ||
+      nextStatusFilter === "GENERATED" ||
+      nextStatusFilter === "all"
+      ? nextStatusFilter
+      : "PENDING";
+  }
+
+  return nextStatusFilter === "PENDING" ? "all" : (nextStatusFilter ?? "all");
+}
+
+/**
+ * Dashboard - Firecrawl-inspired "Infinite Lines" Design
+ * Grid-based layout with subtle borders, asymmetric structure, and hover interactions
+ */
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 export default function DashboardPage() {
   const router = useRouter();
   const { t } = useLanguage();
@@ -59,8 +110,23 @@ export default function DashboardPage() {
   const [globalFilter, setGlobalFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("PENDING");
   const [viewMode, setViewMode] = useState<ViewMode>("pending");
+<<<<<<< HEAD
   const [creating, setCreating] = useState(false);
   const [isReady, setIsReady] = useState(false);
+=======
+  const [lastImport, setLastImport] = useState<{
+    filename: string;
+    count: number;
+    time: Date;
+  } | null>(null);
+  const { data: bancos } = useSWR("/api/bancos", swrFetcher);
+  const router = useRouter();
+  const { t } = useLanguage();
+  const [creating, setCreating] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+  // SWR Hook for data fetching
+  const { tests, isLoading, isValidating, mutate } = useTests();
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 
   const { tests, isLoading, isValidating, mutate } = useTests();
   const { locks, connectionState } = useSignalR({
@@ -70,6 +136,7 @@ export default function DashboardPage() {
   const isConnected = connectionState === HubConnectionState.Connected;
 
   useEffect(() => {
+<<<<<<< HEAD
     const savedViewMode = localStorage.getItem("dashboardViewMode") as
       | ViewMode
       | null;
@@ -83,10 +150,20 @@ export default function DashboardPage() {
       setStatusFilter(savedStatusFilter);
     }
 
+=======
+    const savedViewMode = localStorage.getItem("dashboardViewMode");
+    const nextViewMode: ViewMode =
+      savedViewMode === "protocols" ? "protocols" : "pending";
+    const savedStatusFilter = localStorage.getItem("dashboardStatusFilter");
+
+    setViewMode(nextViewMode);
+    setStatusFilter(normalizeStatusFilter(nextViewMode, savedStatusFilter));
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
     setIsReady(true);
   }, []);
 
   useEffect(() => {
+<<<<<<< HEAD
     if (!isReady) {
       return;
     }
@@ -129,6 +206,28 @@ export default function DashboardPage() {
     },
     [mutate],
   );
+=======
+    if (isReady) {
+      localStorage.setItem("dashboardViewMode", viewMode);
+      localStorage.setItem("dashboardStatusFilter", statusFilter);
+    }
+  }, [viewMode, statusFilter, isReady]);
+
+  const handleDelete = useCallback(async (id: string) => {
+    try {
+      await deleteTest(id);
+      toast.success("Registro eliminado correctamente");
+      mutate();
+    } catch (error) {
+      console.error("Error deleting test:", error);
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Error al eliminar el registro";
+      toast.error(message);
+    }
+  }, [mutate]);
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 
   const handleCreateBlank = async () => {
     try {
@@ -144,14 +243,79 @@ export default function DashboardPage() {
     }
   };
 
+<<<<<<< HEAD
+=======
+  const handleMoveProtocolToBank = useCallback(
+    async (id: string, bancoId?: number) => {
+      try {
+        if (!bancoId) {
+          toast.warning("Debe seleccionar un banco antes de enviarlo a banco");
+          return;
+        }
+
+        await patchTest(id, {
+          status: "EN_BANCO",
+          bancoId,
+        });
+
+        toast.success("Prueba enviada a banco");
+        mutate();
+      } catch (error) {
+        console.error("Error moving protocol to bank:", error);
+        toast.error("Error al enviar la prueba a banco");
+      }
+    },
+    [mutate],
+  );
+
+  const handleReturnProtocolToGenerated = useCallback(
+    async (id: string, bancoId?: number) => {
+      try {
+        await patchTest(id, {
+          status: "GENERATED",
+          bancoId,
+        });
+
+        toast.success("Prueba devuelta a procesados");
+        mutate();
+      } catch (error) {
+        console.error("Error returning protocol to generated:", error);
+        toast.error("Error al devolver la prueba a procesados");
+      }
+    },
+    [mutate],
+  );
+
+  // Get translated columns — pass locks so status cell shows "En Ejecución"
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
   const pendingColumns = useMemo(
     () => getColumns(t, handleDelete, locks),
     [handleDelete, locks, t],
   );
 
   const protocolColumns = useMemo(
+<<<<<<< HEAD
     () => getProtocolColumns(t, handleDelete, locks),
     [handleDelete, locks, t],
+=======
+    () =>
+      getProtocolColumns(
+        t,
+        handleDelete,
+        handleMoveProtocolToBank,
+        handleReturnProtocolToGenerated,
+        locks,
+        bancos,
+      ),
+    [
+      t,
+      handleDelete,
+      handleMoveProtocolToBank,
+      handleReturnProtocolToGenerated,
+      locks,
+      bancos,
+    ],
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
   );
 
   const pendingTests = useMemo(
@@ -208,6 +372,14 @@ export default function DashboardPage() {
     });
   }, [generatedTests, locks, pendingTests, statusFilter, viewMode]);
 
+  if (!isReady) {
+    return (
+      <div className="h-full flex items-center justify-center bg-background">
+        <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full min-h-0 flex-col bg-background">
       <header className="flex h-16 shrink-0 items-center gap-2">
@@ -254,6 +426,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
+<<<<<<< HEAD
       <div className="flex-1 overflow-auto">
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="grid auto-rows-min gap-4 md:grid-cols-3">
@@ -262,6 +435,26 @@ export default function DashboardPage() {
               value={pendingTests.length}
               description="Listados listos para revision y preparacion."
               icon={FolderClockIcon}
+=======
+      {/* Main Grid Layout - Asymmetric (Main + Sidebar) */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col border-r overflow-hidden">
+          {/* Stats Grid - Infinite Lines Style */}
+          <div className="grid grid-cols-5 border-b">
+            <StatCell
+              label={t("dash.stat.pending")}
+              value={
+                pendingTests.filter((t: any) => t.status === "PENDING").length
+              }
+              icon={<Clock className="w-4 h-4" />}
+              color="text-yellow-600"
+              active={viewMode === "pending"}
+              onClick={() => {
+                setViewMode("pending");
+                setStatusFilter("PENDING");
+              }}
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
             />
             <ShellCard
               title="Generated protocols"
@@ -269,14 +462,31 @@ export default function DashboardPage() {
               description="Protocolos listos para programacion o ejecucion."
               icon={FileCheckIcon}
             />
+<<<<<<< HEAD
             <ShellCard
               title="Active work"
+=======
+            <StatCell
+              label="En Banco"
+              value={enBancoTests.length}
+              icon={<Wrench className="w-4 h-4" />}
+              color="text-amber-600"
+              active={viewMode === "protocols" && statusFilter === "EN_BANCO"}
+              onClick={() => {
+                setViewMode("protocols");
+                setStatusFilter("EN_BANCO");
+              }}
+            />
+            <StatCell
+              label={t("dash.stat.process")}
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
               value={inProgressTests.length}
               description="Pruebas en curso o bloqueadas por operator."
               icon={ActivityIcon}
             />
           </div>
 
+<<<<<<< HEAD
           <section className="min-h-[calc(100vh-13rem)] flex-1 rounded-xl border border-border/60 bg-card/50 p-4 md:min-h-min md:p-5">
             <div className="flex h-full flex-col gap-4">
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
@@ -426,6 +636,153 @@ export default function DashboardPage() {
               </div>
             </div>
           </section>
+=======
+          {/* Filters Bar */}
+          <div className="flex items-center justify-end px-6 py-3 border-b bg-muted/5">
+            <div className="flex items-center gap-2">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-36 h-8 text-xs border-border/50">
+                  <Filter className="w-3 h-3 mr-2 opacity-70" />
+                  <SelectValue placeholder={t("table.filter")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t("status.all")}</SelectItem>
+                  {viewMode === "pending" ? (
+                    <>
+                      <SelectItem value="PENDING">
+                        {t("status.PENDING")}
+                      </SelectItem>
+                      <SelectItem value="EN_BANCO">En Banco</SelectItem>
+                      <SelectItem value="GENERATED">
+                        {t("status.PROCESSED")}
+                      </SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="IN_PROGRESS">
+                        {t("status.IN_PROGRESS")}
+                      </SelectItem>
+                      <SelectItem value="EN_BANCO">En Banco</SelectItem>
+                      <SelectItem value="GENERATED">
+                        {t("status.GENERATED")}
+                      </SelectItem>
+                      <SelectItem value="COMPLETED">
+                        {t("status.COMPLETED")}
+                      </SelectItem>
+                    </>
+                  )}
+                </SelectContent>
+              </Select>
+
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground opacity-70" />
+                <Input
+                  placeholder={t("table.search")}
+                  value={globalFilter}
+                  onChange={(e) => setGlobalFilter(e.target.value)}
+                  className="pl-9 w-56 h-8 text-xs border-border/50"
+                />
+              </div>
+
+              {viewMode === "pending" && (
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleCreateBlank}
+                  disabled={creating}
+                  className="h-8 w-8 border-border/50 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/10"
+                  title="Nueva prueba manual"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </Button>
+              )}
+
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => mutate()}
+                disabled={isLoading || isValidating}
+                className="h-8 w-8 border-border/50"
+                title={t("table.refresh")}
+              >
+                <RefreshCw
+                  className={`w-3.5 h-3.5 ${isValidating ? "animate-spin" : ""}`}
+                />
+              </Button>
+            </div>
+          </div>
+
+          {/* Table Container */}
+          <div className="flex-1 overflow-auto">
+            {isLoading && !tests.length ? (
+              <div className="flex-1 flex items-center justify-center h-full">
+                <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredData.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center p-8 h-full">
+                <Empty className="max-w-md">
+                  <EmptyHeader>
+                    <EmptyMedia
+                      variant="icon"
+                      className="bg-primary/5 text-primary"
+                    >
+                      {viewMode === "pending" ? (
+                        <Upload className="w-8 h-8" />
+                      ) : (
+                        <CheckSquare className="w-8 h-8" />
+                      )}
+                    </EmptyMedia>
+                    <EmptyTitle>
+                      {viewMode === "pending"
+                        ? t("empty.title")
+                        : "No hay protocolos"}
+                    </EmptyTitle>
+                    <EmptyDescription>
+                      {viewMode === "pending"
+                        ? t("empty.desc")
+                        : "Genera protocolos desde los listados pendientes para verlos aquí"}
+                    </EmptyDescription>
+                  </EmptyHeader>
+                  {viewMode === "pending" && (
+                    <EmptyContent>
+                      <ImportModal onImportSuccess={handleImportSuccess} />
+                    </EmptyContent>
+                  )}
+                </Empty>
+              </div>
+            ) : (
+              <DataTable
+                key={viewMode}
+                columns={
+                  (viewMode === "pending"
+                    ? pendingColumns
+                    : protocolColumns) as any
+                }
+                data={filteredData}
+                loading={isLoading}
+                onRowClick={(row) => {
+                  // Block access if an operator is actively executing this protocol
+                  const lockedBy = (row as any).id && locks[(row as any).id];
+                  if (lockedBy && row.status !== "PENDING") {
+                    toast.warning(`Protocolo en ejecución por ${lockedBy}`, {
+                      description:
+                        "No es posible editar el protocolo mientras está siendo ejecutado.",
+                      duration: 4000,
+                    });
+                    return;
+                  }
+                  // Route to test page for pending, protocolo page for generated
+                  const route =
+                    row.status === "PENDING"
+                      ? `/supervisor/test/${row.id}`
+                      : `/supervisor/protocolo/${row.id}`;
+                  router.push(route);
+                }}
+                globalFilter={globalFilter}
+              />
+            )}
+          </div>
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
         </div>
       </div>
     </div>
