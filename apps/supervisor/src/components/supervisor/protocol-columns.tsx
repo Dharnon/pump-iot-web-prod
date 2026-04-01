@@ -298,6 +298,21 @@ export const getProtocolColumns = (
     },
   },
   {
+<<<<<<< HEAD
+<<<<<<< HEAD
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => (
+      <div
+        className="flex items-center justify-end gap-2"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {onDelete && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+=======
+=======
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
     id: "bankAction",
     header: "",
     cell: ({ row }) => {
@@ -310,6 +325,10 @@ export const getProtocolColumns = (
         return (
           <Tooltip>
             <TooltipTrigger asChild>
+<<<<<<< HEAD
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
+=======
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
               <Button
                 variant="outline"
                 size="icon"

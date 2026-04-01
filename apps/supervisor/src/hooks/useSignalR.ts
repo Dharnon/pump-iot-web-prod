@@ -11,7 +11,7 @@
  * Note: supervisor is a Next.js app so API URL comes from NEXT_PUBLIC_API_URL.
  */
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   HubConnection,
   HubConnectionBuilder,
@@ -38,6 +38,18 @@ export interface UseSignalRResult {
   isConnected: boolean;
 }
 
+function shouldSkipSignalR() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const usesMockCookie = document.cookie.includes("use_mock_data=true");
+  const usesMockStorage = localStorage.getItem("USE_MOCK_DATA") === "true";
+  const usesMockToken = document.cookie.includes("token=mock-token");
+
+  return usesMockCookie || usesMockStorage || usesMockToken;
+}
+
 export function useSignalR({ onListUpdated }: UseSignalROptions = {}): UseSignalRResult {
   const connectionRef = useRef<HubConnection | null>(null);
   // Guard against StrictMode double-mount: old connection's onclose must not overwrite state
@@ -48,9 +60,16 @@ export function useSignalR({ onListUpdated }: UseSignalROptions = {}): UseSignal
   const [locks, setLocks] = useState<Locks>({});
 
   const onListUpdatedRef = useRef(onListUpdated);
-  onListUpdatedRef.current = onListUpdated;
 
   useEffect(() => {
+    onListUpdatedRef.current = onListUpdated;
+  }, [onListUpdated]);
+
+  useEffect(() => {
+    if (shouldSkipSignalR()) {
+      return;
+    }
+
     const connection = new HubConnectionBuilder()
       .withUrl(HUB_URL, {
         // Bypass the HTTP negotiate endpoint (CORS issues) by going directly to WebSocket
@@ -107,7 +126,9 @@ export function useSignalR({ onListUpdated }: UseSignalROptions = {}): UseSignal
       })
       .catch((err) => {
         if (!isCancelled) {
-          console.error("[SignalR Supervisor] Connection failed:", err);
+          if (process.env.NODE_ENV === "development") {
+            console.warn("[SignalR Supervisor] Connection unavailable:", err);
+          }
           setConnectionState(HubConnectionState.Disconnected);
         }
       });

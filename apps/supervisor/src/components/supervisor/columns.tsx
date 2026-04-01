@@ -14,11 +14,17 @@ import {
   ArrowUp,
   ArrowDown,
   Trash2,
+<<<<<<< HEAD
+=======
   Lock,
   FileCheck,
   Plus,
   Clock,
   Wrench,
+<<<<<<< HEAD
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
+=======
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 } from "lucide-react";
 
 import {
@@ -238,6 +244,7 @@ export const getColumns = (
   },
   {
     id: "actions",
+    enableHiding: false,
     cell: ({ row }) => (
       <div
         className="flex items-center justify-end gap-2"

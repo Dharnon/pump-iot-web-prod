@@ -1,0 +1,177 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - list [ref=e7]:
+        - listitem [ref=e8]:
+          - link "Flowserve Enterprise" [ref=e9] [cursor=pointer]:
+            - /url: /supervisor
+            - img [ref=e11]
+            - generic [ref=e13]:
+              - generic [ref=e14]: Flowserve
+              - generic [ref=e15]: Enterprise
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: Platform
+          - list [ref=e19]:
+            - listitem [ref=e20]:
+              - link "Playground" [ref=e21] [cursor=pointer]:
+                - /url: /supervisor
+                - img [ref=e22]
+                - generic [ref=e25]: Playground
+              - button "Toggle" [expanded] [ref=e26]:
+                - img [ref=e27]
+                - generic [ref=e29]: Toggle
+              - list [ref=e31]:
+                - listitem [ref=e32]:
+                  - link "Overview" [ref=e33] [cursor=pointer]:
+                    - /url: /supervisor
+                    - generic [ref=e34]: Overview
+            - listitem [ref=e35]:
+              - link "Models" [ref=e36] [cursor=pointer]:
+                - /url: /supervisor/programacion
+                - img [ref=e37]
+                - generic [ref=e40]: Models
+              - button "Toggle" [ref=e41]:
+                - img [ref=e42]
+                - generic [ref=e44]: Toggle
+            - listitem [ref=e45]:
+              - link "Documentation" [ref=e46] [cursor=pointer]:
+                - /url: /supervisor/user-management
+                - img [ref=e47]
+                - generic [ref=e49]: Documentation
+              - button "Toggle" [ref=e50]:
+                - img [ref=e51]
+                - generic [ref=e53]: Toggle
+            - listitem [ref=e54]:
+              - link "Settings" [ref=e55] [cursor=pointer]:
+                - /url: /supervisor
+                - img [ref=e56]
+                - generic [ref=e59]: Settings
+              - button "Toggle" [ref=e60]:
+                - img [ref=e61]
+                - generic [ref=e63]: Toggle
+        - generic [ref=e64]:
+          - generic [ref=e65]: Projects
+          - list [ref=e66]:
+            - listitem [ref=e67]:
+              - link "Design Engineering" [ref=e68] [cursor=pointer]:
+                - /url: /supervisor
+                - img [ref=e69]
+                - generic [ref=e70]: Design Engineering
+              - button "More" [ref=e71]:
+                - img [ref=e72]
+                - generic [ref=e76]: More
+            - listitem [ref=e77]:
+              - link "Sales & Marketing" [ref=e78] [cursor=pointer]:
+                - /url: /supervisor/programacion
+                - img [ref=e79]
+                - generic [ref=e82]: Sales & Marketing
+              - button "More" [ref=e83]:
+                - img [ref=e84]
+                - generic [ref=e88]: More
+            - listitem [ref=e89]:
+              - link "Travel" [ref=e90] [cursor=pointer]:
+                - /url: /supervisor/user-management
+                - img [ref=e91]
+                - generic [ref=e93]: Travel
+              - button "More" [ref=e94]:
+                - img [ref=e95]
+                - generic [ref=e99]: More
+            - listitem [ref=e100]:
+              - link "More" [ref=e101] [cursor=pointer]:
+                - /url: /supervisor
+                - img [ref=e102]
+                - generic [ref=e106]: More
+        - list [ref=e109]:
+          - listitem [ref=e110]:
+            - link "Support" [ref=e111] [cursor=pointer]:
+              - /url: /operator
+              - img [ref=e112]
+              - generic [ref=e119]: Support
+          - listitem [ref=e120]:
+            - link "Feedback" [ref=e121] [cursor=pointer]:
+              - /url: /supervisor
+              - img [ref=e122]
+              - generic [ref=e125]: Feedback
+      - list [ref=e127]:
+        - listitem [ref=e128]:
+          - button "MO mock_admin admin" [ref=e129]:
+            - generic [ref=e131]: MO
+            - generic [ref=e132]:
+              - generic [ref=e133]: mock_admin
+              - generic [ref=e134]: admin
+            - img [ref=e135]
+    - main [ref=e138]:
+      - generic [ref=e139]:
+        - generic [ref=e141]:
+          - generic [ref=e142]:
+            - button "Toggle Sidebar" [ref=e143] [cursor=pointer]:
+              - img [ref=e144]
+              - generic [ref=e146]: Toggle Sidebar
+            - navigation "breadcrumb" [ref=e147]:
+              - list [ref=e148]:
+                - listitem [ref=e149]:
+                  - link "Build Your Application" [ref=e150] [cursor=pointer]:
+                    - /url: /supervisor
+                - listitem [ref=e151]:
+                  - img [ref=e152]
+                - listitem [ref=e154]:
+                  - generic [ref=e155]: Data Fetching
+          - button "Actualizar" [ref=e156] [cursor=pointer]:
+            - img [ref=e158]
+            - text: Actualizar
+        - generic [ref=e164]:
+          - generic [ref=e165]:
+            - generic [ref=e167]:
+              - generic [ref=e168]:
+                - generic [ref=e169]:
+                  - paragraph [ref=e170]: Pending queue
+                  - paragraph [ref=e171]: "0"
+                - img [ref=e173]
+              - paragraph [ref=e177]: Listados listos para revision y preparacion.
+            - generic [ref=e179]:
+              - generic [ref=e180]:
+                - generic [ref=e181]:
+                  - paragraph [ref=e182]: Generated protocols
+                  - paragraph [ref=e183]: "1"
+                - img [ref=e185]
+              - paragraph [ref=e189]: Protocolos listos para programacion o ejecucion.
+            - generic [ref=e191]:
+              - generic [ref=e192]:
+                - generic [ref=e193]:
+                  - paragraph [ref=e194]: Active work
+                  - paragraph [ref=e195]: "1"
+                - img [ref=e197]
+              - paragraph [ref=e199]: Pruebas en curso o bloqueadas por operator.
+          - generic [ref=e201]:
+            - generic [ref=e202]:
+              - generic [ref=e203]:
+                - generic [ref=e204]:
+                  - heading "Documents" [level=2] [ref=e205]
+                  - paragraph [ref=e206]: Shell renovado del supervisor con la tabla operativa dentro del panel principal.
+                - tablist [ref=e208]:
+                  - tab "Outline 0" [selected] [ref=e209]:
+                    - text: Outline
+                    - generic [ref=e210]: "0"
+                  - tab "Focus Documents 6" [ref=e211]:
+                    - text: Focus Documents
+                    - generic [ref=e212]: "6"
+              - generic [ref=e213]:
+                - generic [ref=e214]:
+                  - combobox [ref=e215]:
+                    - generic: Pendiente
+                    - img [ref=e216]
+                  - generic [ref=e218]:
+                    - img
+                    - textbox "Buscar en la tabla..." [ref=e219]
+                - button "New section" [ref=e221] [cursor=pointer]:
+                  - img [ref=e222]
+                  - text: New section
+            - generic [ref=e224]:
+              - img [ref=e226]
+              - heading "No hay pruebas registradas" [level=3] [ref=e236]
+              - paragraph [ref=e237]: Importa tu primer archivo o crea una prueba manual para empezar a poblar este panel.
+              - button "Nueva prueba" [ref=e239] [cursor=pointer]:
+                - img [ref=e240]
+                - text: Nueva prueba
+  - alert [ref=e241]

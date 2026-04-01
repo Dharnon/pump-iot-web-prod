@@ -1,73 +1,12 @@
-/**
- * =============================================================================
- * SUPERVISOR LAYOUT - Pump IoT Platform
- * =============================================================================
- *
- * @fileoverview Layout principal del área autenticada con sidebar Notion-style.
- *
- * RESPONSABILIDADES:
- * 1. Verificar autenticación (redirect a /login si no hay sesión)
- * 2. Renderizar sidebar colapsable con navegación
- * 3. Proveer toggle de dark/light mode
- * 4. Mostrar información del usuario + botón de logout
- *
- * ESTRUCTURA:
- * ┌─────────────────────────────────────────────────────────────┐
- * │ SidebarProvider                                             │
- * │ ┌─────────┬───────────────────────────────────────────────┐ │
- * │ │ Sidebar │                    Main                       │ │
- * │ │         │                  (children)                   │ │
- * │ │ - Logo  │                                               │ │
- * │ │ - Menu  │                                               │ │
- * │ │ - User  │                                               │ │
- * │ └─────────┴───────────────────────────────────────────────┘ │
- * └─────────────────────────────────────────────────────────────┘
- *
- * @route /supervisor/*
- * @security Requiere autenticación (token en localStorage)
- */
-
 "use client";
 
-// =============================================================================
-// IMPORTS
-// =============================================================================
-
-// Componentes del Sidebar (Shadcn - personalizado)
-import {
-  SidebarProvider, // Context provider para estado del sidebar
-  Sidebar, // Container principal del sidebar
-  SidebarContent, // Área de contenido scrollable
-  SidebarHeader, // Header con logo
-  SidebarMenu, // Container de items del menú
-  SidebarMenuItem, // Cada item del menú
-  SidebarMenuButton, // Botón interactivo del item
-  SidebarFooter, // Footer con info de usuario
-  SidebarTrigger, // Botón para toggle (no usado aquí)
-  SidebarRail, // Barra delgada para resize/toggle
-} from "@/components/ui/sidebar";
-
-// Dropdown Menu
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-} from "@/components/ui/dropdown-menu";
-
-// Next.js - Navegación
-import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
-
-// React
+import type { CSSProperties } from "react";
 import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
+<<<<<<< HEAD
+import { logout, validateToken } from "@/lib/api";
+=======
 // Iconos (Lucide React)
 import {
   LayoutDashboard,
@@ -90,108 +29,157 @@ import Image from "next/image";
 // Componentes UI
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 import { useLanguage } from "@/lib/language-context";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 
-// =============================================================================
-// CONFIGURACIÓN DEL MENÚ
-// =============================================================================
+type StoredUser = {
+  username: string;
+  role: string;
+  email?: string;
+};
 
-/**
- * Items del menú de navegación.
- *
- * Cada item tiene:
- * - title: Texto a mostrar
- * - icon: Componente de icono de Lucide
- * - href: Ruta de destino
- *
- * Para añadir nuevas secciones, agregar aquí y crear la página correspondiente.
- */
-// (Moved inside component for translation)
+type SessionState = {
+  user: StoredUser | null;
+  checkingSession: boolean;
+};
 
-// =============================================================================
-// COMPONENTE LAYOUT
-// =============================================================================
+function readStoredUser(): StoredUser | null {
+  if (typeof window === "undefined") {
+    return null;
+  }
 
-/**
- * Layout del área de Supervisor.
- *
- * Este es un Next.js Layout - envuelve todas las páginas bajo /supervisor/*.
- * Los children son el contenido de la página actual.
- *
- * FLUJO DE AUTH:
- * 1. useEffect verifica si hay usuario en localStorage
- * 2. Si no hay → redirect a /login
- * 3. Si hay → parsea y setea en estado → renderiza layout
- *
- * @param children - Contenido de la página (ej: DashboardPage)
- */
+  const storedUser = localStorage.getItem("user");
+
+  if (!storedUser) {
+    return null;
+  }
+
+  try {
+    const parsedUser = JSON.parse(storedUser) as StoredUser;
+
+    if (!parsedUser?.username) {
+      localStorage.removeItem("user");
+      return null;
+    }
+
+    return parsedUser;
+  } catch {
+    localStorage.removeItem("user");
+    return null;
+  }
+}
+
+function readCookie(name: string) {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  const match = document.cookie.match(
+    new RegExp(`(?:^|; )${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}=([^;]*)`),
+  );
+
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+function getInitialSessionState(): SessionState {
+  return {
+    user: null,
+    checkingSession: true,
+  };
+}
+
 export default function SupervisorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // =========================================================================
-  // HOOKS
-  // =========================================================================
-
-  /** Ruta actual - para marcar item del menú como activo */
   const pathname = usePathname();
-
-  /** Router para navegación programática (logout, redirect) */
   const router = useRouter();
+  const { language, setLanguage } = useLanguage();
+  const [mounted, setMounted] = useState(false);
+  const [{ user, checkingSession }, setSessionState] =
+    useState<SessionState>(getInitialSessionState);
 
-  /** Usuario autenticado (null hasta que se cargue de localStorage) */
-  const [user, setUser] = useState<{
-    username: string;
-    role: string;
-    email?: string;
-  } | null>(null);
-
-  // =========================================================================
-  // AUTH CHECK
-  // =========================================================================
-
-  /**
-   * Verificación de autenticación al montar el componente.
-   *
-   * Si no hay usuario en localStorage, redirige a login.
-   * Esto es una verificación client-side (la real debería ser server-side).
-   */
   useEffect(() => {
-    // Intentar obtener usuario de localStorage
-    const storedUser = localStorage.getItem("user");
+    setMounted(true);
+  }, []);
 
-    if (!storedUser) {
-      // No hay sesión → redirect a login
-      router.push("/login");
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    document.documentElement.classList.toggle("dark", storedTheme !== "light");
+  }, []);
+
+  useEffect(() => {
+    if (!checkingSession) {
       return;
     }
 
-    // Parsear y guardar en estado
-    try {
-      const parsedUser = JSON.parse(storedUser);
-      // Validate object structure
-      if (
-        !parsedUser ||
-        typeof parsedUser !== "object" ||
-        !parsedUser.username
-      ) {
-        console.warn("Invalid user object in localStorage:", parsedUser);
-        localStorage.removeItem("user");
-        router.push("/login");
+    let cancelled = false;
+
+    async function syncSession() {
+      const token = readCookie("token");
+      const useMock =
+        readCookie("use_mock_data") === "true" ||
+        localStorage.getItem("USE_MOCK_DATA") === "true";
+      const storedUser = readStoredUser();
+
+      if (!token) {
+        setSessionState({ user: null, checkingSession: false });
+        router.replace("/login");
         return;
       }
-      setUser(parsedUser);
-    } catch (e) {
-      console.error("Error parsing user from localStorage:", e);
-      localStorage.removeItem("user");
-      router.push("/login");
+
+      if (useMock) {
+        const mockUser = storedUser ?? {
+          username: "mock_admin",
+          role: "admin",
+        };
+
+        localStorage.setItem("user", JSON.stringify(mockUser));
+        setSessionState({ user: mockUser, checkingSession: false });
+        return;
+      }
+
+      try {
+        const response = await validateToken(token);
+
+        if (!response.valid || !response.user) {
+          throw new Error("Invalid session");
+        }
+
+        if (cancelled) {
+          return;
+        }
+
+        const nextUser: StoredUser = {
+          username: response.user.username,
+          role: response.user.role,
+          email: storedUser?.email,
+        };
+
+        localStorage.setItem("user", JSON.stringify(nextUser));
+        setSessionState({ user: nextUser, checkingSession: false });
+      } catch {
+        if (cancelled) {
+          return;
+        }
+
+        logout();
+        setSessionState({ user: null, checkingSession: false });
+        router.replace("/login?error=validation_failed");
+      }
     }
-  }, [router]);
 
-  // Hook de idioma
-  const { t, setLanguage, language } = useLanguage();
+    void syncSession();
 
+<<<<<<< HEAD
+    return () => {
+      cancelled = true;
+    };
+  }, [checkingSession, router]);
+=======
   // Items del menú traducidos
   const menuItems = [
     {
@@ -211,43 +199,64 @@ export default function SupervisorLayout({
       href: "/supervisor/configuracion",
     },
   ];
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
 
-  // =========================================================================
-  // HANDLERS
-  // =========================================================================
-
-  /**
-   * Cierra la sesión del usuario.
-   *
-   * Limpia localStorage y redirige a login.
-   */
   const handleLogout = () => {
-    // Clear localStorage (client-side session data)
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-
-    // CRITICAL: Also expire the token cookie so the middleware
-    // no longer grants access to /supervisor after logout.
-    // This must mirror how the cookie is set in login/page.tsx.
-    document.cookie = "token=; path=/; max-age=0; SameSite=Strict";
-    document.cookie = "use_mock_data=; path=/; max-age=0; SameSite=Strict";
-
-    router.push("/login");
+    logout();
+    router.replace("/login");
   };
 
-  // =========================================================================
-  // RENDER GUARD
-  // =========================================================================
+  const handleToggleTheme = () => {
+    const isDark = document.documentElement.classList.contains("dark");
+    document.documentElement.classList.toggle("dark", !isDark);
+    localStorage.setItem("theme", !isDark ? "dark" : "light");
+  };
 
-  // Mientras se verifica la autenticación, no renderizar nada
-  // Esto evita flash de contenido antes del redirect
-  if (!user) return null;
+  if (!mounted || (!user && checkingSession)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+        Validando sesion...
+      </div>
+    );
+  }
 
-  // =========================================================================
-  // RENDER
-  // =========================================================================
+  if (!user) {
+    return null;
+  }
 
   return (
+<<<<<<< HEAD
+    <SidebarProvider
+      defaultOpen
+      style={
+        {
+          "--sidebar-width": "18rem",
+          "--header-height": "3.5rem",
+        } as CSSProperties
+      }
+    >
+      <AppSidebar
+        currentPath={pathname}
+        user={{
+          name: user.username,
+          email: user.email ?? user.role,
+          initials: user.username.slice(0, 2).toUpperCase(),
+        }}
+        currentLanguage={language}
+        languageOptions={[
+          { value: "es", label: "Espanol" },
+          { value: "en", label: "English" },
+        ]}
+        onLanguageChange={(value) => {
+          if (value === "es" || value === "en") {
+            setLanguage(value);
+          }
+        }}
+        onToggleTheme={handleToggleTheme}
+        onLogout={handleLogout}
+      />
+      <SidebarInset className="min-h-0 overflow-hidden">{children}</SidebarInset>
+=======
     // SidebarProvider: Provee context para estado del sidebar (open/collapsed)
     <SidebarProvider
       defaultOpen={false}
@@ -471,6 +480,7 @@ export default function SupervisorLayout({
           {children}
         </main>
       </div>
+>>>>>>> 95093510d90cbd30f3ba0adce0532518ef8ea829
     </SidebarProvider>
   );
 }
