@@ -13,7 +13,6 @@ import {
   ArrowUp,
   ArrowDown,
   Trash2,
-  Lock,
 } from "lucide-react";
 
 import {
@@ -227,6 +226,7 @@ export const getColumns = (
   },
   {
     id: "actions",
+    enableHiding: false,
     cell: ({ row }) => (
       <div
         className="flex items-center justify-end gap-2"

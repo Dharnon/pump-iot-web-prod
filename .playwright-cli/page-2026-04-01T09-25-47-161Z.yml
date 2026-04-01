@@ -1,0 +1,187 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e84] [cursor=pointer]:
+    - img [ref=e85]
+  - alert [ref=e78]
+  - generic [ref=e88]:
+    - generic [ref=e91]:
+      - list [ref=e93]:
+        - listitem [ref=e94]:
+          - link "Flowserve Enterprise" [ref=e95] [cursor=pointer]:
+            - /url: /supervisor
+            - img [ref=e97]
+            - generic [ref=e99]:
+              - generic [ref=e100]: Flowserve
+              - generic [ref=e101]: Enterprise
+      - generic [ref=e102]:
+        - generic [ref=e103]:
+          - generic [ref=e104]: Platform
+          - list [ref=e105]:
+            - listitem [ref=e106]:
+              - link "Playground" [ref=e107] [cursor=pointer]:
+                - /url: /supervisor
+                - img [ref=e108]
+                - generic [ref=e111]: Playground
+              - button "Toggle" [expanded] [ref=e112]:
+                - img [ref=e113]
+                - generic [ref=e115]: Toggle
+              - list [ref=e117]:
+                - listitem [ref=e118]:
+                  - link "Overview" [ref=e119] [cursor=pointer]:
+                    - /url: /supervisor
+                    - generic [ref=e120]: Overview
+            - listitem [ref=e121]:
+              - link "Models" [ref=e122] [cursor=pointer]:
+                - /url: /supervisor/programacion
+                - img [ref=e123]
+                - generic [ref=e126]: Models
+              - button "Toggle" [ref=e127]:
+                - img [ref=e128]
+                - generic [ref=e130]: Toggle
+            - listitem [ref=e131]:
+              - link "Documentation" [ref=e132] [cursor=pointer]:
+                - /url: /supervisor/user-management
+                - img [ref=e133]
+                - generic [ref=e135]: Documentation
+              - button "Toggle" [ref=e136]:
+                - img [ref=e137]
+                - generic [ref=e139]: Toggle
+            - listitem [ref=e140]:
+              - link "Settings" [ref=e141] [cursor=pointer]:
+                - /url: /supervisor
+                - img [ref=e142]
+                - generic [ref=e145]: Settings
+              - button "Toggle" [ref=e146]:
+                - img [ref=e147]
+                - generic [ref=e149]: Toggle
+        - generic [ref=e150]:
+          - generic [ref=e151]: Projects
+          - list [ref=e152]:
+            - listitem [ref=e153]:
+              - link "Design Engineering" [ref=e154] [cursor=pointer]:
+                - /url: /supervisor
+                - img [ref=e155]
+                - generic [ref=e156]: Design Engineering
+              - button "More" [ref=e157]:
+                - img [ref=e158]
+                - generic [ref=e162]: More
+            - listitem [ref=e163]:
+              - link "Sales & Marketing" [ref=e164] [cursor=pointer]:
+                - /url: /supervisor/programacion
+                - img [ref=e165]
+                - generic [ref=e168]: Sales & Marketing
+              - button "More" [ref=e169]:
+                - img [ref=e170]
+                - generic [ref=e174]: More
+            - listitem [ref=e175]:
+              - link "Travel" [ref=e176] [cursor=pointer]:
+                - /url: /supervisor/user-management
+                - img [ref=e177]
+                - generic [ref=e179]: Travel
+              - button "More" [ref=e180]:
+                - img [ref=e181]
+                - generic [ref=e185]: More
+            - listitem [ref=e186]:
+              - link "More" [ref=e187] [cursor=pointer]:
+                - /url: /supervisor
+                - img [ref=e188]
+                - generic [ref=e192]: More
+        - list [ref=e195]:
+          - listitem [ref=e196]:
+            - link "Support" [ref=e197] [cursor=pointer]:
+              - /url: /operator
+              - img [ref=e198]
+              - generic [ref=e205]: Support
+          - listitem [ref=e206]:
+            - link "Feedback" [ref=e207] [cursor=pointer]:
+              - /url: /supervisor
+              - img [ref=e208]
+              - generic [ref=e211]: Feedback
+      - list [ref=e213]:
+        - listitem [ref=e214]:
+          - button "MO mock_admin admin" [ref=e215]:
+            - generic [ref=e217]: MO
+            - generic [ref=e218]:
+              - generic [ref=e219]: mock_admin
+              - generic [ref=e220]: admin
+            - img [ref=e221]
+    - main [ref=e224]:
+      - generic [ref=e225]:
+        - generic [ref=e227]:
+          - generic [ref=e228]:
+            - button "Toggle Sidebar" [ref=e229] [cursor=pointer]:
+              - img [ref=e230]
+              - generic [ref=e232]: Toggle Sidebar
+            - navigation "breadcrumb" [ref=e233]:
+              - list [ref=e234]:
+                - listitem [ref=e235]:
+                  - link "Build Your Application" [ref=e236] [cursor=pointer]:
+                    - /url: /supervisor
+                - listitem [ref=e237]:
+                  - img [ref=e238]
+                - listitem [ref=e240]:
+                  - generic [ref=e241]: Data Fetching
+          - button "Actualizar" [ref=e242] [cursor=pointer]:
+            - img [ref=e244]
+            - text: Actualizar
+        - generic [ref=e250]:
+          - generic [ref=e251]:
+            - generic [ref=e253]:
+              - generic [ref=e254]:
+                - generic [ref=e255]:
+                  - paragraph [ref=e256]: Pending queue
+                  - paragraph [ref=e257]: "0"
+                - img [ref=e259]
+              - paragraph [ref=e263]: Listados listos para revision y preparacion.
+            - generic [ref=e265]:
+              - generic [ref=e266]:
+                - generic [ref=e267]:
+                  - paragraph [ref=e268]: Generated protocols
+                  - paragraph [ref=e269]: "1"
+                - img [ref=e271]
+              - paragraph [ref=e275]: Protocolos listos para programacion o ejecucion.
+            - generic [ref=e277]:
+              - generic [ref=e278]:
+                - generic [ref=e279]:
+                  - paragraph [ref=e280]: Active work
+                  - paragraph [ref=e281]: "1"
+                - img [ref=e283]
+              - paragraph [ref=e285]: Pruebas en curso o bloqueadas por operator.
+          - generic [ref=e287]:
+            - generic [ref=e288]:
+              - generic [ref=e289]:
+                - generic [ref=e290]:
+                  - heading "Documents" [level=2] [ref=e291]
+                  - paragraph [ref=e292]: Shell renovado del supervisor con la tabla operativa dentro del panel principal.
+                - tablist [ref=e294]:
+                  - tab "Outline 0" [selected] [ref=e295]:
+                    - text: Outline
+                    - generic [ref=e296]: "0"
+                  - tab "Focus Documents 6" [ref=e297]:
+                    - text: Focus Documents
+                    - generic [ref=e298]: "6"
+              - generic [ref=e299]:
+                - generic [ref=e300]:
+                  - combobox [ref=e301]:
+                    - generic: Pendiente
+                    - img [ref=e302]
+                  - generic [ref=e304]:
+                    - img
+                    - textbox "Buscar en la tabla..." [ref=e305]
+                - generic [ref=e306]:
+                  - button "New section" [ref=e307] [cursor=pointer]:
+                    - img [ref=e308]
+                    - text: New section
+                  - button "Importar Excel" [ref=e309] [cursor=pointer]:
+                    - img [ref=e310]
+                    - text: Importar Excel
+            - generic [ref=e314]:
+              - img [ref=e316]
+              - heading "No hay pruebas registradas" [level=3] [ref=e326]
+              - paragraph [ref=e327]: Importa tu primer archivo o crea una prueba manual para empezar a poblar este panel.
+              - generic [ref=e328]:
+                - button "Nueva prueba" [ref=e329] [cursor=pointer]:
+                  - img [ref=e330]
+                  - text: Nueva prueba
+                - button "Importar Excel" [ref=e331] [cursor=pointer]:
+                  - img [ref=e332]
+                  - text: Importar Excel

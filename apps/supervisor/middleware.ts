@@ -117,6 +117,11 @@ export async function middleware(request: NextRequest) {
     // CASO 3: Ruta de autenticación (login) con token válido → Redirigir a dashboard
     // =========================================================================
     if (isAuthRoute && token) {
+        const useMock = request.cookies.get('use_mock_data')?.value === 'true';
+        if (useMock) {
+            return NextResponse.redirect(new URL('/supervisor', request.url));
+        }
+
         // Verificar que el token sea válido antes de redirigir
         try {
             const controller = new AbortController();

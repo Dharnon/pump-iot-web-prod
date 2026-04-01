@@ -231,6 +231,7 @@ export const getProtocolColumns = (
   },
   {
     id: "actions",
+    enableHiding: false,
     cell: ({ row }) => (
       <div
         className="flex items-center justify-end gap-2"

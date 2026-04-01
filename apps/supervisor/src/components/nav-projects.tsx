@@ -1,0 +1,101 @@
+"use client";
+
+import type { ReactNode } from "react";
+import Link from "next/link";
+import {
+  FolderIcon,
+  MoreHorizontalIcon,
+  PanelTopIcon,
+  PlayCircleIcon,
+} from "lucide-react";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuAction,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
+
+export function NavProjects({
+  projects,
+}: {
+  projects: {
+    name: string;
+    url: string;
+    icon: ReactNode;
+  }[];
+}) {
+  const { isMobile } = useSidebar();
+
+  return (
+    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+      <SidebarGroupLabel>Projects</SidebarGroupLabel>
+      <SidebarMenu>
+        {projects.map((item) => (
+          <SidebarMenuItem key={item.name}>
+            <SidebarMenuButton asChild>
+              <Link href={item.url} prefetch={false}>
+                {item.icon}
+                <span>{item.name}</span>
+              </Link>
+            </SidebarMenuButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuAction
+                  showOnHover
+                  className="aria-expanded:bg-muted"
+                >
+                  <MoreHorizontalIcon />
+                  <span className="sr-only">More</span>
+                </SidebarMenuAction>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-48"
+                side={isMobile ? "bottom" : "right"}
+                align={isMobile ? "end" : "start"}
+              >
+                <DropdownMenuItem asChild>
+                  <Link href={item.url} prefetch={false}>
+                    <FolderIcon className="text-muted-foreground" />
+                    <span>Abrir seccion</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/operator/" prefetch={false}>
+                    <PlayCircleIcon className="text-muted-foreground" />
+                    <span>Ir a operator</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/supervisor" prefetch={false}>
+                    <PanelTopIcon className="text-muted-foreground" />
+                    <span>Volver al dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        ))}
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild>
+            <Link href="/supervisor" prefetch={false}>
+              <MoreHorizontalIcon />
+              <span>More</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarGroup>
+  );
+}
