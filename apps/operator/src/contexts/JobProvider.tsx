@@ -625,7 +625,8 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
               protocolSpec: {
                 workOrder: info.ordenTrabajo,
                 itemNumber: info.item,
-                jobDate: info.fecha,
+                jobDate: t.fecha,
+                pumpQuantity: info.numeroBombas,
                 pumpType: info.tipoDeBomba || info.modeloBomba, // Fallback to model if type is missing
                 serialNumber: t.numeroSerie,
               },
@@ -678,7 +679,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({
         protocolSpec: {
           ...job.protocolSpec,
           // Generic
-          jobDate: info.fecha,
+          jobDate: fullTest.fecha,
           pumpQuantity: info.numeroBombas,
           workOrder: info.ordenTrabajo,
 

@@ -50,7 +50,7 @@ export function CleanAutoInput({
     >
       <div className="flex justify-between">
         <label
-          className={`text-[10px] max-[2048px]:text-[8px] max-[1600px]:text-[7px] uppercase font-bold tracking-tight leading-none transition-colors ${error ? "text-destructive" : "text-muted-foreground"}`}
+          className={`text-sm max-[2048px]:text-xs max-[1600px]:text-[10px] uppercase font-bold tracking-tight leading-none transition-colors ${error ? "text-destructive" : "text-muted-foreground"}`}
         >
           {label}
         </label>

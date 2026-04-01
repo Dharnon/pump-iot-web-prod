@@ -14,17 +14,14 @@ interface FluidSectionProps {
   allFieldsEditable?: boolean;
 }
 
-export function FluidSection({
-  pdfData,
-  onDataChange,
-}: FluidSectionProps) {
+export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
   return (
     <section className="space-y-2">
       <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
       <div>
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-          <Droplets className="w-3.5 h-3.5 text-orange-500" /> Punto Garantizado
-          en Fluido
+        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+          <Droplets className="w-4 h-4 text-orange-500" /> Punto Garantizado en
+          Fluido
         </span>
       </div>
 

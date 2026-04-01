@@ -87,9 +87,14 @@ const API_BASE_URL = getApiBaseUrl();
  * ```
  */
 export async function fetchApi<T>(endpoint: string, options?: RequestInit): Promise<T> {
+    const method = (options?.method ?? 'GET').toUpperCase();
+    const cacheOption =
+        options?.cache ?? (method === 'GET' || method === 'HEAD' ? 'no-store' : undefined);
+
     // Construir URL completa combinando base + endpoint
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
         ...options,
+        ...(cacheOption ? { cache: cacheOption } : {}),
         headers: {
             'Content-Type': 'application/json',
             ...options?.headers, // Permite override de headers
@@ -98,13 +103,38 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
 
     // Manejo de errores HTTP
     if (!response.ok) {
-        // Intentar extraer mensaje de error del body JSON
-        const error = await response.json().catch(() => ({ error: null }));
-        throw new Error(error.error || `Error HTTP ${response.status}`);
+        const errorText = await response.text().catch(() => '');
+        if (errorText) {
+            try {
+                const errorJson = JSON.parse(errorText);
+                throw new Error(
+                    errorJson.error ||
+                        errorJson.message ||
+                        `Error HTTP ${response.status}`,
+                );
+            } catch {
+                throw new Error(errorText);
+            }
+        }
+
+        throw new Error(`Error HTTP ${response.status}`);
     }
 
-    // Parsear y retornar respuesta JSON
-    return response.json();
+    // Endpoints DELETE/PUT pueden devolver 204 No Content
+    if (response.status === 204 || response.status === 205) {
+        return undefined as T;
+    }
+
+    const rawBody = await response.text();
+    if (!rawBody.trim()) {
+        return undefined as T;
+    }
+
+    try {
+        return JSON.parse(rawBody) as T;
+    } catch {
+        return rawBody as T;
+    }
 }
 
 /**
@@ -423,7 +453,32 @@ export async function updateBanco(id: number, data: Partial<Banco>): Promise<Ban
     });
 }
 
-export async function deleteBanco(id: number): Promise<any> {
+export async function deleteBanco(
+    id: number,
+    options?: { hard?: boolean }
+): Promise<any> {
+    if (!options?.hard) {
+        return fetchApi<any>(`/api/bancos/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    const hardDeleteEndpoints = [
+        `/api/bancos/${id}?hardDelete=true`,
+        `/api/bancos/${id}?hard=true`,
+        `/api/bancos/${id}/hard-delete`,
+        `/api/bancos/${id}/hard`,
+        `/api/bancos/${id}/permanent`,
+    ];
+
+    for (const endpoint of hardDeleteEndpoints) {
+        try {
+            return await fetchApi<any>(endpoint, { method: 'DELETE' });
+        } catch {
+            // Keep trying alternative hard-delete endpoints.
+        }
+    }
+
     return fetchApi<any>(`/api/bancos/${id}`, {
         method: 'DELETE'
     });

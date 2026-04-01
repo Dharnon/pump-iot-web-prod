@@ -50,7 +50,7 @@ export function useTestSave(): UseTestSaveResult {
 
     try {
       // Use DTO mapper service to transform data to backend format
-      const requestBody = mapTestToSaveDTO(test.generalInfo, test.pdfData, test.bancoId || 1, viewMode === 'PENDING');
+      const requestBody = mapTestToSaveDTO(test.generalInfo, test.pdfData, test.bancoId ?? 0, viewMode === 'PENDING');
 
       const result = await patchTest(test.id, requestBody);
       console.log("Protocol saved:", result);

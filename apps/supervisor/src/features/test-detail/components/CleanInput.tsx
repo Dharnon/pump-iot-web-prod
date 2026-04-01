@@ -42,10 +42,12 @@ export function CleanInput({
   };
 
   return (
-    <div className={`space-y-1.5 max-[2048px]:space-y-0.75 max-[1600px]:space-y-0.5 min-w-0 ${containerClassName || ""}`}>
+    <div
+      className={`space-y-1.5 max-[2048px]:space-y-0.75 max-[1600px]:space-y-0.5 min-w-0 ${containerClassName || ""}`}
+    >
       <div className="flex justify-between">
         <label
-          className={`text-[10px] max-[2048px]:text-[8px] max-[1600px]:text-[7px] uppercase font-bold tracking-tight leading-none transition-colors ${error ? "text-destructive" : labelClassName || "text-muted-foreground"}`}
+          className={`text-sm max-[2048px]:text-xs max-[1600px]:text-[10px] uppercase font-bold tracking-tight leading-none transition-colors ${error ? "text-destructive" : labelClassName || "text-muted-foreground"}`}
         >
           {label}
         </label>

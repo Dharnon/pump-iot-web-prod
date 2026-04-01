@@ -1,16 +1,16 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { toast } from "sonner";
-import { 
-    getMotores, 
-    createMotor, 
-    updateMotor, 
-    deleteMotor, 
-    getAllBancos, 
-    createBanco, 
-    updateBanco, 
-    deleteBanco,
-    MotorPlantilla,
-    Banco
+import {
+  getMotores,
+  createMotor,
+  updateMotor,
+  deleteMotor,
+  getAllBancos,
+  createBanco,
+  updateBanco,
+  deleteBanco,
+  MotorPlantilla,
+  Banco,
 } from "@/lib/api";
 
 export function useConfiguracion() {
@@ -49,14 +49,16 @@ export function useConfiguracion() {
     }
   }, []);
 
-  const loadBancos = useCallback(async () => {
+  const loadBancos = useCallback(async (): Promise<Banco[]> => {
     setLoadingBancos(true);
     try {
       const data = await getAllBancos();
       setBancos(data);
+      return data;
     } catch (error) {
       console.error("Error loading bancos:", error);
       toast.error("Error al cargar los bancos");
+      return [];
     } finally {
       setLoadingBancos(false);
     }
@@ -68,34 +70,110 @@ export function useConfiguracion() {
   }, [loadMotores, loadBancos]);
 
   // Filtering
-  const filteredMotores = useMemo(() => motores.filter(
-    (motor: MotorPlantilla) =>
-      motor.nombre.toLowerCase().includes(motorSearch.toLowerCase()) ||
-      (motor.marca?.toLowerCase().includes(motorSearch.toLowerCase()) ?? false) ||
-      (motor.tipo?.toLowerCase().includes(motorSearch.toLowerCase()) ?? false),
-  ), [motores, motorSearch]);
+  const filteredMotores = useMemo(
+    () =>
+      motores.filter(
+        (motor: MotorPlantilla) =>
+          motor.nombre.toLowerCase().includes(motorSearch.toLowerCase()) ||
+          (motor.marca?.toLowerCase().includes(motorSearch.toLowerCase()) ??
+            false) ||
+          (motor.tipo?.toLowerCase().includes(motorSearch.toLowerCase()) ??
+            false),
+      ),
+    [motores, motorSearch],
+  );
 
-  const filteredBancos = useMemo(() => bancos.filter(
-    (banco: Banco) =>
-      banco.nombre.toLowerCase().includes(bancoSearch.toLowerCase()) ||
-      (banco.motorPlantilla?.nombre?.toLowerCase().includes(bancoSearch.toLowerCase()) ?? false),
-  ), [bancos, bancoSearch]);
+  const filteredBancos = useMemo(
+    () =>
+      bancos.filter(
+        (banco: Banco) =>
+          banco.nombre.toLowerCase().includes(bancoSearch.toLowerCase()) ||
+          (banco.motorPlantilla?.nombre
+            ?.toLowerCase()
+            .includes(bancoSearch.toLowerCase()) ??
+            false),
+      ),
+    [bancos, bancoSearch],
+  );
+
+  const toBancoMotorPlantilla = (motor: MotorPlantilla | undefined | null) => {
+    if (!motor) return null;
+    return {
+      id: motor.id,
+      nombre: motor.nombre,
+      marca: motor.marca ?? undefined,
+      tipo: motor.tipo ?? undefined,
+      potencia: motor.potencia ?? undefined,
+      velocidad: motor.velocidad ?? undefined,
+      intensidad: motor.intensidad ?? undefined,
+      rendimiento25: motor.rendimiento25 ?? undefined,
+      rendimiento50: motor.rendimiento50 ?? undefined,
+      rendimiento75: motor.rendimiento75 ?? undefined,
+      rendimiento100: motor.rendimiento100 ?? undefined,
+      rendimiento125: motor.rendimiento125 ?? undefined,
+    };
+  };
+
+  const normalizeBanco = (banco: Banco): Banco => {
+    if (banco.motorPlantillaId == null) {
+      return { ...banco, motorPlantilla: null };
+    }
+
+    const selectedMotor = motores.find(
+      (motor) => motor.id === banco.motorPlantillaId,
+    );
+
+    return {
+      ...banco,
+      motorPlantilla:
+        toBancoMotorPlantilla(selectedMotor) ?? banco.motorPlantilla ?? null,
+    };
+  };
 
   // Motor Actions
   const handleSaveMotor = async () => {
     try {
+      let savedMotor: MotorPlantilla;
+
       if (editingMotor) {
-        await updateMotor(editingMotor.id, motorForm);
+        savedMotor = await updateMotor(editingMotor.id, {
+          ...motorForm,
+          id: editingMotor.id,
+        });
       } else {
-        await createMotor(motorForm);
+        savedMotor = await createMotor(motorForm);
       }
-      
-      await loadMotores();
+
+      if (!savedMotor?.id) {
+        await loadMotores();
+      } else {
+      setMotores((previousMotores) => {
+        const index = previousMotores.findIndex(
+          (motor) => motor.id === savedMotor.id,
+        );
+        if (index === -1) {
+          return [savedMotor, ...previousMotores];
+        }
+
+        const nextMotores = [...previousMotores];
+        nextMotores[index] = savedMotor;
+        return nextMotores;
+      });
+
+      setBancos((previousBancos) =>
+        previousBancos.map((banco) =>
+          banco.motorPlantillaId === savedMotor.id
+            ? { ...banco, motorPlantilla: toBancoMotorPlantilla(savedMotor) }
+            : banco,
+        ),
+      );
+      }
+
       setMotorDialogOpen(false);
       setEditingMotor(null);
       setMotorForm({});
       toast.success(editingMotor ? "Motor actualizado" : "Motor creado");
-    } catch (error) {
+    } catch {
       toast.error("Error al guardar el motor");
     }
   };
@@ -104,9 +182,18 @@ export function useConfiguracion() {
     if (!motorToDelete) return;
     try {
       await deleteMotor(motorToDelete.id);
-      await loadMotores();
+      setMotores((previousMotores) =>
+        previousMotores.filter((motor) => motor.id !== motorToDelete.id),
+      );
+      setBancos((previousBancos) =>
+        previousBancos.map((banco) =>
+          banco.motorPlantillaId === motorToDelete.id
+            ? { ...banco, motorPlantillaId: null, motorPlantilla: null }
+            : banco,
+        ),
+      );
       toast.success("Motor eliminado");
-    } catch (error) {
+    } catch {
       toast.error("Error al eliminar el motor");
     } finally {
       setMotorToDelete(null);
@@ -138,19 +225,67 @@ export function useConfiguracion() {
 
   // Banco Actions
   const handleSaveBanco = async () => {
+    let bancoSuccessMessage = editingBanco ? "Banco actualizado" : "Banco creado";
     try {
+      let savedBanco: Banco;
+
       if (editingBanco) {
-        await updateBanco(editingBanco.id, bancoForm);
+        savedBanco = await updateBanco(editingBanco.id, {
+          ...bancoForm,
+          id: editingBanco.id,
+        });
       } else {
-        await createBanco(bancoForm);
+        try {
+          savedBanco = await createBanco(bancoForm);
+        } catch (error: any) {
+          const message = `${error?.message || ""}`.toLowerCase();
+          const bancoNombre = `${bancoForm.nombre || ""}`.trim().toLowerCase();
+          const duplicateError =
+            message.includes("exist") ||
+            message.includes("duplic") ||
+            message.includes("unique") ||
+            message.includes("ya existe");
+
+          const inactiveMatch = bancos.find(
+            (b) => !b.estado && b.nombre.trim().toLowerCase() === bancoNombre,
+          );
+
+          if (duplicateError && inactiveMatch) {
+            savedBanco = await updateBanco(inactiveMatch.id, {
+              id: inactiveMatch.id,
+              ...bancoForm,
+              estado: true,
+            });
+            bancoSuccessMessage = "Banco reactivado";
+          } else {
+            throw error;
+          }
+        }
       }
-      
-      await loadBancos();
+
+      if (!savedBanco?.id) {
+        await loadBancos();
+      } else {
+        setBancos((previousBancos) => {
+          const nextBanco = normalizeBanco(savedBanco);
+          const index = previousBancos.findIndex(
+            (banco) => banco.id === nextBanco.id,
+          );
+          if (index === -1) {
+            return [nextBanco, ...previousBancos];
+          }
+
+          const nextBancos = [...previousBancos];
+          nextBancos[index] = nextBanco;
+          return nextBancos;
+        });
+      }
+
       setBancoDialogOpen(false);
       setEditingBanco(null);
       setBancoForm({});
-      toast.success(editingBanco ? "Banco actualizado" : "Banco creado");
-    } catch (error) {
+      toast.success(bancoSuccessMessage);
+    } catch {
       toast.error("Error al guardar el banco");
     }
   };
@@ -158,10 +293,23 @@ export function useConfiguracion() {
   const handleDeleteBanco = async () => {
     if (!bancoToDelete) return;
     try {
-      await deleteBanco(bancoToDelete.id);
-      await loadBancos();
-      toast.success("Banco eliminado");
-    } catch (error) {
+      const deleteResult = await deleteBanco(bancoToDelete.id, { hard: true });
+      const isInactiveResponse = `${deleteResult?.message || ""}`
+        .toLowerCase()
+        .includes("inactive");
+
+      setBancos((previousBancos) => {
+        if (isInactiveResponse) {
+          return previousBancos.map((banco) =>
+            banco.id === bancoToDelete.id ? { ...banco, estado: false } : banco,
+          );
+        }
+
+        return previousBancos.filter((banco) => banco.id !== bancoToDelete.id);
+      });
+
+      toast.success(isInactiveResponse ? "Banco desactivado" : "Banco eliminado");
+    } catch {
       toast.error("Error al eliminar el banco");
     } finally {
       setBancoToDelete(null);

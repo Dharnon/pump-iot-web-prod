@@ -29,8 +29,13 @@ export function BombaDataSection({
     <section className="space-y-2">
       <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
       <div>
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-          <Settings2 className="w-3.5 h-3.5 text-primary" /> Datos Bomba
+        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+          <img
+            src="/icons/water-pump.png"
+            alt="Bomba"
+            className="w-5 h-5 brightness-0 dark:invert"
+          />
+          Datos Bomba
         </span>
       </div>
 
@@ -98,22 +103,26 @@ export function BombaDataSection({
           className="h-8 text-xs font-mono"
           minWidth={140}
         />
-        <div className="flex min-h-8 items-center justify-center gap-2 rounded-md border border-border/60 bg-muted/10 px-3">
-          <input
-            type="checkbox"
-            id="vertical"
-            checked={pdfData?.vertical === true || pdfData?.vertical === "true"}
-            onChange={(e) =>
-              onDataChange("vertical", e.target.checked ? "true" : "false")
-            }
-            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary transition-all cursor-pointer"
-          />
+        <div className="flex flex-col gap-1.5 max-[2048px]:gap-0.75 max-[1600px]:gap-0.5 min-w-0">
           <label
             htmlFor="vertical"
-            className="text-xs max-[2048px]:text-[10px] max-[1600px]:text-[9px] font-medium text-muted-foreground cursor-pointer whitespace-nowrap"
+            className="text-sm max-[2048px]:text-xs max-[1600px]:text-[10px] uppercase font-bold tracking-tight leading-none text-muted-foreground cursor-pointer"
           >
             Bomba Vertical
           </label>
+          <div className="flex h-9 max-[2048px]:h-7 max-[1600px]:h-6.5 items-center rounded-md border border-transparent bg-muted/20 hover:bg-muted/40 transition-all px-3">
+            <input
+              type="checkbox"
+              id="vertical"
+              checked={
+                pdfData?.vertical === true || pdfData?.vertical === "true"
+              }
+              onChange={(e) =>
+                onDataChange("vertical", e.target.checked ? "true" : "false")
+              }
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary transition-all cursor-pointer"
+            />
+          </div>
         </div>
       </ResponsiveFieldFlow>
     </section>

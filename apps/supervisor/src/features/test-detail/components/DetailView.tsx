@@ -67,11 +67,9 @@ import {
 const detailActionButtonClass =
   "h-8 rounded-md px-3 text-xs font-medium shadow-xs transition-[background-color,border-color,color,box-shadow] focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-background";
 
-const detailMoveToBankButtonClass =
-  `${detailActionButtonClass} border-sky-200/80 bg-sky-50/90 text-sky-700 hover:border-sky-300 hover:bg-sky-100 focus-visible:ring-sky-400 dark:border-sky-900/80 dark:bg-sky-950/40 dark:text-sky-300 dark:hover:border-sky-800 dark:hover:bg-sky-950/70 dark:focus-visible:ring-sky-700`;
+const detailMoveToBankButtonClass = `${detailActionButtonClass} border-sky-200/80 bg-sky-50/90 text-sky-700 hover:border-sky-300 hover:bg-sky-100 focus-visible:ring-sky-400 dark:border-sky-900/80 dark:bg-sky-950/40 dark:text-sky-300 dark:hover:border-sky-800 dark:hover:bg-sky-950/70 dark:focus-visible:ring-sky-700`;
 
-const detailReturnToGeneratedButtonClass =
-  `${detailActionButtonClass} border-emerald-200/80 bg-emerald-50/90 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 focus-visible:ring-emerald-400 dark:border-emerald-900/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/70 dark:focus-visible:ring-emerald-700`;
+const detailReturnToGeneratedButtonClass = `${detailActionButtonClass} border-emerald-200/80 bg-emerald-50/90 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 focus-visible:ring-emerald-400 dark:border-emerald-900/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/70 dark:focus-visible:ring-emerald-700`;
 
 interface DetailViewProps {
   hookResult: UseTestDetailPageResult;
@@ -221,13 +219,13 @@ export function DetailView({
               <Button
                 variant="outline"
                 size="sm"
-                className="h-8 px-3 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 border-border/50"
+                className="h-8 w-8 p-0"
                 disabled={deleting}
               >
                 {deleting ? (
-                  <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 ) : (
-                  <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                  <Trash2 className="w-3.5 h-3.5" />
                 )}
               </Button>
             </AlertDialogTrigger>
@@ -263,12 +261,12 @@ export function DetailView({
                   (test.status === "GENERATED" || test.status === "PROCESADO"))
               }
               size="sm"
-              className="bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-95 transition-all text-xs font-semibold px-3 h-8"
+              className="bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-95 transition-all text-xs font-semibold px-0 w-8 h-8 flex items-center justify-center"
             >
               {saving ? (
-                <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
-                <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
+                <CheckCircle2 className="w-3.5 h-3.5" />
               )}
             </Button>
           )}
@@ -371,7 +369,10 @@ export function DetailView({
 
               <ScrollArea className="flex-1">
                 <div className="p-1.5 max-[2048px]:p-0.75 max-[1600px]:p-0.5 md:p-2 space-y-3 max-[2048px]:space-y-1.5 max-[1600px]:space-y-1">
-                  <TabsContent value="data" className="space-y-3 max-[2048px]:space-y-1.5 max-[1600px]:space-y-1 mt-0">
+                  <TabsContent
+                    value="data"
+                    className="space-y-3 max-[2048px]:space-y-1.5 max-[1600px]:space-y-1 mt-0"
+                  >
                     {/* General Info Section */}
                     <GeneralInfoSection
                       generalInfo={test.generalInfo}

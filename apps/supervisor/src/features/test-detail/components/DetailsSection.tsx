@@ -30,7 +30,7 @@ export function DetailsSection({
         <>
           <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
           <div className="flex items-center justify-between pt-2">
-            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+            <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
               <Gauge className="w-4 h-4" />
               Detalles y Presiones
             </h3>
@@ -111,7 +111,7 @@ export function DetailsSection({
 
       <ResponsiveFieldGrid minItemWidth={280} className="pt-1">
         <div className="space-y-1.5">
-          <label className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          <label className="text-sm max-[2048px]:text-xs max-[1600px]:text-[10px] text-muted-foreground uppercase font-bold tracking-tight">
             Comentario
           </label>
           <textarea
@@ -122,7 +122,7 @@ export function DetailsSection({
           />
         </div>
         <div className="space-y-1.5">
-          <label className="text-[10px] text-muted-foreground uppercase tracking-wider">
+          <label className="text-sm max-[2048px]:text-xs max-[1600px]:text-[10px] text-muted-foreground uppercase font-bold tracking-tight">
             Comentario Interno
           </label>
           <textarea

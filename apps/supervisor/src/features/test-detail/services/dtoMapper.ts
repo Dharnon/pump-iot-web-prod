@@ -156,14 +156,14 @@ export interface TestSaveDTO {
  * 
  * @param generalInfo - General test information
  * @param pdfData - Extracted PDF data
- * @param bancoId - Test bench ID (defaults to 1)
+ * @param bancoId - Test bench ID (0 means no bank assigned)
  * @param setStatusGenerated - Whether to set status to GENERADO (true for PENDING mode finalization)
  * @returns Backend-compatible DTO object
  */
 export function mapTestToSaveDTO(
   generalInfo: TestGeneralInfo,
   pdfData: TestPdfData | null | undefined,
-  bancoId: number = 1,
+  bancoId: number = 0,
   setStatusGenerated: boolean = true
 ): TestSaveDTO {
   // Helper to safely convert any value to string or undefined
@@ -171,7 +171,7 @@ export function mapTestToSaveDTO(
 
   return {
     status: setStatusGenerated ? "GENERADO" : undefined,
-    bancoId: bancoId,
+    bancoId: bancoId > 0 ? bancoId : (null as any),
     generalInfo: {
       pedido: generalInfo.pedido,
       cliente: generalInfo.cliente,

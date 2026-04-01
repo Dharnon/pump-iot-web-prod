@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -14,11 +15,10 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
 
-
-  // Experimental optimizations (use with caution)
+  // Ensure mono-repo dependencies are traced correctly
+  outputFileTracingRoot: path.join(__dirname, "../../"),
+  
   experimental: {
-    // optimizeCss: true, // Requires 'critters' package
-    // turbo: { ... } // TurboPack options
   },
 
   async rewrites() {

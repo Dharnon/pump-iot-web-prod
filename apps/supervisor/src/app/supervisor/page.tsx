@@ -60,6 +60,21 @@ import { HubConnectionState } from "@microsoft/signalr";
 
 type ViewMode = "pending" | "protocols";
 
+function normalizeStatusFilter(
+  nextViewMode: ViewMode,
+  nextStatusFilter: string | null,
+) {
+  if (nextViewMode === "pending") {
+    return nextStatusFilter === "EN_BANCO" ||
+      nextStatusFilter === "GENERATED" ||
+      nextStatusFilter === "all"
+      ? nextStatusFilter
+      : "PENDING";
+  }
+
+  return nextStatusFilter === "PENDING" ? "all" : (nextStatusFilter ?? "all");
+}
+
 /**
  * Dashboard - Firecrawl-inspired "Infinite Lines" Design
  * Grid-based layout with subtle borders, asymmetric structure, and hover interactions
@@ -90,11 +105,13 @@ export default function DashboardPage() {
 
   // Load state from localStorage on mount
   useEffect(() => {
-    const savedViewMode = localStorage.getItem("dashboardViewMode") as ViewMode;
+    const savedViewMode = localStorage.getItem("dashboardViewMode");
+    const nextViewMode: ViewMode =
+      savedViewMode === "protocols" ? "protocols" : "pending";
     const savedStatusFilter = localStorage.getItem("dashboardStatusFilter");
 
-    if (savedViewMode) setViewMode(savedViewMode);
-    if (savedStatusFilter) setStatusFilter(savedStatusFilter);
+    setViewMode(nextViewMode);
+    setStatusFilter(normalizeStatusFilter(nextViewMode, savedStatusFilter));
     setIsReady(true);
   }, []);
 
@@ -106,25 +123,7 @@ export default function DashboardPage() {
     }
   }, [viewMode, statusFilter, isReady]);
 
-  // Reset status filter when switching views (only if not restoring from mount)
-  useEffect(() => {
-    if (!isReady) return;
-
-    // Check if we just changed viewMode manually
-    // We only want to auto-reset if the viewMode doesn't match the saved status filter logic
-    if (
-      viewMode === "pending" &&
-      statusFilter !== "PENDING" &&
-      statusFilter !== "GENERATED" &&
-      statusFilter !== "all"
-    ) {
-      setStatusFilter("PENDING");
-    } else if (viewMode === "protocols" && statusFilter === "PENDING") {
-      setStatusFilter("all");
-    }
-  }, [viewMode, isReady]);
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = useCallback(async (id: string) => {
     try {
       await deleteTest(id);
       toast.success("Registro eliminado correctamente");
@@ -137,7 +136,7 @@ export default function DashboardPage() {
           : "Error al eliminar el registro";
       toast.error(message);
     }
-  };
+  }, [mutate]);
 
   const handleCreateBlank = async () => {
     try {
@@ -302,6 +301,14 @@ export default function DashboardPage() {
     // Instant revalidation
     mutate();
   };
+
+  if (!isReady) {
+    return (
+      <div className="h-full flex items-center justify-center bg-background">
+        <RefreshCw className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Banco, getBancos } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -19,6 +20,8 @@ interface BankSelectProps {
   placeholder?: string;
   /** Optional disabled state */
   disabled?: boolean;
+  /** Optional className for the trigger */
+  className?: string;
 }
 
 /**
@@ -32,6 +35,7 @@ export function BankSelect({
   onBankChange,
   placeholder = "Seleccionar banco",
   disabled = false,
+  className,
 }: BankSelectProps) {
   const [banks, setBanks] = useState<Banco[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,7 +78,7 @@ export function BankSelect({
       onValueChange={handleValueChange}
       disabled={disabled || isLoading}
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger className={cn("w-full", className)}>
         {isLoading ? (
           <span className="text-muted-foreground">Cargando...</span>
         ) : (

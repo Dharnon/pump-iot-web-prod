@@ -70,9 +70,9 @@ export function FluidH2OSection({
     <section className="space-y-2">
       <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-          <Droplets className="w-3.5 h-3.5 text-blue-500" /> Punto Garantizado
-          en Agua (H2O)
+        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+          <Droplets className="w-4 h-4 text-blue-500" /> Punto Garantizado en
+          Agua (H2O)
         </span>
         {showCalculatedIndicators && (
           <div className="flex items-center gap-1 text-[10px] text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-full">
@@ -239,7 +239,9 @@ export function FluidH2OSection({
             {fluidData.density > 0 && (
               <li>- Densidad: {fluidData.density} kg/m3</li>
             )}
-            {fluidData.ce && <li>- CE (Coeficiente Eficiencia): {fluidData.ce}</li>}
+            {fluidData.ce && (
+              <li>- CE (Coeficiente Eficiencia): {fluidData.ce}</li>
+            )}
           </ul>
           <p className="mt-1 text-blue-600">
             Los valores se actualizan automaticamente al cambiar los datos del

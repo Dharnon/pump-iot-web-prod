@@ -27,14 +27,19 @@ import {
   Wrench,
 } from "lucide-react";
 
-const actionButtonClass =
-  "h-8 min-w-[7.5rem] justify-center rounded-md border text-xs font-medium shadow-xs transition-[background-color,border-color,color,box-shadow] focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-const moveToBankButtonClass =
-  `${actionButtonClass} border-sky-200/80 bg-sky-50/90 text-sky-700 hover:border-sky-300 hover:bg-sky-100 focus-visible:ring-sky-400 dark:border-sky-900/80 dark:bg-sky-950/40 dark:text-sky-300 dark:hover:border-sky-800 dark:hover:bg-sky-950/70 dark:focus-visible:ring-sky-700`;
+const actionButtonIconClass =
+  "h-8 w-8 rounded-md border shadow-xs transition-[background-color,border-color,color,box-shadow] focus-visible:ring-2 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 flex items-center justify-center";
 
-const returnToGeneratedButtonClass =
-  `${actionButtonClass} border-emerald-200/80 bg-emerald-50/90 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 focus-visible:ring-emerald-400 dark:border-emerald-900/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/70 dark:focus-visible:ring-emerald-700`;
+const moveToBankButtonClass = `${actionButtonIconClass} border-sky-200/80 bg-sky-50/90 text-sky-700 hover:border-sky-300 hover:bg-sky-100 focus-visible:ring-sky-400 dark:border-sky-900/80 dark:bg-sky-950/40 dark:text-sky-300 dark:hover:border-sky-800 dark:hover:bg-sky-950/70 dark:focus-visible:ring-sky-700`;
+
+const returnToGeneratedButtonClass = `${actionButtonIconClass} border-emerald-200/80 bg-emerald-50/90 text-emerald-700 hover:border-emerald-300 hover:bg-emerald-100 focus-visible:ring-emerald-400 dark:border-emerald-900/80 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/70 dark:focus-visible:ring-emerald-700`;
 
 export interface ProtocolItem {
   id: string;
@@ -109,16 +114,16 @@ function SortableHeader({ column, title }: { column: any; title: string }) {
     <Button
       variant="ghost"
       size="sm"
-      className="-ml-3 h-8"
+      className="-ml-3 h-8 whitespace-nowrap"
       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
     >
       {title}
       {column.getIsSorted() === "asc" ? (
-        <ArrowUp className="ml-2 h-4 w-4" />
+        <ArrowUp className="ml-2 h-4 w-4 shrink-0" />
       ) : column.getIsSorted() === "desc" ? (
-        <ArrowDown className="ml-2 h-4 w-4" />
+        <ArrowDown className="ml-2 h-4 w-4 shrink-0" />
       ) : (
-        <ArrowUpDown className="ml-2 h-4 w-4 opacity-50" />
+        <ArrowUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
       )}
     </Button>
   );
@@ -222,7 +227,7 @@ export const getProtocolColumns = (
     id: "ordenTrabajo",
     header: "Orden Trabajo",
     cell: ({ row }) => (
-      <span className="font-mono text-sm text-muted-foreground">
+      <span className="font-mono text-sm text-muted-foreground whitespace-nowrap block">
         {row.original.generalInfo?.ordenTrabajo || "-"}
       </span>
     ),
@@ -233,7 +238,13 @@ export const getProtocolColumns = (
     header: "Banco",
     cell: ({ row }) => {
       const bancoId = row.original.bancoId;
-      if (!bancoId) return null;
+      if (!bancoId) {
+        return (
+          <span className="text-muted-foreground font-mono text-sm pl-3">
+            -
+          </span>
+        );
+      }
 
       const bank = bancos?.find((b) => b.id === bancoId);
       let identification = "-";
@@ -280,73 +291,100 @@ export const getProtocolColumns = (
       if (!fecha) return <span className="text-muted-foreground">-</span>;
 
       return (
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-muted-foreground whitespace-nowrap">
           {new Date(fecha).toLocaleDateString()}
         </span>
       );
     },
   },
   {
-    id: "actions",
+    id: "bankAction",
+    header: "",
     cell: ({ row }) => {
       const { id, status, bancoId } = row.original;
       const isGenerated = status === "GENERATED" || status === "GENERADO";
       const isEnBanco = status === "EN_BANCO";
       const isLocked = Boolean(locks?.[id]);
 
+      if (isGenerated && onMoveToBank) {
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className={moveToBankButtonClass}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onMoveToBank(id, bancoId);
+                }}
+                disabled={isLocked}
+              >
+                <Wrench className="w-3.5 h-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Enviar a banco</TooltipContent>
+          </Tooltip>
+        );
+      }
+
+      if (isEnBanco && onReturnToGenerated) {
+        return (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className={returnToGeneratedButtonClass}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onReturnToGenerated(id, bancoId);
+                }}
+                disabled={isLocked}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Regresar a generado</TooltipContent>
+          </Tooltip>
+        );
+      }
+
+      return null;
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const { id } = row.original;
+
       return (
         <div
-          className="flex items-center justify-end gap-2 flex-wrap"
+          className="flex items-center justify-end gap-1.5"
           onClick={(e) => e.stopPropagation()}
         >
-          {isGenerated && onMoveToBank && (
-            <Button
-              variant="outline"
-              size="sm"
-              className={moveToBankButtonClass}
-              onClick={() => onMoveToBank(id, bancoId)}
-              title="Enviar a banco"
-              aria-label="Enviar a banco"
-              disabled={isLocked}
-            >
-              <Wrench className="w-3.5 h-3.5 mr-1.5" />
-              Enviar a banco
-            </Button>
-          )}
-
-          {isEnBanco && onReturnToGenerated && (
-            <Button
-              variant="outline"
-              size="sm"
-              className={returnToGeneratedButtonClass}
-              onClick={() => onReturnToGenerated(id, bancoId)}
-              title="Regresar a generado"
-              aria-label="Regresar a generado"
-              disabled={isLocked}
-            >
-              <CheckCircle2 className="w-3.5 h-3.5 mr-1.5" />
-              Regresar a generado
-            </Button>
-          )}
-
           {onDelete && (
             <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                  title="Eliminar protocolo"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </AlertDialogTrigger>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Eliminar protocolo</TooltipContent>
+              </Tooltip>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Esta seguro?</AlertDialogTitle>
+                  <AlertDialogTitle>¿Está seguro?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Esta accion no se puede deshacer. Se eliminara
-                    permanentemente este protocolo y toda la informacion
+                    Esta acción no se puede deshacer. Se eliminará
+                    permanentemente este protocolo y toda la información
                     asociada del servidor.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
@@ -362,8 +400,6 @@ export const getProtocolColumns = (
               </AlertDialogContent>
             </AlertDialog>
           )}
-
-          <ChevronRight className="w-4 h-4 text-muted-foreground" />
         </div>
       );
     },

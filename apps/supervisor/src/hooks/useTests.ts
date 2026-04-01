@@ -7,9 +7,11 @@ export function useTests() {
     const isMock = typeof window !== 'undefined' && localStorage.getItem('USE_MOCK_DATA') === 'true';
 
     const { data, error, isLoading, mutate, isValidating } = useSWR<Test[]>(isMock ? null : '/api/tests', swrFetcher, {
-        revalidateOnFocus: true,
+        revalidateOnFocus: false,   // Prevents re-render corruption on window focus
         revalidateOnReconnect: true,
-        dedupingInterval: 2000,
+        dedupingInterval: 5000,     // Increased from 2000ms to reduce flicker
+        keepPreviousData: true,     // Keep showing old data while revalidating
+        fallbackData: [],
     });
 
     if (isMock) {

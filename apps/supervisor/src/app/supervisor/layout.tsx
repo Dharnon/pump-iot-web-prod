@@ -292,18 +292,15 @@ export default function SupervisorLayout({
             </SidebarMenu>
           </SidebarHeader>
 
-          {/* --------------------------------------------------------
-                        CONTENT: Menú de navegación
-                        -------------------------------------------------------- */}
           <SidebarContent className="px-2">
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
-                    // isActive marca visualmente el item si es la ruta actual
                     isActive={pathname === item.href}
                     className="w-full justify-start overflow-hidden"
+                    tooltip={item.title}
                   >
                     <Link href={item.href} className="flex items-center gap-3">
                       <div className="flex items-center justify-center w-4 h-4 shrink-0">

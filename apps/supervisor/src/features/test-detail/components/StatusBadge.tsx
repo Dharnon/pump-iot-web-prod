@@ -6,6 +6,7 @@
  */
 
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/lib/language-context";
 
 interface StatusBadgeProps {
   status: string;
@@ -21,15 +22,31 @@ const STATUS_STYLES: Record<string, string> = {
   COMPLETED: "bg-green-500/15 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800",
 };
 
+const STATUS_LABEL_KEYS: Record<string, string> = {
+  PENDING: "status.PENDING",
+  SIN_PROCESAR: "status.SIN_PROCESAR",
+  EN_PROCESO: "status.IN_PROGRESS",
+  IN_PROGRESS: "status.IN_PROGRESS",
+  EN_BANCO: "status.EN_BANCO",
+  GENERADO: "status.GENERADO",
+  GENERATED: "status.GENERATED",
+  COMPLETED: "status.COMPLETED",
+};
+
 export function StatusBadge({ status }: StatusBadgeProps) {
+  const { t } = useLanguage();
   const statusStyle = STATUS_STYLES[status] || STATUS_STYLES["PENDING"];
+  const statusLabelKey = STATUS_LABEL_KEYS[status];
+  const statusLabel = statusLabelKey
+    ? t(statusLabelKey)
+    : status.replace(/_/g, " ").toLowerCase();
 
   return (
     <Badge 
       variant="outline" 
       className={`${statusStyle} border px-3 py-1 font-medium capitalize`}
     >
-      {status.replace(/_/g, " ").toLowerCase()}
+      {statusLabel}
     </Badge>
   );
 }

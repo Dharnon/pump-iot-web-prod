@@ -22,8 +22,12 @@ export function MotorDataSection({
     <section className="space-y-2">
       <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
       <div className="flex items-center justify-between pt-2">
-        <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-          <Settings2 className="w-4 h-4" />
+        <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+          <img
+            src="/icons/motor.png"
+            alt="Motor"
+            className="w-5 h-5 brightness-0 dark:invert"
+          />
           Motor
         </h3>
       </div>
