@@ -81,6 +81,8 @@ export interface DataGridProps<TData extends object> {
     headerSticky?: string;
     body?: string;
     bodyRow?: string;
+    /** Separador entre filas: clases aplicadas a celdas (`[&>td]:…`). Con `border-separate`, el borde en `<tr>` no pinta; debe ir en `td`. */
+    bodyRowDivider?: string;
     footer?: string;
     edgeCell?: string;
   };
@@ -146,6 +148,8 @@ function DataGrid<TData extends object>({ children, table, ...props }: DataGridP
       headerSticky: 'sticky top-0 z-10 bg-background/90 backdrop-blur-xs',
       body: '',
       bodyRow: 'hover:bg-muted/50 dark:hover:bg-white/[0.04]',
+      bodyRowDivider:
+        '[&>td]:border-b-[0.5px] [&>td]:border-[#161718]',
       footer: '',
       edgeCell: '',
     },

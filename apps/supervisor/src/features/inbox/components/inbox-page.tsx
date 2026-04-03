@@ -113,7 +113,9 @@ export function InboxPage() {
       <InboxMetrics
         pendingCount={inboxData.pendingTests.length}
         generatedCount={inboxData.generatedTestsOnly.length}
+        enBancoCount={inboxData.enBancoCount}
         activeCount={inboxData.inProgressTests.length}
+        completedCount={inboxData.completedCount}
       />
 
       <WorkspaceSurface className="min-h-0 flex-1 flex-col gap-3">

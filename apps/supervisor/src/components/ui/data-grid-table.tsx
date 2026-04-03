@@ -88,13 +88,14 @@ function DataGridTableHeadRow<TData>({
     <tr
       key={headerGroup.id}
       className={cn(
-        'border-b border-border/60',
+        'border-b-0',
         props.tableLayout?.headerBackground === false
           ? 'bg-transparent'
           : props.tableLayout?.headerSticky
             ? 'bg-transparent'
             : 'bg-muted/40 dark:bg-[#232323]',
-        props.tableLayout?.headerBorder && '[&>th]:border-b',
+        props.tableLayout?.headerBorder &&
+          '[&>th]:border-b-[0.5px] [&>th]:border-[#161718]',
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'bg-transparent',
         props.tableClassNames?.headerRow,
@@ -186,6 +187,9 @@ function DataGridTableBody({ children }: { children: ReactNode }) {
     <tbody
       className={cn(
         '[&_tr:last-child]:border-0',
+        props.tableLayout?.rowBorder &&
+          !props.tableLayout?.stripped &&
+          '[&_tr:last-child>td]:border-b-0',
         props.tableLayout?.rowRounded && '[&_td:first-child]:rounded-s-lg [&_td:last-child]:rounded-e-lg',
         props.tableClassNames?.body,
       )}
@@ -205,7 +209,8 @@ function DataGridTableBodyRowSkeleton({ children }: { children: ReactNode }) {
         props.onRowClick && 'cursor-pointer',
         !props.tableLayout?.stripped &&
           props.tableLayout?.rowBorder &&
-          'border-b border-border/50 last:border-b-0',
+          (props.tableClassNames?.bodyRowDivider ??
+            '[&>td]:border-b-[0.5px] [&>td]:border-[#161718]'),
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'odd:bg-muted/90 hover:bg-transparent odd:hover:bg-muted',
         table.options.enableRowSelection && '[&_>:first-child]:relative',
@@ -268,7 +273,11 @@ function DataGridTableBodyRow<TData>({
         props.onRowClick && 'cursor-pointer',
         !props.tableLayout?.stripped &&
           props.tableLayout?.rowBorder &&
-          'border-b border-border/50 last:border-b-0 hover:bg-muted/20 dark:hover:bg-white/[0.03]',
+          cn(
+            'hover:bg-muted/20 dark:hover:bg-white/[0.03]',
+            props.tableClassNames?.bodyRowDivider ??
+              '[&>td]:border-b-[0.5px] [&>td]:border-[#161718]',
+          ),
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'odd:bg-muted/90 hover:bg-transparent odd:hover:bg-muted',
         table.options.enableRowSelection && '[&_>:first-child]:relative',
@@ -284,7 +293,13 @@ function DataGridTableBodyRowExpandded<TData>({ row }: { row: Row<TData> }) {
   const { props, table } = useDataGrid();
 
   return (
-    <tr className={cn(props.tableLayout?.rowBorder && '[&:not(:last-child)>td]:border-b')}>
+    <tr
+      className={cn(
+        props.tableLayout?.rowBorder &&
+          (props.tableClassNames?.bodyRowDivider ??
+            '[&>td]:border-b-[0.5px] [&>td]:border-[#161718]'),
+      )}
+    >
       <td colSpan={row.getVisibleCells().length}>
         {table
           .getAllColumns()
