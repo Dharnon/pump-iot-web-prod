@@ -73,7 +73,7 @@ export function TestDetailHeaderEnd({
         variant="outline"
         size="sm"
         onClick={onTogglePreview}
-        className="h-10 rounded-xl border-border/70 bg-card/35 px-4 text-sm text-foreground shadow-sm hover:bg-accent/60"
+        className="h-8 rounded-xl border-border/70 bg-card/35 px-4 text-sm text-foreground shadow-sm hover:bg-accent/60"
       >
         {previewOpen ? (
           <EyeOff className="size-4" />

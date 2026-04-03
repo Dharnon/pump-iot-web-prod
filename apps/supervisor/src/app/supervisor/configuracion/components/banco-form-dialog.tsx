@@ -46,7 +46,7 @@ export function BancoFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="bg-secondary sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Database className="h-5 w-5" />
@@ -59,6 +59,7 @@ export function BancoFormDialog({
             <Label htmlFor="banco-nombre">{t("field.model")} *</Label>
             <Input
               id="banco-nombre"
+              className="bg-background"
               value={banco.nombre || ""}
               onChange={(e) => onChange({ ...banco, nombre: e.target.value })}
               placeholder="Banco A"
@@ -85,7 +86,7 @@ export function BancoFormDialog({
                 })
               }
             >
-              <SelectTrigger id="banco-motor">
+              <SelectTrigger id="banco-motor" className="bg-background">
                 <SelectValue placeholder={t("config.noMotor")} />
               </SelectTrigger>
               <SelectContent>

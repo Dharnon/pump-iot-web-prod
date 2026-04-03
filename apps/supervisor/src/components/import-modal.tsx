@@ -288,8 +288,8 @@ export function ImportModal({ onImportSuccess }: ImportModalProps) {
         <Dialog open={open} onOpenChange={handleOpenChange}>
             {/* Botón que abre el modal */}
             <DialogTrigger asChild>
-                <Button>
-                    <Upload className="w-4 h-4 mr-2" />
+                <Button type="button" variant="outline" size="sm" className="h-9 shrink-0 gap-2">
+                    <Upload className="size-4" />
                     Importar Excel
                 </Button>
             </DialogTrigger>

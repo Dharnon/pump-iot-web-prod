@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 const headerCellSpacingVariants = cva('', {
   variants: {
     size: {
-      dense: 'px-2.5 h-9',
+      dense: 'px-3 h-10',
       default: 'px-4',
     },
   },
@@ -21,7 +21,7 @@ const headerCellSpacingVariants = cva('', {
 const bodyCellSpacingVariants = cva('', {
   variants: {
     size: {
-      dense: 'px-2.5 py-2',
+      dense: 'px-3 py-3',
       default: 'px-4 py-3.5',
     },
   },
@@ -91,7 +91,9 @@ function DataGridTableHeadRow<TData>({
         'border-b border-border/60',
         props.tableLayout?.headerBackground === false
           ? 'bg-transparent'
-          : 'bg-muted/35',
+          : props.tableLayout?.headerSticky
+            ? 'bg-transparent'
+            : 'bg-muted/40 dark:bg-[#232323]',
         props.tableLayout?.headerBorder && '[&>th]:border-b',
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'bg-transparent',
@@ -138,13 +140,14 @@ function DataGridTableHeadRowCell<TData>({
       data-pinned={isPinned || undefined}
       data-last-col={isLastLeftPinned ? 'left' : isFirstRightPinned ? 'right' : undefined}
       className={cn(
-        'relative h-11 text-left rtl:text-right align-middle font-medium text-[11px] text-muted-foreground uppercase tracking-[0.08em] [&:has([role=checkbox])]:pe-0',
+        'relative h-11 text-left rtl:text-right align-middle font-semibold text-xs text-foreground/88 [&:has([role=checkbox])]:pe-0',
         headerCellSpacing,
+        props.tableClassNames?.headerCell,
         props.tableLayout?.cellBorder && 'border-e border-border/30',
         props.tableLayout?.columnsResizable && column.getCanResize() && 'truncate',
         props.tableLayout?.columnsPinnable &&
           column.getCanPin() &&
-          '[&:not([data-pinned]):has(+[data-pinned])_div.cursor-col-resize:last-child]:opacity-0 [&[data-last-col=left]_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=left][data-last-col=left]]:border-e! [&[data-pinned=right]:last-child_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=right][data-last-col=right]]:border-s! [&[data-pinned][data-last-col]]:border-border data-pinned:bg-muted/90 data-pinned:backdrop-blur-xs',
+          '[&:not([data-pinned]):has(+[data-pinned])_div.cursor-col-resize:last-child]:opacity-0 [&[data-last-col=left]_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=left][data-last-col=left]]:border-e! [&[data-pinned=right]:last-child_div.cursor-col-resize:last-child]:opacity-0 [&[data-pinned=right][data-last-col=right]]:border-s! [&[data-pinned][data-last-col]]:border-border data-pinned:bg-muted/40 data-pinned:backdrop-blur-xs dark:data-pinned:bg-[#232323]',
         header.column.columnDef.meta?.headerClassName,
         column.getIndex() === 0 || column.getIndex() === header.headerGroup.headers.length - 1
           ? props.tableClassNames?.edgeCell
@@ -198,11 +201,11 @@ function DataGridTableBodyRowSkeleton({ children }: { children: ReactNode }) {
   return (
     <tr
       className={cn(
-        'transition-colors hover:bg-muted/40 data-[state=selected]:bg-primary/5 dark:hover:bg-white/[0.04]',
+        'transition-colors data-[state=selected]:bg-primary/5 data-[state=selected]:shadow-[inset_3px_0_0_0_hsl(var(--primary))]',
         props.onRowClick && 'cursor-pointer',
         !props.tableLayout?.stripped &&
           props.tableLayout?.rowBorder &&
-          'border-b border-border/40 [&:not(:last-child)>td]:border-b',
+          'border-b border-border/50 last:border-b-0',
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'odd:bg-muted/90 hover:bg-transparent odd:hover:bg-muted',
         table.options.enableRowSelection && '[&_>:first-child]:relative',
@@ -261,11 +264,11 @@ function DataGridTableBodyRow<TData>({
       data-state={table.options.enableRowSelection && row.getIsSelected() ? 'selected' : undefined}
       onClick={() => props.onRowClick && props.onRowClick(row.original)}
       className={cn(
-        'transition-colors hover:bg-muted/40 data-[state=selected]:bg-primary/5 dark:hover:bg-white/[0.04]',
+        'transition-colors data-[state=selected]:bg-primary/5 data-[state=selected]:shadow-[inset_3px_0_0_0_hsl(var(--primary))]',
         props.onRowClick && 'cursor-pointer',
         !props.tableLayout?.stripped &&
           props.tableLayout?.rowBorder &&
-          'border-b border-border/40 [&:not(:last-child)>td]:border-b',
+          'border-b border-border/50 last:border-b-0 hover:bg-muted/20 dark:hover:bg-white/[0.03]',
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'odd:bg-muted/90 hover:bg-transparent odd:hover:bg-muted',
         table.options.enableRowSelection && '[&_>:first-child]:relative',
@@ -385,7 +388,10 @@ function DataGridTableRowSelect<TData>({ row, size }: { row: Row<TData>; size?: 
   return (
     <>
       <div
-        className={cn('hidden absolute top-0 bottom-0 start-0 w-[2px] bg-primary', row.getIsSelected() && 'block')}
+        className={cn(
+          'hidden absolute top-0 bottom-0 start-0 w-[3px] rounded-e-full bg-primary shadow-[0_0_0_1px_hsl(var(--primary))]',
+          row.getIsSelected() && 'block',
+        )}
       ></div>
       <Checkbox
         checked={row.getIsSelected()}

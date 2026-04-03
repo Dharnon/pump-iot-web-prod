@@ -117,12 +117,12 @@ export function LoginForm({
         <LanguageSelector />
       </div>
 
-      <Card className="overflow-hidden p-0">
+      <Card className="overflow-hidden border-[#434343] bg-[#171717] p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
           <form onSubmit={handleSubmit} className="p-6 md:p-8">
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center">
-                <div className="flex size-12 items-center justify-center rounded-2xl border border-border/70 bg-muted/60 shadow-sm">
+                <div className="flex size-12 items-center justify-center rounded-2xl border border-[#434343] bg-[#212121] shadow-sm">
                   <ShieldCheck className="size-5 text-primary" />
                 </div>
                 <h1 className="text-2xl font-bold">{t("login.title")}</h1>
@@ -141,6 +141,7 @@ export function LoginForm({
                   onChange={(event) => setUsername(event.target.value)}
                   autoComplete="username"
                   required
+                  className="border-[#434343] bg-[#212121] focus-visible:border-[#434343] focus-visible:ring-[#434343]/40"
                 />
               </Field>
 
@@ -156,6 +157,7 @@ export function LoginForm({
                   onChange={(event) => setPassword(event.target.value)}
                   autoComplete="current-password"
                   required
+                  className="border-[#434343] bg-[#212121] focus-visible:border-[#434343] focus-visible:ring-[#434343]/40"
                 />
               </Field>
 
@@ -208,7 +210,7 @@ export function LoginForm({
             </FieldGroup>
           </form>
 
-          <div className="relative hidden overflow-hidden bg-muted md:block">
+          <div className="relative hidden overflow-hidden bg-[#171717] md:block">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.12),_transparent_35%),linear-gradient(180deg,#111827_0%,#05070c_100%)]" />
             <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(96,165,250,0.16),transparent_35%,rgba(14,165,233,0.08),transparent_75%)]" />
             <div className="absolute -right-20 top-10 size-60 rounded-full bg-cyan-500/15 blur-3xl" />
@@ -221,7 +223,7 @@ export function LoginForm({
                   alt="Flowserve"
                   width={180}
                   height={54}
-                  className="h-10 w-auto brightness-0 invert"
+                  className="h-[150px] w-[150px] brightness-0 invert flex flex-wrap justify-center text-center"
                   priority
                 />
 

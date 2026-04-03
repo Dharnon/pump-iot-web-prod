@@ -67,7 +67,7 @@ export function AppSidebar({
       user,
       navMain: [
         {
-          title: "Bandeja",
+          title: "Inicio",
           url: "/supervisor",
           icon: <LayoutDashboardIcon />,
           isActive:
@@ -118,7 +118,7 @@ export function AppSidebar({
   );
 
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar variant="inset" collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

@@ -10,7 +10,13 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { MotorPlantilla } from "@/lib/api";
 
 interface MotoresTableProps {
@@ -69,35 +75,56 @@ export function MotoresTable({
                 <TableCell>{motor.tipo || "-"}</TableCell>
                 <TableCell>
                   {motor.potencia ? (
-                    <Badge variant="outline">{motor.potencia} kW</Badge>
+                    <Badge
+                      variant="outline"
+                      className="rounded-full border-border/70 bg-muted/15 text-foreground/80"
+                    >
+                      {motor.potencia} kW
+                    </Badge>
                   ) : (
                     "-"
                   )}
                 </TableCell>
                 <TableCell>
                   {motor.velocidad ? (
-                    <Badge variant="outline">{motor.velocidad} RPM</Badge>
+                    <Badge
+                      variant="outline"
+                      className="rounded-full border-border/70 bg-muted/15 text-foreground/80"
+                    >
+                      {motor.velocidad} RPM
+                    </Badge>
                   ) : (
                     "-"
                   )}
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onEdit(motor)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive/90"
-                      onClick={() => onDelete(motor)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <div className="flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-lg text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                          aria-label="Acciones de la plantilla"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem onClick={() => onEdit(motor)}>
+                          <Pencil />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => onDelete(motor)}
+                        >
+                          <Trash2 />
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </TableCell>
               </TableRow>

@@ -11,10 +11,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { DataGrid, DataGridContainer } from "@/components/ui/data-grid";
-import { DataGridTable } from "@/components/ui/data-grid-table";
+
+import { DataGrid } from "@/components/ui/data-grid";
 import { DataGridPagination } from "@/components/ui/data-grid-pagination";
+import { DataGridTable } from "@/components/ui/data-grid-table";
 import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData extends object, TValue> {
@@ -79,32 +79,32 @@ export function DataTable<TData extends object, TValue>({
         dense: false,
       }}
       tableClassNames={{
-        header: "",
-        headerRow: "",
         headerSticky:
-          "sticky top-0 z-10 bg-muted/35 backdrop-blur-sm supports-[backdrop-filter]:bg-muted/25",
-        body: "bg-background/20",
+          "sticky top-0 z-10 bg-[#f4f4f5] supports-[backdrop-filter]:bg-[#f4f4f5]/95 dark:bg-[#232323] dark:supports-[backdrop-filter]:bg-[#232323]/95",
+        headerRow: "border-b border-border/60 bg-transparent",
+        headerCell:
+          "h-10 px-3 text-xs font-semibold normal-case tracking-normal text-foreground/88",
+        body: "bg-background",
       }}
       className="flex w-full min-h-0 flex-1 flex-col"
     >
       <div
         className={cn(
-          "flex w-full min-h-0 flex-1 flex-col overflow-hidden rounded-xl",
-          "border border-border/60 bg-card/40 shadow-sm",
+          "flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg",
+          "border border-border/70 bg-background shadow-none",
         )}
       >
-        <DataGridContainer border={false} className="min-h-0 overflow-hidden">
-          <ScrollArea className="h-[calc(100vh-260px)]">
-            <DataGridTable />
-            <ScrollBar orientation="horizontal" />
-            <ScrollBar orientation="vertical" />
-          </ScrollArea>
-        </DataGridContainer>
+        <div className="min-h-0 flex-1 overflow-auto">
+          <DataGridTable />
+        </div>
 
         <DataGridPagination
+          variant="data-table"
+          showSelectionSummary={false}
           info="{from} - {to} de {count}"
           rowsPerPageLabel="Filas por página"
-          className="rounded-b-xl border-x-0 border-b-0 border-t border-border/60 bg-muted/20"
+          pageLabel="Página {page} de {pages}"
+          className="rounded-none border-x-0 border-b-0 border-t border-border/60 bg-transparent"
         />
       </div>
     </DataGrid>

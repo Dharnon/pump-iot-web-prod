@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { logout, validateToken } from "@/lib/api";
 import { useLanguage } from "@/lib/language-context";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SupervisorPageHeader } from "@/components/supervisor/SupervisorPageHeader";
 import { SupervisorPageHeaderProvider } from "@/components/supervisor/supervisor-page-header-context";
@@ -180,43 +181,45 @@ export default function SupervisorLayout({
   }
 
   return (
-    <SidebarProvider
-      defaultOpen
-      style={
-        {
-          "--sidebar-width": "18rem",
-          "--header-height": "3rem",
-        } as CSSProperties
-      }
-    >
-      <AppSidebar
-        currentPath={pathname}
-        user={{
-          name: user.username,
-          email: user.email ?? user.role,
-          initials: user.username.slice(0, 2).toUpperCase(),
-        }}
-        currentLanguage={language}
-        languageOptions={[
-          { value: "es", label: "Espanol" },
-          { value: "en", label: "English" },
-        ]}
-        onLanguageChange={(value) => {
-          if (value === "es" || value === "en") {
-            setLanguage(value);
-          }
-        }}
-        onToggleTheme={handleToggleTheme}
-        onLogout={handleLogout}
-      />
-      <SidebarInset className="flex min-h-0 flex-col overflow-hidden bg-[var(--supervisor-page-background)]">
-        <SupervisorPageHeaderProvider>
-          <SupervisorPageHeader />
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[var(--supervisor-page-background)]">
-            {children}
-          </div>
-        </SupervisorPageHeaderProvider>
-      </SidebarInset>
-    </SidebarProvider>
+    <TooltipProvider delayDuration={150}>
+      <SidebarProvider
+        defaultOpen
+        style={
+          {
+            "--sidebar-width": "18rem",
+            "--header-height": "3rem",
+          } as CSSProperties
+        }
+      >
+        <AppSidebar
+          currentPath={pathname}
+          user={{
+            name: user.username,
+            email: user.email ?? user.role,
+            initials: user.username.slice(0, 2).toUpperCase(),
+          }}
+          currentLanguage={language}
+          languageOptions={[
+            { value: "es", label: "Espanol" },
+            { value: "en", label: "English" },
+          ]}
+          onLanguageChange={(value) => {
+            if (value === "es" || value === "en") {
+              setLanguage(value);
+            }
+          }}
+          onToggleTheme={handleToggleTheme}
+          onLogout={handleLogout}
+        />
+        <SidebarInset className="flex min-h-0 flex-col overflow-hidden bg-[var(--supervisor-page-background)]">
+          <SupervisorPageHeaderProvider>
+            <SupervisorPageHeader />
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[var(--supervisor-page-background)]">
+              {children}
+            </div>
+          </SupervisorPageHeaderProvider>
+        </SidebarInset>
+      </SidebarProvider>
+    </TooltipProvider>
   );
 }

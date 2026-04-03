@@ -18,7 +18,7 @@ export function LanguageSelector() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="w-9 px-0">
+                <Button variant="ghost" size="icon" className="w-9 px-0 hover:bg-transparent hover:text-inherit active:bg-transparent active:text-inherit">
                     <Globe className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all" />
                     <span className="sr-only">Toggle language</span>
                 </Button>

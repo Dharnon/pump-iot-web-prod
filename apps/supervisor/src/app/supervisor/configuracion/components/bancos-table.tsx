@@ -10,7 +10,13 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Pencil, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Banco } from "@/lib/api";
 
 interface BancosTableProps {
@@ -65,11 +71,11 @@ export function BancosTable({
                 <TableCell className="font-medium">{banco.nombre}</TableCell>
                 <TableCell>
                   <Badge
-                    variant="secondary"
+                    variant="outline"
                     className={
                       banco.estado
-                        ? "bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/20"
-                        : "bg-muted text-muted-foreground"
+                        ? "rounded-full border-emerald-500/30 bg-emerald-500/8 text-emerald-600 dark:text-emerald-400"
+                        : "rounded-full border-border/70 bg-muted/20 text-muted-foreground"
                     }
                   >
                     {banco.estado ? "Activo" : "Inactivo"}
@@ -93,22 +99,33 @@ export function BancosTable({
                   )}
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => onEdit(banco)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive/90"
-                      onClick={() => onDelete(banco)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                  <div className="flex justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 rounded-lg text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                          aria-label="Acciones del banco"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44">
+                        <DropdownMenuItem onClick={() => onEdit(banco)}>
+                          <Pencil />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          variant="destructive"
+                          onClick={() => onDelete(banco)}
+                        >
+                          <Trash2 />
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </TableCell>
               </TableRow>

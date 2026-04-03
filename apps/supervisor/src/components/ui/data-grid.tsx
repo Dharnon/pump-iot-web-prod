@@ -77,6 +77,7 @@ export interface DataGridProps<TData extends object> {
     base?: string;
     header?: string;
     headerRow?: string;
+    headerCell?: string;
     headerSticky?: string;
     body?: string;
     bodyRow?: string;
@@ -141,9 +142,10 @@ function DataGrid<TData extends object>({ children, table, ...props }: DataGridP
       base: '',
       header: '',
       headerRow: '',
+      headerCell: '',
       headerSticky: 'sticky top-0 z-10 bg-background/90 backdrop-blur-xs',
       body: '',
-      bodyRow: '',
+      bodyRow: 'hover:bg-muted/50 dark:hover:bg-white/[0.04]',
       footer: '',
       edgeCell: '',
     },
