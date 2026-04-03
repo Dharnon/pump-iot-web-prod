@@ -19,7 +19,7 @@ export default function Test3DViewer() {
   }, []);
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-background relative">
+    <div className="relative h-screen w-screen overflow-hidden bg-[var(--supervisor-page-background)]">
       {/* 3D Scene - Full Background */}
       <div className="absolute inset-0 z-0">
         <Scene3D 

@@ -43,33 +43,35 @@ export function CleanInput({
 
   return (
     <div
-      className={`space-y-1.5 max-[2048px]:space-y-0.75 max-[1600px]:space-y-0.5 min-w-0 ${containerClassName || ""}`}
+      className={`min-w-0 space-y-2 ${containerClassName || ""}`}
     >
       <div className="flex justify-between">
         <label
-          className={`text-sm max-[2048px]:text-xs max-[1600px]:text-[10px] uppercase font-bold tracking-tight leading-none transition-colors ${error ? "text-destructive" : labelClassName || "text-muted-foreground"}`}
+          className={`text-xs font-medium uppercase tracking-[0.06em] leading-snug transition-colors ${error ? "text-destructive" : labelClassName || "text-foreground/70 dark:text-muted-foreground"}`}
         >
           {label}
         </label>
       </div>
-      <div
-        className={`relative rounded-md border transition-all ${error ? "border-destructive ring-1 ring-destructive/20" : "border-transparent"}`}
-      >
+      <div className="relative">
         <Input
           disabled={!onChange}
           value={value ?? ""}
           onChange={(e) => handleChange(e.target.value)}
           placeholder="-"
-          className={`h-9 max-[2048px]:h-7 max-[1600px]:h-6.5 bg-muted/20 hover:bg-muted/40 focus:bg-background focus:border-input transition-all pr-12 max-[2048px]:pr-9 max-[1600px]:pr-8 font-mono text-sm max-[2048px]:text-[11px] max-[1600px]:text-[10px] ${className || ""}`}
+          className={`h-10 bg-background pr-12 font-mono text-sm transition-all hover:bg-background focus:bg-background dark:bg-muted/20 dark:hover:bg-muted/35 ${
+            error
+              ? "border-destructive ring-1 ring-destructive/20"
+              : "border-input/80"
+          } ${className || ""}`}
         />
         {unit && (
-          <span className="absolute right-3 max-[2048px]:right-2 max-[1600px]:right-1.5 top-2.5 max-[2048px]:top-[0.45rem] max-[1600px]:top-[0.4rem] text-[10px] max-[2048px]:text-[8px] max-[1600px]:text-[7px] text-muted-foreground font-bold pointer-events-none">
+          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">
             {unit}
           </span>
         )}
         {error && (
-          <div className="absolute -bottom-4 left-0 flex items-center gap-1 text-[9px] text-destructive font-bold animate-in fade-in slide-in-from-top-1">
-            <AlertCircle className="w-2.5 h-2.5" />
+          <div className="absolute -bottom-4 left-0 flex items-center gap-1 text-[11px] font-medium text-destructive animate-in fade-in slide-in-from-top-1">
+            <AlertCircle className="h-3 w-3 shrink-0" />
             {error}
           </div>
         )}

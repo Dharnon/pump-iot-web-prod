@@ -1,21 +1,13 @@
-/**
- * TestDetailHeader Component
- * 
- * Header with navigation, title, status, and actions.
- * Follows SRP: Single responsibility for header layout.
- */
+"use client";
 
-import { ArrowLeft, CheckCircle2, Loader2, ChevronRight } from "lucide-react";
+import type { ReactNode } from "react";
+import { ArrowLeft, ChevronRight, Eye, EyeOff } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { StatusBadge } from "./StatusBadge";
-import type { UseLanguageReturn } from '@/lib/language-context';
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { useEffect, useState } from "react";
+import type { UseLanguageReturn } from "@/lib/language-context";
 
-interface TestDetailHeaderProps {
+interface TestDetailHeaderSharedProps {
   test: {
     status: string;
     generalInfo: {
@@ -23,72 +15,74 @@ interface TestDetailHeaderProps {
       cliente: string;
     };
   };
-  saving: boolean;
   onBack: () => void;
-  onSave: () => void;
-  t: UseLanguageReturn['t'];
+  onTogglePreview: () => void;
+  previewOpen: boolean;
+  breadcrumbLabel: string;
+  t: UseLanguageReturn["t"];
+  actions?: ReactNode;
 }
 
-export function TestDetailHeader({
+/** Contenido central del toolbar (volver + migas); el trigger va en SupervisorPageHeader */
+export function TestDetailHeaderCenter({
   test,
-  saving,
   onBack,
-  onSave,
-  t
-}: TestDetailHeaderProps) {
-  const [useMock, setUseMock] = useState(false);
-
-  useEffect(() => {
-    setUseMock(localStorage.getItem('USE_MOCK_DATA') === 'true');
-  }, []);
-
-  const toggleMock = (checked: boolean) => {
-    localStorage.setItem('USE_MOCK_DATA', String(checked));
-    setUseMock(checked);
-    window.location.reload();
-  };
-
+  breadcrumbLabel,
+  t,
+}: Pick<
+  TestDetailHeaderSharedProps,
+  "test" | "onBack" | "breadcrumbLabel" | "t"
+>) {
   return (
-    <header className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-4 py-2 border-b bg-background/50 backdrop-blur-sm shrink-0 gap-2">
-      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-        <SidebarTrigger />
-        <Separator orientation="vertical" className="h-4" />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 -ml-2 text-muted-foreground hover:text-foreground shrink-0"
-          onClick={onBack}
-        >
-          <ArrowLeft className="w-4 h-4" />
-        </Button>
-        <div className="flex items-center gap-3 min-w-0 overflow-hidden">
-          <div className="flex items-center gap-2 text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wider font-medium shrink-0">
-            <span>{t("test.tests")}</span>
-            <ChevronRight className="w-3 h-3" />
-            <span>{test.generalInfo.pedido}</span>
-          </div>
-          <span className="text-muted-foreground/30 text-lg sm:text-xl font-light">/</span>
-          <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground truncate" title={test.generalInfo.cliente}>
-            {test.generalInfo.cliente}
-          </h1>
+    <div className="flex min-w-0 items-center gap-3">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="size-7 shrink-0 rounded-lg text-muted-foreground hover:bg-accent/70 hover:text-foreground"
+        onClick={onBack}
+      >
+        <ArrowLeft className="size-3.5" />
+      </Button>
+
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-[0.06em] text-muted-foreground">
+          <span className="leading-none">{t(breadcrumbLabel)}</span>
+          <ChevronRight className="size-3 opacity-40" />
+          <span className="truncate leading-none text-foreground/80">
+            {test.generalInfo.pedido}
+          </span>
         </div>
       </div>
-      <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
-        <div className="flex items-center space-x-2 mr-2">
-          <Switch id="mock-mode" checked={useMock} onCheckedChange={toggleMock} />
-          <Label htmlFor="mock-mode" className="text-xs text-muted-foreground cursor-pointer">Mock</Label>
-        </div>
-        <StatusBadge status={test.status} />
-        <Button
-          onClick={onSave}
-          disabled={saving || test.status === "SIN_PROCESAR"}
-          size="sm"
-          className={test.status === "GENERADO" ? "hidden" : "bg-red-600 hover:bg-red-700 text-white shadow-md active:scale-95 transition-all text-xs font-semibold px-4 h-9"}
-        >
-          {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
-          {t("test.finalize")}
-        </Button>
-      </div>
-    </header>
+    </div>
+  );
+}
+
+export function TestDetailHeaderEnd({
+  test,
+  onTogglePreview,
+  previewOpen,
+  actions,
+}: Pick<
+  TestDetailHeaderSharedProps,
+  "test" | "onTogglePreview" | "previewOpen" | "actions"
+>) {
+  return (
+    <>
+      <StatusBadge status={test.status} />
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={onTogglePreview}
+        className="h-10 rounded-xl border-border/70 bg-card/35 px-4 text-sm text-foreground shadow-sm hover:bg-accent/60"
+      >
+        {previewOpen ? (
+          <EyeOff className="size-4" />
+        ) : (
+          <Eye className="size-4" />
+        )}
+        {previewOpen ? "Ocultar fuente" : "Ver fuente"}
+      </Button>
+      {actions}
+    </>
   );
 }

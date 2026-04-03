@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2 } from "lucide-react";
-import { useLanguage } from "@/lib/language-context";
 import { Banco } from "@/lib/api";
 
 interface BancosTableProps {
@@ -29,17 +28,15 @@ export function BancosTable({
   onDelete,
   searchQuery,
 }: BancosTableProps) {
-  const { t } = useLanguage();
-
   return (
-    <div className="w-full rounded-md border">
+    <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>ID</TableHead>
-            <TableHead>{t("field.model")}</TableHead>
-            <TableHead>{t("col.status")}</TableHead>
-            <TableHead>{t("config.motores")}</TableHead>
+            <TableHead>Banco</TableHead>
+            <TableHead>Estado</TableHead>
+            <TableHead>Motor asignado</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -47,18 +44,18 @@ export function BancosTable({
           {loading ? (
             <TableRow>
               <TableCell colSpan={5} className="h-24 text-center">
-                {t("login.loading")}
+                Cargando bancos...
               </TableCell>
             </TableRow>
           ) : bancos.length === 0 ? (
             <TableRow>
               <TableCell
                 colSpan={5}
-                className="h-24 text-center text-muted-foreground"
+                className="h-28 text-center text-muted-foreground"
               >
                 {searchQuery
-                  ? t("empty.desc") // "No se encontraron bancos..." - I'll reuse or use hardcoded if missing
-                  : t("empty.title")}
+                  ? "No hay bancos que coincidan con la busqueda actual."
+                  : "No hay bancos configurados todavia."}
               </TableCell>
             </TableRow>
           ) : (
@@ -68,12 +65,14 @@ export function BancosTable({
                 <TableCell className="font-medium">{banco.nombre}</TableCell>
                 <TableCell>
                   <Badge
-                    variant={banco.estado ? "secondary" : "secondary"}
+                    variant="secondary"
                     className={
-                      banco.estado ? "bg-green-500 hover:bg-green-600" : ""
+                      banco.estado
+                        ? "bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/20"
+                        : "bg-muted text-muted-foreground"
                     }
                   >
-                    {banco.estado ? t("config.active") : t("config.inactive")}
+                    {banco.estado ? "Activo" : "Inactivo"}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -88,8 +87,8 @@ export function BancosTable({
                       </span>
                     </div>
                   ) : (
-                    <span className="text-muted-foreground">
-                      {t("config.noMotor")}
+                    <span className="text-sm text-muted-foreground">
+                      Sin motor asignado
                     </span>
                   )}
                 </TableCell>

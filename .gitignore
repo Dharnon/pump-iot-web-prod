@@ -27,6 +27,17 @@ Thumbs.db
 # Turborepo
 .turbo
 
+# VitePress
+**/.vitepress/cache
+**/.vitepress/dist
+
+# Playwright
+.playwright-cli/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts

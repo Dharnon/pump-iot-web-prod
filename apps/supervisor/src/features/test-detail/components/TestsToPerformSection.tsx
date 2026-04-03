@@ -6,9 +6,9 @@
  */
 
 import { Activity, Check } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import type { TestsToPerform } from "@/lib/schemas";
 import type { UseLanguageReturn } from '@/lib/language-context';
+import { DetailSectionCard } from "./DetailSectionCard";
 
 interface TestsToPerformSectionProps {
   testsToPerform: TestsToPerform;
@@ -30,12 +30,11 @@ const TESTS_TO_PERFORM = [
 
 export function TestsToPerformSection({ testsToPerform, onToggleTest, t }: TestsToPerformSectionProps) {
   return (
-    <section className="space-y-2">
-      <Separator className="mb-4 -mx-4 md:-mx-6 w-auto" />
-      <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-        <Activity className="w-3.5 h-3.5" />
-        {t("test.testsToPerform")}
-      </h3>
+    <DetailSectionCard
+      title={t("test.testsToPerform")}
+      icon={<Activity className="size-4" />}
+      contentClassName="space-y-0"
+    >
       <div className="flex flex-wrap gap-2">
         {TESTS_TO_PERFORM.map(({ key, label }) => (
           <div
@@ -47,7 +46,7 @@ export function TestsToPerformSection({ testsToPerform, onToggleTest, t }: Tests
                 : 'bg-muted/30 border-border text-muted-foreground hover:border-primary/20'
             }`}
           >
-            <span className="text-[10px] font-semibold leading-tight mr-2">
+            <span className="mr-2 text-xs font-semibold leading-tight">
               {label}
             </span>
             <div className={`w-3 h-3 rounded-sm border flex items-center justify-center transition-colors ${
@@ -62,6 +61,6 @@ export function TestsToPerformSection({ testsToPerform, onToggleTest, t }: Tests
           </div>
         ))}
       </div>
-    </section>
+    </DetailSectionCard>
   );
 }

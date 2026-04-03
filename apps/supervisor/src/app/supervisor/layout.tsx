@@ -8,6 +8,8 @@ import { logout, validateToken } from "@/lib/api";
 import { useLanguage } from "@/lib/language-context";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { SupervisorPageHeader } from "@/components/supervisor/SupervisorPageHeader";
+import { SupervisorPageHeaderProvider } from "@/components/supervisor/supervisor-page-header-context";
 
 type StoredUser = {
   username: string;
@@ -183,7 +185,7 @@ export default function SupervisorLayout({
       style={
         {
           "--sidebar-width": "18rem",
-          "--header-height": "3.5rem",
+          "--header-height": "3rem",
         } as CSSProperties
       }
     >
@@ -207,7 +209,14 @@ export default function SupervisorLayout({
         onToggleTheme={handleToggleTheme}
         onLogout={handleLogout}
       />
-      <SidebarInset className="min-h-0 overflow-hidden">{children}</SidebarInset>
+      <SidebarInset className="flex min-h-0 flex-col overflow-hidden bg-[var(--supervisor-page-background)]">
+        <SupervisorPageHeaderProvider>
+          <SupervisorPageHeader />
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[var(--supervisor-page-background)]">
+            {children}
+          </div>
+        </SupervisorPageHeaderProvider>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

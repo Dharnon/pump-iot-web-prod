@@ -1,50 +1,32 @@
 /**
  * usePdfPanel Hook
- * 
- * Manages PDF panel resize/collapse state.
- * Follows SRP: Single responsibility for panel state.
+ *
+ * Manages the optional source preview panel state.
  */
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef } from "react";
+
+type PanelResizeArg = number | { asPercentage?: number };
 
 export interface UsePdfPanelResult {
   isPdfExpanded: boolean;
-  pdfPanelRef: React.RefObject<any>;
+  pdfPanelRef: React.RefObject<null>;
   togglePdf: () => void;
-  onPanelResize: (size: any) => void;
+  onPanelResize: (_size: PanelResizeArg) => void;
 }
 
-/**
- * Hook to manage PDF panel state
- */
 export function usePdfPanel(): UsePdfPanelResult {
-  const [isPdfExpanded, setIsPdfExpanded] = useState(true);
-  const pdfPanelRef = useRef<any>(null);
+  const [isPdfExpanded, setIsPdfExpanded] = useState(false);
+  const pdfPanelRef = useRef<null>(null);
 
   const togglePdf = useCallback(() => {
-    const panel = pdfPanelRef.current;
-    if (!panel) {
-      console.warn("PDF Panel Ref is still null. Retrying or ignoring.");
-      return;
-    }
-    
-    const isCollapsed = panel.isCollapsed();
-    console.log("Toggling PDF panel. Current state:", isCollapsed ? "collapsed" : "expanded");
-    
-    if (isCollapsed) {
-      panel.expand(45);
-      setIsPdfExpanded(true);
-    } else {
-      panel.collapse();
-      setIsPdfExpanded(false);
-    }
+    setIsPdfExpanded((current) => !current);
   }, []);
 
-  const onPanelResize = useCallback((size: any) => {
-    const percentage = typeof size === 'number' ? size : size?.asPercentage;
-    if (percentage > 0 && !isPdfExpanded) setIsPdfExpanded(true);
-    if (percentage === 0 && isPdfExpanded) setIsPdfExpanded(false);
-  }, [isPdfExpanded]);
+  const onPanelResize = useCallback((size: PanelResizeArg) => {
+    void size;
+    return;
+  }, []);
 
   return {
     isPdfExpanded,

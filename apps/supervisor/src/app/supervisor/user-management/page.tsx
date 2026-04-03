@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, Pencil, Trash2, Users, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useUsers, User } from "./hooks/useUsers";
 import { UserFormDialog } from "./components/user-form-dialog";
+import { useSupervisorPageHeader } from "@/components/supervisor/supervisor-page-header-context";
 
 export default function UserManagementPage() {
     const { users, loading, addUser, updateUser, deleteUser } = useUsers();
@@ -76,6 +77,20 @@ export default function UserManagementPage() {
             setUserToDelete(null);
         }
     };
+
+    const userManagementHeader = useMemo(
+        () => ({
+            density: "compact" as const,
+            center: (
+                <span className="text-sm font-semibold tracking-tight">
+                    Gestión de usuarios
+                </span>
+            ),
+        }),
+        [],
+    );
+
+    useSupervisorPageHeader(userManagementHeader);
 
     const handleFormSubmit = async (data: any) => {
         if (editingUser) {
@@ -134,7 +149,7 @@ export default function UserManagementPage() {
                 </Select>
             </div>
 
-            <div className="rounded-md border">
+            <div className="overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm">
                 <Table>
                     <TableHeader>
                         <TableRow>

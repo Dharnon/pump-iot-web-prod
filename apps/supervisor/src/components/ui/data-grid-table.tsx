@@ -22,7 +22,7 @@ const bodyCellSpacingVariants = cva('', {
   variants: {
     size: {
       dense: 'px-2.5 py-2',
-      default: 'px-4 py-3',
+      default: 'px-4 py-3.5',
     },
   },
   defaultVariants: {
@@ -88,11 +88,13 @@ function DataGridTableHeadRow<TData>({
     <tr
       key={headerGroup.id}
       className={cn(
-        'bg-transparent border-b border-border/50',
+        'border-b border-border/60',
+        props.tableLayout?.headerBackground === false
+          ? 'bg-transparent'
+          : 'bg-muted/35',
         props.tableLayout?.headerBorder && '[&>th]:border-b',
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'bg-transparent',
-        props.tableLayout?.headerBackground === false && 'bg-transparent',
         props.tableClassNames?.headerRow,
       )}
     >
@@ -136,7 +138,7 @@ function DataGridTableHeadRowCell<TData>({
       data-pinned={isPinned || undefined}
       data-last-col={isLastLeftPinned ? 'left' : isFirstRightPinned ? 'right' : undefined}
       className={cn(
-        'relative h-10 text-left rtl:text-right align-middle font-semibold text-xs text-muted-foreground uppercase tracking-wider [&:has([role=checkbox])]:pe-0',
+        'relative h-11 text-left rtl:text-right align-middle font-medium text-[11px] text-muted-foreground uppercase tracking-[0.08em] [&:has([role=checkbox])]:pe-0',
         headerCellSpacing,
         props.tableLayout?.cellBorder && 'border-e border-border/30',
         props.tableLayout?.columnsResizable && column.getCanResize() && 'truncate',
@@ -196,11 +198,11 @@ function DataGridTableBodyRowSkeleton({ children }: { children: ReactNode }) {
   return (
     <tr
       className={cn(
-        'hover:bg-black/[0.01] dark:hover:bg-white/[0.01] data-[state=selected]:bg-primary/5 transition-colors',
+        'transition-colors hover:bg-muted/40 data-[state=selected]:bg-primary/5 dark:hover:bg-white/[0.04]',
         props.onRowClick && 'cursor-pointer',
         !props.tableLayout?.stripped &&
           props.tableLayout?.rowBorder &&
-          'border-b border-border/50 [&:not(:last-child)>td]:border-b',
+          'border-b border-border/40 [&:not(:last-child)>td]:border-b',
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'odd:bg-muted/90 hover:bg-transparent odd:hover:bg-muted',
         table.options.enableRowSelection && '[&_>:first-child]:relative',
@@ -259,11 +261,11 @@ function DataGridTableBodyRow<TData>({
       data-state={table.options.enableRowSelection && row.getIsSelected() ? 'selected' : undefined}
       onClick={() => props.onRowClick && props.onRowClick(row.original)}
       className={cn(
-        'hover:bg-black/[0.01] dark:hover:bg-white/[0.01] data-[state=selected]:bg-primary/5 transition-colors',
+        'transition-colors hover:bg-muted/40 data-[state=selected]:bg-primary/5 dark:hover:bg-white/[0.04]',
         props.onRowClick && 'cursor-pointer',
         !props.tableLayout?.stripped &&
           props.tableLayout?.rowBorder &&
-          'border-b border-border/50 [&:not(:last-child)>td]:border-b',
+          'border-b border-border/40 [&:not(:last-child)>td]:border-b',
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'odd:bg-muted/90 hover:bg-transparent odd:hover:bg-muted',
         table.options.enableRowSelection && '[&_>:first-child]:relative',

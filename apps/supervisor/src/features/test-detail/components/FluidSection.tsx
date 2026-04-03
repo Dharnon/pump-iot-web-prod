@@ -3,10 +3,10 @@
  */
 
 import { Droplets } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import { CleanAutoInput } from "./CleanAutoInput";
 import { ResponsiveFieldFlow } from "./ResponsiveFieldFlow";
 import type { TestPdfData } from "../services/dtoMapper";
+import { DetailSectionCard } from "./DetailSectionCard";
 
 interface FluidSectionProps {
   pdfData: TestPdfData | null | undefined;
@@ -16,21 +16,17 @@ interface FluidSectionProps {
 
 export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
   return (
-    <section className="space-y-2">
-      <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
-      <div>
-        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
-          <Droplets className="w-4 h-4 text-orange-500" /> Punto Garantizado en
-          Fluido
-        </span>
-      </div>
-
+    <DetailSectionCard
+      title="Punto garantizado en fluido"
+      icon={<Droplets className="size-4 text-orange-500" />}
+      contentClassName="space-y-0"
+    >
       <ResponsiveFieldFlow>
         <CleanAutoInput
           label="Fluido"
           value={pdfData?.liquidDescription || ""}
           onChange={(val) => onDataChange("liquidDescription", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={180}
         />
         <CleanAutoInput
@@ -38,7 +34,7 @@ export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
           value={pdfData?.temperature || ""}
           unit="C"
           onChange={(val) => onDataChange("temperature", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={110}
           type="number"
         />
@@ -47,7 +43,7 @@ export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
           value={pdfData?.viscosity || ""}
           unit="cSt"
           onChange={(val) => onDataChange("viscosity", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={110}
           type="number"
         />
@@ -56,7 +52,7 @@ export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
           value={pdfData?.density || ""}
           unit="kg/m3"
           onChange={(val) => onDataChange("density", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={120}
           type="number"
         />
@@ -65,7 +61,7 @@ export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
           value={pdfData?.fluidFlowRate || ""}
           unit="m3/h"
           onChange={(val) => onDataChange("fluidFlowRate", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={110}
           type="number"
         />
@@ -74,7 +70,7 @@ export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
           value={pdfData?.fluidHead || ""}
           unit="m"
           onChange={(val) => onDataChange("fluidHead", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={110}
           type="number"
         />
@@ -83,7 +79,7 @@ export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
           value={pdfData?.fluidRpm || ""}
           unit="rpm"
           onChange={(val) => onDataChange("fluidRpm", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={110}
           type="number"
         />
@@ -92,7 +88,7 @@ export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
           value={pdfData?.fluidPower || ""}
           unit="kW"
           onChange={(val) => onDataChange("fluidPower", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={110}
           type="number"
         />
@@ -101,7 +97,7 @@ export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
           value={pdfData?.fluidEfficiency || ""}
           unit="%"
           onChange={(val) => onDataChange("fluidEfficiency", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={115}
           type="number"
         />
@@ -109,7 +105,7 @@ export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
           label="CQ"
           value={pdfData?.cq || ""}
           onChange={(val) => onDataChange("cq", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={90}
           type="number"
         />
@@ -117,7 +113,7 @@ export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
           label="CH"
           value={pdfData?.ch || ""}
           onChange={(val) => onDataChange("ch", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={90}
           type="number"
         />
@@ -125,11 +121,11 @@ export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
           label="CE"
           value={pdfData?.ce || ""}
           onChange={(val) => onDataChange("ce", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={90}
           type="number"
         />
       </ResponsiveFieldFlow>
-    </section>
+    </DetailSectionCard>
   );
 }

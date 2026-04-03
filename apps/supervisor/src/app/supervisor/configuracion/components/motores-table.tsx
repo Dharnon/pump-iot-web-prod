@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2 } from "lucide-react";
-import { useLanguage } from "@/lib/language-context";
 import { MotorPlantilla } from "@/lib/api";
 
 interface MotoresTableProps {
@@ -29,18 +28,16 @@ export function MotoresTable({
   onDelete,
   searchQuery,
 }: MotoresTableProps) {
-  const { t } = useLanguage();
-
   return (
-    <div className="w-full rounded-md border">
+    <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>ID</TableHead>
-            <TableHead>{t("field.model")}</TableHead>
-            <TableHead>{t("col.client")}</TableHead>
+            <TableHead>Plantilla</TableHead>
+            <TableHead>Marca</TableHead>
             <TableHead>Tipo</TableHead>
-            <TableHead>{t("pdf.power")}</TableHead>
+            <TableHead>Potencia</TableHead>
             <TableHead>Velocidad</TableHead>
             <TableHead className="text-right">Acciones</TableHead>
           </TableRow>
@@ -49,16 +46,18 @@ export function MotoresTable({
           {loading ? (
             <TableRow>
               <TableCell colSpan={7} className="h-24 text-center">
-                {t("login.loading")}
+                Cargando motores...
               </TableCell>
             </TableRow>
           ) : motores.length === 0 ? (
             <TableRow>
               <TableCell
                 colSpan={7}
-                className="h-24 text-center text-muted-foreground"
+                className="h-28 text-center text-muted-foreground"
               >
-                {searchQuery ? t("empty.desc") : t("empty.title")}
+                {searchQuery
+                  ? "No hay plantillas que coincidan con la busqueda actual."
+                  : "No hay plantillas de motor disponibles."}
               </TableCell>
             </TableRow>
           ) : (

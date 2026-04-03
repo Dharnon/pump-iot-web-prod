@@ -20,7 +20,6 @@ import { useLanguage } from "@/lib/language-context";
 import { createListado, deleteTest } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -29,7 +28,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Separator } from "@/components/ui/separator";
+import { useSupervisorPageHeader } from "@/components/supervisor/supervisor-page-header-context";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -182,6 +181,58 @@ export default function DashboardPage() {
     [generatedTests, locks],
   );
 
+  const dashboardPageHeader = useMemo(
+    () => ({
+      density: "compact" as const,
+      center: (
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbLink href="/supervisor">
+                Build Your Application
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="hidden md:block" />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      ),
+      end: (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => mutate()}
+          disabled={isLoading || isValidating}
+          aria-label={t("table.refresh")}
+          className={cn(
+            "h-8 gap-1.5 rounded-lg border-border/70 bg-card/50 px-2.5 text-xs font-medium",
+            "shadow-none hover:bg-accent/60",
+            "disabled:opacity-60",
+          )}
+        >
+          <span
+            className={cn(
+              "size-1.5 shrink-0 rounded-full ring-2 ring-background",
+              isConnected ? "bg-emerald-500" : "bg-rose-500",
+            )}
+            aria-hidden
+          />
+          <RefreshCw
+            className={cn("size-3.5 shrink-0", isValidating && "animate-spin")}
+            aria-hidden
+          />
+          <span>{t("table.refresh")}</span>
+        </Button>
+      ),
+    }),
+    [isConnected, isLoading, isValidating, mutate, t],
+  );
+
+  useSupervisorPageHeader(dashboardPageHeader);
+
   const filteredData = useMemo(() => {
     const dataSource = viewMode === "pending" ? pendingTests : generatedTests;
 
@@ -209,54 +260,9 @@ export default function DashboardPage() {
   }, [generatedTests, locks, pendingTests, statusFilter, viewMode]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-background">
-      <header className="flex h-16 shrink-0 items-center gap-2">
-        <div className="flex w-full items-center justify-between gap-3 px-4">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger className="-ml-1" />
-            <Separator
-              orientation="vertical"
-              className="mr-2 data-[orientation=vertical]:h-4"
-            />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="/supervisor">
-                    Build Your Application
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => mutate()}
-            disabled={isLoading || isValidating}
-            className="gap-2"
-          >
-            <span
-              className={cn(
-                "size-2 rounded-full",
-                isConnected ? "bg-emerald-500" : "bg-rose-500",
-              )}
-            />
-            <RefreshCw
-              className={cn("size-4", isValidating && "animate-spin")}
-            />
-            Actualizar
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex-1 overflow-auto">
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+    <div className="flex h-full min-h-0 flex-col bg-[var(--supervisor-page-background)]">
+      <div className="flex flex-1 flex-col gap-4 overflow-auto p-4">
+          <div className="grid auto-rows-min gap-3 md:grid-cols-3">
             <ShellCard
               title="Pending queue"
               value={pendingTests.length}
@@ -277,39 +283,23 @@ export default function DashboardPage() {
             />
           </div>
 
-          <section className="min-h-[calc(100vh-13rem)] flex-1 rounded-xl border border-border/60 bg-card/50 p-4 md:min-h-min md:p-5">
-            <div className="flex h-full flex-col gap-4">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                <div className="space-y-3">
-                  <div>
-                    <h2 className="text-lg font-semibold">Documents</h2>
-                    <p className="text-sm text-muted-foreground">
-                      Shell renovado del supervisor con la tabla operativa dentro del
-                      panel principal.
-                    </p>
-                  </div>
-                  <Tabs
-                    value={viewMode}
-                    onValueChange={(value) => setViewMode(value as ViewMode)}
-                    className="w-full"
-                  >
-                    <TabsList variant="line" className="flex-wrap">
-                      <TabsTrigger value="pending">
-                        Outline
-                        <Badge variant="secondary">{pendingTests.length}</Badge>
-                      </TabsTrigger>
-                      <TabsTrigger value="protocols">
-                        Focus Documents
-                        <Badge variant="secondary">{generatedTests.length}</Badge>
-                      </TabsTrigger>
-                    </TabsList>
-                  </Tabs>
+          <section className="min-h-[calc(100vh-13rem)] flex flex-1 flex-col gap-4 rounded-xl border border-border/60 bg-card/50 p-4 md:min-h-min md:p-5">
+            <div className="flex flex-col gap-3 border-b border-border/50 pb-4">
+              <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                <div className="min-w-0 space-y-1">
+                  <h2 className="text-lg font-semibold tracking-tight">
+                    Documents
+                  </h2>
+                  <p className="max-w-xl text-sm text-muted-foreground">
+                    Shell renovado del supervisor con la tabla operativa dentro del
+                    panel principal.
+                  </p>
                 </div>
 
-                <div className="flex flex-col gap-2 xl:items-end">
-                  <div className="flex flex-wrap items-center gap-2">
+                <div className="flex w-full flex-col gap-2 xl:w-auto xl:min-w-[34rem]">
+                  <div className="grid gap-2 sm:grid-cols-[12rem_minmax(0,1fr)]">
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="min-w-44">
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder={t("table.filter")} />
                       </SelectTrigger>
                       <SelectContent>
@@ -335,7 +325,7 @@ export default function DashboardPage() {
                       </SelectContent>
                     </Select>
 
-                    <div className="relative min-w-[280px] flex-1 xl:min-w-[320px]">
+                    <div className="relative min-w-0">
                       <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         value={globalFilter}
@@ -346,7 +336,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2">
                     {viewMode === "pending" ? (
                       <Button
                         variant="outline"
@@ -362,7 +352,33 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="flex min-h-[520px] flex-1 flex-col rounded-xl bg-muted/35 p-1">
+              <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                <Tabs
+                  value={viewMode}
+                  onValueChange={(value) => setViewMode(value as ViewMode)}
+                  className="w-full lg:w-auto"
+                >
+                  <TabsList variant="line" className="flex-wrap">
+                    <TabsTrigger value="pending">
+                      Outline
+                      <Badge variant="secondary">{pendingTests.length}</Badge>
+                    </TabsTrigger>
+                    <TabsTrigger value="protocols">
+                      Focus Documents
+                      <Badge variant="secondary">{generatedTests.length}</Badge>
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                <p className="text-xs text-muted-foreground lg:text-right">
+                  {viewMode === "pending"
+                    ? "Entradas pendientes de revision y preparacion."
+                    : "Protocolos listos para programacion, banco o seguimiento."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex min-h-[520px] flex-1 flex-col">
                 {isLoading && !tests.length ? (
                   <div className="flex flex-1 items-center justify-center rounded-[18px] border border-border/50 bg-background/80">
                     <RefreshCw className="size-6 animate-spin text-muted-foreground" />
@@ -423,10 +439,8 @@ export default function DashboardPage() {
                     }}
                   />
                 )}
-              </div>
             </div>
           </section>
-        </div>
       </div>
     </div>
   );
@@ -444,23 +458,23 @@ function ShellCard({
   icon: React.ComponentType<{ className?: string }>;
 }) {
   return (
-    <div className="aspect-video rounded-xl border border-border/60 bg-muted/35 p-5">
-      <div className="flex h-full flex-col justify-between">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="mt-4 text-4xl font-semibold tracking-tight text-foreground">
-              {value}
-            </p>
-          </div>
-          <div className="flex size-10 items-center justify-center rounded-xl border border-border/70 bg-background/70">
-            <Icon className="size-4 text-primary" />
-          </div>
+    <div className="rounded-xl border border-border/60 bg-muted/28 px-4 py-3.5">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+            {title}
+          </p>
+          <p className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+            {value}
+          </p>
         </div>
-        <p className="max-w-[18rem] text-sm leading-6 text-muted-foreground">
-          {description}
-        </p>
+        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl border border-border/70 bg-background/70">
+          <Icon className="size-4 text-primary" />
+        </div>
       </div>
+      <p className="mt-2 line-clamp-2 max-w-[18rem] text-xs leading-5 text-muted-foreground">
+          {description}
+      </p>
     </div>
   );
 }

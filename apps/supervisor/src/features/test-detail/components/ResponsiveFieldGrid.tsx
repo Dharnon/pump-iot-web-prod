@@ -24,11 +24,7 @@ export function ResponsiveFieldGrid({
 
   return (
     <div
-      className={cn(
-        "grid items-start max-[2048px]:gap-1.5 max-[1600px]:gap-1",
-        gapClassName,
-        className,
-      )}
+      className={cn("grid items-start", gapClassName, className)}
       style={style}
     >
       {children}

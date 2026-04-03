@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { Kanban } from "react-kanban-kit";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { Separator } from "@/components/ui/separator";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useSupervisorPageHeader } from "@/components/supervisor/supervisor-page-header-context";
 import { useSignalR } from "@/hooks/useSignalR";
 import { useTests } from "@/hooks/useTests";
 import { reorderTests, swrFetcher } from "@/lib/api";
@@ -263,17 +262,15 @@ export default function ProgramacionPage() {
     };
   }, [tests]);
 
-  return (
-    <div className="flex h-screen w-full flex-col overflow-hidden bg-background">
-      <header className="flex shrink-0 flex-col gap-3 border-b border-border/80 bg-background/95 px-4 py-3 backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
-          <SidebarTrigger />
-          <Separator orientation="vertical" className="h-4" />
-          <h1 className="text-sm font-semibold tracking-tight text-foreground">
-            Programacion
-          </h1>
-        </div>
-
+  const programacionHeader = useMemo(
+    () => ({
+      density: "relaxed" as const,
+      center: (
+        <h1 className="text-sm font-semibold tracking-tight text-foreground">
+          Programacion
+        </h1>
+      ),
+      end: (
         <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground sm:gap-3">
           <span className={statPillClass}>
             <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
@@ -291,8 +288,15 @@ export default function ProgramacionPage() {
             {stats.completed}
           </span>
         </div>
-      </header>
+      ),
+    }),
+    [statPillClass, stats.completed, stats.inProgress, stats.pending],
+  );
 
+  useSupervisorPageHeader(programacionHeader);
+
+  return (
+    <div className="flex h-screen w-full flex-col overflow-hidden bg-[var(--supervisor-page-background)]">
       <div className="flex min-h-0 flex-1 overflow-hidden p-3">
         <div className="programacion-board h-full w-full max-w-none">
           <Kanban

@@ -30,6 +30,9 @@ export function PdfViewer({
   t,
 }: PdfViewerProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const pdfSrc = url
+    ? `${url}${url.includes("#") ? "&" : "#"}toolbar=0&navpanes=0&scrollbar=0&zoom=page-width`
+    : null;
 
   // Reset loading when URL changes to a valid URL
   useEffect(() => {
@@ -45,29 +48,29 @@ export function PdfViewer({
   if (url) {
     return (
       <div className="flex-1 flex flex-col min-h-0 relative">
-        {/* PDF Header - Full Width */}
-        <div className="flex flex-row items-center justify-between px-2 py-2 bg-background border-b shrink-0 gap-2">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="w-8 h-8 rounded bg-red-50 dark:bg-red-950/30 flex items-center justify-center shrink-0">
-              <FileText className="w-4 h-4 text-red-500 dark:text-red-400" />
+        <div className="shrink-0 border-b border-border/60 bg-background/90 px-3 py-3">
+          <div className="flex min-w-0 items-start gap-3">
+            <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30">
+              <FileText className="size-4 text-red-500 dark:text-red-400" />
             </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider leading-none mb-1">
+            <div className="min-w-0 flex-1">
+              <span className="mb-1 block text-[10px] font-bold uppercase tracking-[0.18em] leading-none text-muted-foreground">
                 {t("test.viewing")}
               </span>
               <span
-                className="text-xs sm:text-sm font-semibold text-foreground truncate max-w-[200px] sm:max-w-[300px]"
+                className="line-clamp-2 text-sm font-semibold leading-5 text-foreground"
                 title={file?.name}
               >
                 {file?.name}
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2 justify-end">
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <Button
               size="sm"
               variant="outline"
-              className="h-8 py-0 px-3 text-[11px] font-semibold border-primary/30 text-primary hover:bg-primary/10 shadow-sm whitespace-nowrap"
+              className="h-8 rounded-lg border-primary/25 px-3 text-[11px] font-semibold text-primary hover:bg-primary/10"
               onClick={onAnalyze}
               disabled={!file || isAnalyzing}
             >
@@ -78,11 +81,10 @@ export function PdfViewer({
               )}
               {isAnalyzing ? "Analizando..." : "Analizar PDF"}
             </Button>
-            <div className="h-6 w-px bg-border/50" />
             <Button
               size="sm"
               variant="outline"
-              className="h-8 py-0 px-3 text-[11px] font-semibold border-border/50 hover:bg-muted hover:text-foreground transition-colors shadow-sm whitespace-nowrap"
+              className="h-8 rounded-lg border-border/60 px-3 text-[11px] font-semibold hover:bg-muted"
               onClick={() => document.getElementById("pdf-upload")?.click()}
             >
               <RefreshCw className="w-3.5 h-3.5 mr-2" />
@@ -91,7 +93,7 @@ export function PdfViewer({
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              className="ml-auto h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
               onClick={onRemove}
               title="Cerrar archivo"
             >
@@ -100,8 +102,7 @@ export function PdfViewer({
           </div>
         </div>
 
-        {/* PDF Content - Full Width */}
-        <div className="flex-1 w-full relative bg-muted/20">
+        <div className="relative flex-1 bg-muted/20">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/50 z-10 backdrop-blur-sm">
               <div className="flex flex-col items-center">
@@ -113,7 +114,7 @@ export function PdfViewer({
             </div>
           )}
           <iframe
-            src={url}
+            src={pdfSrc ?? undefined}
             className="w-full h-full border-none"
             title="PDF Preview"
             onLoad={handleIframeLoad}

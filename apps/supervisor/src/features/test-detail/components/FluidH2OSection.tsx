@@ -8,7 +8,6 @@
 
 import { useMemo } from "react";
 import { Calculator, Droplets } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import { CleanInput } from "./CleanInput";
 import { ResponsiveFieldGrid } from "./ResponsiveFieldGrid";
 import type { TestPdfData } from "../services/dtoMapper";
@@ -17,6 +16,7 @@ import {
   hasCalculatedValues,
   type FluidData,
 } from "../utils/fluidCalculations";
+import { DetailSectionCard } from "./DetailSectionCard";
 
 interface FluidH2OSectionProps {
   pdfData: TestPdfData | null | undefined;
@@ -27,32 +27,47 @@ interface FluidH2OSectionProps {
 export function FluidH2OSection({
   pdfData,
   onDataChange,
-  allFieldsEditable = false,
 }: FluidH2OSectionProps) {
-  const fluidData: FluidData = {
-    density: pdfData?.density,
-    fluidFlowRate: pdfData?.fluidFlowRate,
-    fluidHead: pdfData?.fluidHead,
-    fluidRpm: pdfData?.fluidRpm,
-    fluidPower: pdfData?.fluidPower,
-    fluidEfficiency: pdfData?.fluidEfficiency,
-    ce: pdfData?.ce,
-  };
-
-  const manualWater = {
-    flowRate: pdfData?.flowRate,
-    head: pdfData?.head,
-    rpm: pdfData?.rpm,
-    maxPower: pdfData?.maxPower,
-    efficiency: pdfData?.efficiency,
-    npshr: pdfData?.npshr,
-    qMin: pdfData?.qMin,
-    bepFlow: pdfData?.bepFlow,
-  };
-
   const calculatedWater = useMemo(() => {
+    const fluidData: FluidData = {
+      density: pdfData?.density,
+      fluidFlowRate: pdfData?.fluidFlowRate,
+      fluidHead: pdfData?.fluidHead,
+      fluidRpm: pdfData?.fluidRpm,
+      fluidPower: pdfData?.fluidPower,
+      fluidEfficiency: pdfData?.fluidEfficiency,
+      ce: pdfData?.ce,
+    };
+
+    const manualWater = {
+      flowRate: pdfData?.flowRate,
+      head: pdfData?.head,
+      rpm: pdfData?.rpm,
+      maxPower: pdfData?.maxPower,
+      efficiency: pdfData?.efficiency,
+      npshr: pdfData?.npshr,
+      qMin: pdfData?.qMin,
+      bepFlow: pdfData?.bepFlow,
+    };
+
     return calculateWaterFromFluid(fluidData, manualWater);
-  }, [fluidData, manualWater]);
+  }, [
+    pdfData?.bepFlow,
+    pdfData?.ce,
+    pdfData?.density,
+    pdfData?.efficiency,
+    pdfData?.flowRate,
+    pdfData?.fluidEfficiency,
+    pdfData?.fluidFlowRate,
+    pdfData?.fluidHead,
+    pdfData?.fluidPower,
+    pdfData?.fluidRpm,
+    pdfData?.head,
+    pdfData?.maxPower,
+    pdfData?.npshr,
+    pdfData?.qMin,
+    pdfData?.rpm,
+  ]);
 
   const showCalculatedIndicators = hasCalculatedValues(
     calculatedWater.isCalculated,
@@ -67,21 +82,18 @@ export function FluidH2OSection({
   };
 
   return (
-    <section className="space-y-2">
-      <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
-          <Droplets className="w-4 h-4 text-blue-500" /> Punto Garantizado en
-          Agua (H2O)
-        </span>
-        {showCalculatedIndicators && (
-          <div className="flex items-center gap-1 text-[10px] text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-full">
-            <Calculator className="w-3 h-3" />
-            <span>Calculado desde fluido</span>
+    <DetailSectionCard
+      title="Punto garantizado en agua (H2O)"
+      icon={<Droplets className="size-4 text-blue-500" />}
+      action={
+        showCalculatedIndicators ? (
+          <div className="flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-1 text-xs text-blue-300">
+            <Calculator className="size-3" />
+            <span>Calculado</span>
           </div>
-        )}
-      </div>
-
+        ) : null
+      }
+    >
       <ResponsiveFieldGrid
         minItemWidth={140}
         compactMinItemWidth={115}
@@ -97,7 +109,7 @@ export function FluidH2OSection({
             }
             unit="m3/h"
             onChange={(val) => handleChange("flowRate", val)}
-            className="h-8 text-xs font-mono"
+            className="h-10 text-sm font-mono"
             containerClassName="min-w-0"
             type="number"
           />
@@ -119,7 +131,7 @@ export function FluidH2OSection({
             }
             unit="m"
             onChange={(val) => handleChange("head", val)}
-            className="h-8 text-xs font-mono"
+            className="h-10 text-sm font-mono"
             containerClassName="min-w-0"
             type="number"
           />
@@ -141,7 +153,7 @@ export function FluidH2OSection({
             }
             unit="rpm"
             onChange={(val) => handleChange("rpm", val)}
-            className="h-8 text-xs font-mono"
+            className="h-10 text-sm font-mono"
             containerClassName="min-w-0"
             type="number"
           />
@@ -163,7 +175,7 @@ export function FluidH2OSection({
             }
             unit="kW"
             onChange={(val) => handleChange("maxPower", val)}
-            className="h-8 text-xs font-mono"
+            className="h-10 text-sm font-mono"
             containerClassName="min-w-0"
             type="number"
           />
@@ -185,7 +197,7 @@ export function FluidH2OSection({
             }
             unit="%"
             onChange={(val) => handleChange("efficiency", val)}
-            className="h-8 text-xs font-mono"
+            className="h-10 text-sm font-mono"
             containerClassName="min-w-0"
             type="number"
           />
@@ -202,7 +214,7 @@ export function FluidH2OSection({
           value={pdfData?.npshr ?? ""}
           unit="m"
           onChange={(val) => handleChange("npshr", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           containerClassName="min-w-0"
           type="number"
         />
@@ -212,7 +224,7 @@ export function FluidH2OSection({
           value={pdfData?.qMin ?? ""}
           unit="m3/h"
           onChange={(val) => handleChange("qMin", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           labelClassName="text-red-500"
           containerClassName="min-w-0"
           type="number"
@@ -223,7 +235,7 @@ export function FluidH2OSection({
           value={pdfData?.bepFlow ?? ""}
           unit="m3/h"
           onChange={(val) => handleChange("bepFlow", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           labelClassName="text-red-500"
           containerClassName="min-w-0"
           type="number"
@@ -231,7 +243,7 @@ export function FluidH2OSection({
       </ResponsiveFieldGrid>
 
       {showCalculatedIndicators && fluidData.density && (
-        <div className="text-[10px] text-muted-foreground bg-muted/30 p-2 rounded-lg">
+        <div className="rounded-lg bg-muted/30 p-2 text-xs text-muted-foreground">
           <p>
             <strong>Valores calculados usando:</strong>
           </p>
@@ -249,6 +261,6 @@ export function FluidH2OSection({
           </p>
         </div>
       )}
-    </section>
+    </DetailSectionCard>
   );
 }

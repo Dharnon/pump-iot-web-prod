@@ -3,20 +3,17 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  BookOpenIcon,
-  BotIcon,
-  FrameIcon,
+  ClipboardListIcon,
+  CogIcon,
+  LayoutDashboardIcon,
   LifeBuoyIcon,
-  MapIcon,
-  PieChartIcon,
+  MonitorSmartphoneIcon,
   SendIcon,
-  Settings2Icon,
   TerminalIcon,
-  TerminalSquareIcon,
+  UsersIcon,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -70,99 +67,50 @@ export function AppSidebar({
       user,
       navMain: [
         {
-          title: "Playground",
+          title: "Bandeja",
           url: "/supervisor",
-          icon: <TerminalSquareIcon />,
-          isActive: currentPath === "/supervisor",
-          items: [
-            {
-              title: "Overview",
-              url: "/supervisor",
-              isActive: currentPath === "/supervisor",
-            },
-          ],
+          icon: <LayoutDashboardIcon />,
+          isActive:
+            currentPath === "/supervisor" ||
+            isActivePath("/supervisor/test") ||
+            isActivePath("/supervisor/protocolo"),
         },
         {
-          title: "Models",
+          title: "Programacion",
           url: "/supervisor/programacion",
-          icon: <BotIcon />,
-          isActive: isActivePath("/supervisor/programacion"),
-          items: [
-            {
-              title: "Protocols",
-              url: "/supervisor/programacion",
-              isActive: isActivePath("/supervisor/programacion"),
-            },
-            {
-              title: "Operator",
-              url: "/operator/",
-              isActive: currentPath?.startsWith("/operator") || false,
-            },
-          ],
+          icon: <ClipboardListIcon />,
+          isActive:
+            isActivePath("/supervisor/programacion") ||
+            isActivePath("/supervisor/3d"),
         },
         {
-          title: "Documentation",
+          title: "Usuarios",
           url: "/supervisor/user-management",
-          icon: <BookOpenIcon />,
+          icon: <UsersIcon />,
           isActive: isActivePath("/supervisor/user-management"),
-          items: [
-            {
-              title: "Users",
-              url: "/supervisor/user-management",
-              isActive: isActivePath("/supervisor/user-management"),
-            },
-          ],
         },
         {
-          title: "Settings",
-          url: "/supervisor",
-          icon: <Settings2Icon />,
-          items: [
-            {
-              title: "Dashboard",
-              url: "/supervisor",
-              isActive: currentPath === "/supervisor",
-            },
-            {
-              title: "Protocols",
-              url: "/supervisor/programacion",
-              isActive: isActivePath("/supervisor/programacion"),
-            },
-            {
-              title: "Users",
-              url: "/supervisor/user-management",
-              isActive: isActivePath("/supervisor/user-management"),
-            },
-          ],
+          title: "Configuracion",
+          url: "/supervisor/configuracion",
+          icon: <CogIcon />,
+          isActive: isActivePath("/supervisor/configuracion"),
         },
       ],
       navSecondary: [
         {
-          title: "Support",
-          url: "/operator/",
+          title: "Operator",
+          url: "/operator",
+          icon: <MonitorSmartphoneIcon />,
+        },
+        {
+          title: "Soporte",
+          url: "/supervisor/configuracion",
           icon: <LifeBuoyIcon />,
         },
         {
-          title: "Feedback",
+          title: "Resumen",
           url: "/supervisor",
           icon: <SendIcon />,
-        },
-      ],
-      projects: [
-        {
-          name: "Design Engineering",
-          url: "/supervisor",
-          icon: <FrameIcon />,
-        },
-        {
-          name: "Sales & Marketing",
-          url: "/supervisor/programacion",
-          icon: <PieChartIcon />,
-        },
-        {
-          name: "Travel",
-          url: "/supervisor/user-management",
-          icon: <MapIcon />,
         },
       ],
     }),
@@ -190,7 +138,6 @@ export function AppSidebar({
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Dancing_Script, Orbitron } from "next/font/google";
-import "./globals.css";
+import { Dancing_Script, Geist, Geist_Mono, Orbitron } from "next/font/google";
+
 import { LanguageProvider } from "@/lib/language-context";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,8 +28,20 @@ const orbitron = Orbitron({
 
 export const metadata: Metadata = {
   title: "Pump IoT - Flowserve",
-  description: "Sistema de gestión de pruebas de bombas",
+  description: "Sistema de gestion de pruebas de bombas",
 };
+
+const themeInitScript = `
+  (() => {
+    try {
+      const storedTheme = localStorage.getItem("theme");
+      const shouldUseDark = storedTheme !== "light";
+      document.documentElement.classList.toggle("dark", shouldUseDark);
+    } catch {
+      document.documentElement.classList.add("dark");
+    }
+  })();
+`;
 
 export default function RootLayout({
   children,
@@ -36,13 +49,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${dancingScript.variable} ${orbitron.variable} bg-background text-foreground antialiased`}
       >
-        <LanguageProvider>
-          {children}
-        </LanguageProvider>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

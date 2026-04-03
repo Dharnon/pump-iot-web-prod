@@ -6,7 +6,10 @@ export { StatusBadge } from './StatusBadge';
 export { CleanInput } from './CleanInput';
 export { ResponsiveFieldGrid } from './ResponsiveFieldGrid';
 export { ResponsiveFieldFlow } from './ResponsiveFieldFlow';
-export { TestDetailHeader } from './TestDetailHeader';
+export {
+  TestDetailHeaderCenter,
+  TestDetailHeaderEnd,
+} from './TestDetailHeader';
 export { GeneralInfoSection } from './GeneralInfoSection';
 export { TestsToPerformSection } from './TestsToPerformSection';
 export { BombaDataSection } from './BombaDataSection';
@@ -15,3 +18,7 @@ export { FluidSection } from './FluidSection';
 export { MotorDataSection } from './MotorDataSection';
 export { DetailsSection } from './DetailsSection';
 export { DetailView } from './DetailView';
+export { DetailSectionCard } from './DetailSectionCard';
+export { DetailSectionGrid } from './DetailSectionGrid';
+export { DetailPreviewPanel } from './DetailPreviewPanel';
+export { DetailStateActions } from './DetailStateActions';

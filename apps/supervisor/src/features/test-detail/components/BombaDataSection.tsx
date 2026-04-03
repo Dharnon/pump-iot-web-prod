@@ -2,11 +2,10 @@
  * BombaDataSection Component
  */
 
-import { Settings2 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import { CleanAutoInput } from "./CleanAutoInput";
 import { ResponsiveFieldFlow } from "./ResponsiveFieldFlow";
 import type { TestPdfData } from "../services/dtoMapper";
+import { DetailSectionCard } from "./DetailSectionCard";
 
 interface BombaDataSectionProps {
   pdfData: TestPdfData | null | undefined;
@@ -26,25 +25,23 @@ export function BombaDataSection({
   allFieldsEditable = false,
 }: BombaDataSectionProps) {
   return (
-    <section className="space-y-2">
-      <Separator className="mb-2 -mx-4 md:-mx-6 w-auto" />
-      <div>
-        <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
-          <img
-            src="/icons/water-pump.png"
-            alt="Bomba"
-            className="w-5 h-5 brightness-0 dark:invert"
-          />
-          Datos Bomba
-        </span>
-      </div>
-
+    <DetailSectionCard
+      title="Datos bomba"
+      icon={
+        <img
+          src="/icons/water-pump.png"
+          alt="Bomba"
+          className="size-4 brightness-0 dark:invert"
+        />
+      }
+      contentClassName="space-y-0"
+    >
       <ResponsiveFieldFlow>
         <CleanAutoInput
           label="Item"
           value={generalInfo?.item || pdfData?.item || ""}
           onChange={(val) => onDataChange("item", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={90}
         />
         <CleanAutoInput
@@ -55,7 +52,7 @@ export function BombaDataSection({
               ? (val) => onDataChange("modeloBomba", val)
               : undefined
           }
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={240}
         />
         <CleanAutoInput
@@ -66,7 +63,7 @@ export function BombaDataSection({
               ? (val) => onDataChange("ordenTrabajo", val)
               : undefined
           }
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={150}
         />
         <CleanAutoInput
@@ -74,7 +71,7 @@ export function BombaDataSection({
           value={pdfData?.suctionDiameter || ""}
           unit="mm"
           onChange={(val) => onDataChange("suctionDiameter", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={110}
           type="number"
         />
@@ -83,7 +80,7 @@ export function BombaDataSection({
           value={pdfData?.dischargeDiameter || ""}
           unit="mm"
           onChange={(val) => onDataChange("dischargeDiameter", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={110}
           type="number"
         />
@@ -92,7 +89,7 @@ export function BombaDataSection({
           value={pdfData?.impellerDiameter || ""}
           unit="mm"
           onChange={(val) => onDataChange("impellerDiameter", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={110}
           type="number"
         />
@@ -100,17 +97,17 @@ export function BombaDataSection({
           label="Tipo Cierre"
           value={pdfData?.sealType || ""}
           onChange={(val) => onDataChange("sealType", val)}
-          className="h-8 text-xs font-mono"
+          className="h-10 text-sm font-mono"
           minWidth={140}
         />
-        <div className="flex flex-col gap-1.5 max-[2048px]:gap-0.75 max-[1600px]:gap-0.5 min-w-0">
+        <div className="flex min-w-0 flex-col gap-2">
           <label
             htmlFor="vertical"
-            className="text-sm max-[2048px]:text-xs max-[1600px]:text-[10px] uppercase font-bold tracking-tight leading-none text-muted-foreground cursor-pointer"
+            className="cursor-pointer text-sm font-semibold uppercase tracking-tight text-muted-foreground"
           >
             Bomba Vertical
           </label>
-          <div className="flex h-9 max-[2048px]:h-7 max-[1600px]:h-6.5 items-center rounded-md border border-transparent bg-muted/20 hover:bg-muted/40 transition-all px-3">
+          <div className="flex h-10 items-center rounded-md border border-transparent bg-muted/20 px-3 transition-all hover:bg-muted/40">
             <input
               type="checkbox"
               id="vertical"
@@ -125,6 +122,6 @@ export function BombaDataSection({
           </div>
         </div>
       </ResponsiveFieldFlow>
-    </section>
+    </DetailSectionCard>
   );
 }

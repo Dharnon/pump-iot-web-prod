@@ -69,7 +69,14 @@ export function BankSelect({
   };
 
   if (error) {
-    return <div className="text-sm text-red-500">{error}</div>;
+    return (
+      <div
+        className="flex h-10 items-center rounded-md border border-destructive/25 bg-destructive/8 px-3 text-sm font-medium text-destructive/90"
+        title={error}
+      >
+        Sin bancos
+      </div>
+    );
   }
 
   return (

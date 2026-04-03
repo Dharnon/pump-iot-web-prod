@@ -13,7 +13,7 @@ export function ResponsiveFieldFlow({
   return (
     <div
       className={cn(
-        "flex flex-wrap items-start gap-3 max-[2048px]:gap-1.5 max-[1600px]:gap-1",
+        "flex flex-wrap items-start gap-3",
         className,
       )}
     >

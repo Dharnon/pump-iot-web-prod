@@ -15,6 +15,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { DataGrid, DataGridContainer } from "@/components/ui/data-grid";
 import { DataGridTable } from "@/components/ui/data-grid-table";
 import { DataGridPagination } from "@/components/ui/data-grid-pagination";
+import { cn } from "@/lib/utils";
 
 interface DataTableProps<TData extends object, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -69,17 +70,30 @@ export function DataTable<TData extends object, TValue>({
       onRowClick={onRowClick}
       tableLayout={{
         headerSticky: true,
-        headerBackground: false,
+        headerBackground: true,
+        headerBorder: true,
         rowBorder: true,
         cellBorder: false,
         stripped: false,
         width: "auto",
-        dense: true,
+        dense: false,
       }}
-      className="flex-1 w-full"
+      tableClassNames={{
+        header: "",
+        headerRow: "",
+        headerSticky:
+          "sticky top-0 z-10 bg-muted/35 backdrop-blur-sm supports-[backdrop-filter]:bg-muted/25",
+        body: "bg-background/20",
+      }}
+      className="flex w-full min-h-0 flex-1 flex-col"
     >
-      <div className="w-full flex flex-col h-full">
-        <DataGridContainer className="overflow-hidden border-x border-t border-border/50">
+      <div
+        className={cn(
+          "flex w-full min-h-0 flex-1 flex-col overflow-hidden rounded-xl",
+          "border border-border/60 bg-card/40 shadow-sm",
+        )}
+      >
+        <DataGridContainer border={false} className="min-h-0 overflow-hidden">
           <ScrollArea className="h-[calc(100vh-260px)]">
             <DataGridTable />
             <ScrollBar orientation="horizontal" />
@@ -90,6 +104,7 @@ export function DataTable<TData extends object, TValue>({
         <DataGridPagination
           info="{from} - {to} de {count}"
           rowsPerPageLabel="Filas por página"
+          className="rounded-b-xl border-x-0 border-b-0 border-t border-border/60 bg-muted/20"
         />
       </div>
     </DataGrid>

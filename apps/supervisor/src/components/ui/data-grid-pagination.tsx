@@ -132,12 +132,12 @@ function DataGridPagination(props: DataGridPaginationProps) {
     <div
       data-slot="data-grid-pagination"
       className={cn(
-        'grid grid-cols-2 border-x border-b border-border/50',
+        'grid grid-cols-1 gap-3 border-x border-b border-border/50 sm:grid-cols-2 sm:gap-0',
         mergedProps?.className,
       )}
     >
       {/* Rows per page selector - Left cell */}
-      <div className="flex items-center justify-start gap-2 px-6 py-3 border-r border-border/50">
+      <div className="flex items-center justify-start gap-2 px-4 py-2.5 sm:border-r sm:border-border/50 sm:px-5 sm:py-3">
         {isLoading ? (
           mergedProps?.sizesSkeleton
         ) : (
@@ -167,7 +167,7 @@ function DataGridPagination(props: DataGridPaginationProps) {
       </div>
 
       {/* Pagination controls - Right cell */}
-      <div className="flex items-center justify-end gap-3 px-6 py-3">
+      <div className="flex items-center justify-end gap-3 px-4 py-2.5 sm:px-5 sm:py-3">
         {isLoading ? (
           mergedProps?.infoSkeleton
         ) : (
