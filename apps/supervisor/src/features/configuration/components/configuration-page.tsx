@@ -43,7 +43,7 @@ export function ConfigurationPage({
 }) {
   return (
     <div className="flex h-full min-h-0 flex-col bg-[var(--supervisor-page-background)]">
-      <div className="flex flex-1 flex-col gap-4 overflow-auto p-4">
+      <div className="scrollbar-surface flex flex-1 flex-col gap-4 overflow-auto p-4">
         <ConfigurationHeaderRegistration activeTab={activeTab} />
 
         <ConfigurationMetrics

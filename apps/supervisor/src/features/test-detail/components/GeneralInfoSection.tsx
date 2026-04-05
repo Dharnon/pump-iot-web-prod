@@ -2,10 +2,10 @@ import { FileText, Wrench } from "lucide-react";
 
 import { BankSelect } from "@/components/supervisor/BankSelect";
 import type { UseLanguageReturn } from "@/lib/language-context";
+import { cn } from "@/lib/utils";
 
 import { CleanAutoInput } from "./CleanAutoInput";
 import { DetailSectionCard } from "./DetailSectionCard";
-import { ResponsiveFieldFlow } from "./ResponsiveFieldFlow";
 
 interface GeneralInfoSectionProps {
   generalInfo: {
@@ -23,6 +23,39 @@ interface GeneralInfoSectionProps {
   isPending?: boolean;
 }
 
+/** Fecha ISO o texto libre → lectura corta en locale */
+function formatGeneralDate(raw?: string): string {
+  if (!raw?.trim()) {
+    return new Date().toLocaleString("es-ES", {
+      dateStyle: "short",
+      timeStyle: "short",
+    });
+  }
+  const ms = Date.parse(raw);
+  if (Number.isNaN(ms)) return raw;
+  return new Date(ms).toLocaleString("es-ES", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
+
+/** Stable column counts so the header row lines up with the rest of the form. */
+function generalInfoGridClass(fieldCount: number): string {
+  if (fieldCount <= 1) {
+    return "grid grid-cols-1 gap-3";
+  }
+  if (fieldCount === 2) {
+    return "grid grid-cols-1 gap-3 sm:grid-cols-2";
+  }
+  if (fieldCount === 3) {
+    return "grid grid-cols-1 gap-3 sm:grid-cols-3";
+  }
+  if (fieldCount === 4) {
+    return "grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4";
+  }
+  return "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5";
+}
+
 function InfoField({
   label,
   value,
@@ -36,13 +69,13 @@ function InfoField({
 }) {
   return (
     <div
-      className={`rounded-lg border border-border/80 bg-background px-3 py-2.5 dark:bg-muted/18 ${className}`}
+      className={`min-w-0 rounded-lg border border-border/60 bg-muted/5 px-3 py-2.5 dark:bg-muted/15 ${className}`}
     >
-      <p className="mb-1 text-xs font-medium uppercase tracking-[0.06em] text-foreground/70 dark:text-muted-foreground">
+      <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
         {label}
       </p>
       <p
-        className={`break-words text-sm font-medium ${highlight ? "font-mono text-primary" : "text-foreground"}`}
+        className={`min-w-0 break-words text-sm font-medium leading-snug ${highlight ? "font-mono text-primary" : "text-foreground"}`}
       >
         {value}
       </p>
@@ -60,19 +93,22 @@ export function GeneralInfoSection({
   showQty = true,
 }: GeneralInfoSectionProps) {
   if (allFieldsEditable && onDataChange) {
+    const fieldCount =
+      3 + (showQty ? 1 : 0) + (onBankChange ? 1 : 0);
+
     return (
       <DetailSectionCard
         title={t("test.generalInfo")}
-        icon={<FileText className="size-4" />}
-        contentClassName="space-y-4"
+        icon={<FileText className="size-5" />}
+        contentClassName="space-y-0"
       >
-        <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.35fr)_minmax(0,0.9fr)]">
+        <div className={cn("min-w-0", generalInfoGridClass(fieldCount))}>
           <CleanAutoInput
             label={t("field.order")}
             value={generalInfo.pedido}
             onChange={(value) => onDataChange("pedido", value)}
             className="h-10 text-sm font-mono"
-            containerClassName="w-full"
+            containerClassName="w-full min-w-0"
             minWidth={140}
             fullWidth
           />
@@ -81,43 +117,36 @@ export function GeneralInfoSection({
             value={generalInfo.cliente}
             onChange={(value) => onDataChange("cliente", value)}
             className="h-10 text-sm font-mono"
-            containerClassName="w-full"
-            minWidth={220}
+            containerClassName="w-full min-w-0"
+            minWidth={200}
             fullWidth
           />
           <CleanAutoInput
             label={t("field.date")}
-            value={generalInfo.fecha || new Date().toLocaleDateString("es-ES")}
+            value={
+              generalInfo.fecha ||
+              new Date().toLocaleDateString("es-ES")
+            }
             onChange={(value) => onDataChange("fecha", value)}
             className="h-10 text-sm font-mono"
-            containerClassName="w-full"
-            minWidth={130}
+            containerClassName="w-full min-w-0"
+            minWidth={160}
             fullWidth
           />
-        </div>
-
-        <div
-          className={
-            onBankChange
-              ? "grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)]"
-              : "grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,0.8fr)]"
-          }
-        >
           {showQty ? (
             <CleanAutoInput
               label={t("field.qty")}
               value={String(generalInfo.numeroBombas)}
               onChange={(value) => onDataChange("numeroBombas", value)}
-              className="h-10 text-sm font-mono text-center"
-              containerClassName="w-full"
-              minWidth={90}
+              className="h-10 text-center text-sm font-mono"
+              containerClassName="w-full min-w-0"
+              minWidth={100}
               fullWidth
             />
           ) : null}
-
           {onBankChange ? (
             <div className="flex min-w-0 w-full flex-col gap-2">
-              <label className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.06em] text-foreground/70 dark:text-muted-foreground">
+              <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 <Wrench className="size-3.5 shrink-0 text-primary/70" />
                 Bomba
               </label>
@@ -134,13 +163,18 @@ export function GeneralInfoSection({
     );
   }
 
+  const readOnlyFieldCount =
+    3 +
+    (showQty ? 1 : 0) +
+    (bancoId !== null && bancoId !== undefined ? 1 : 0);
+
   return (
     <DetailSectionCard
       title={t("test.generalInfo")}
-      icon={<FileText className="size-4" />}
-      contentClassName="space-y-4"
+      icon={<FileText className="size-5" />}
+      contentClassName="space-y-0"
     >
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.35fr)_minmax(0,0.9fr)]">
+      <div className={cn("min-w-0", generalInfoGridClass(readOnlyFieldCount))}>
         <InfoField
           label={t("field.order")}
           value={generalInfo.pedido}
@@ -149,11 +183,8 @@ export function GeneralInfoSection({
         <InfoField label={t("field.client")} value={generalInfo.cliente} />
         <InfoField
           label={t("field.date")}
-          value={generalInfo.fecha || new Date().toLocaleDateString("es-ES")}
+          value={formatGeneralDate(generalInfo.fecha)}
         />
-      </div>
-
-      <ResponsiveFieldFlow className="gap-x-3 gap-y-3">
         {showQty ? (
           <InfoField
             label={t("field.qty")}
@@ -164,10 +195,10 @@ export function GeneralInfoSection({
           <InfoField
             label={t("field.bank") || "Banco"}
             value={`Banco ${bancoId}`}
-            className="border-primary/15 bg-primary/6"
+            className="border-primary/25 bg-primary/[0.06]"
           />
         ) : null}
-      </ResponsiveFieldFlow>
+      </div>
     </DetailSectionCard>
   );
 }

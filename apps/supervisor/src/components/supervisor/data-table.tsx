@@ -81,7 +81,7 @@ export function DataTable<TData extends object, TValue>({
       tableClassNames={{
         headerSticky:
           "sticky top-0 z-10 bg-[#f4f4f5] supports-[backdrop-filter]:bg-[#f4f4f5]/95 dark:bg-[#232323] dark:supports-[backdrop-filter]:bg-[#232323]/95",
-        headerRow: "bg-transparent",
+        headerRow: "border-b border-border/60 bg-transparent",
         headerCell:
           "h-10 px-3 text-xs font-semibold normal-case tracking-normal text-foreground/88",
         body: "bg-background",
@@ -91,10 +91,10 @@ export function DataTable<TData extends object, TValue>({
       <div
         className={cn(
           "flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden rounded-lg",
-          "border-[0.5px] border-[#161718] bg-background shadow-none",
+          "border border-border/70 bg-background shadow-none",
         )}
       >
-        <div className="min-h-0 flex-1 overflow-auto">
+        <div className="scrollbar-surface min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable]">
           <DataGridTable />
         </div>
 
@@ -104,7 +104,7 @@ export function DataTable<TData extends object, TValue>({
           info="{from} - {to} de {count}"
           rowsPerPageLabel="Filas por página"
           pageLabel="Página {page} de {pages}"
-          className="rounded-none border-x-0 border-b-0 border-t-[0.5px] border-[#161718] bg-transparent"
+          className="rounded-none border-x-0 border-b-0 border-t border-border/60 bg-transparent"
         />
       </div>
     </DataGrid>

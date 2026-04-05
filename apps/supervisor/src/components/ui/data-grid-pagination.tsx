@@ -166,7 +166,7 @@ function DataGridPagination(props: DataGridPaginationProps) {
           table.setPageSize(Number(value));
         }}
       >
-        <SelectTrigger className="h-8 w-[4.5rem] border-[0.5px] border-[#161718] text-xs" size="sm">
+        <SelectTrigger className="h-8 w-[4.5rem] border border-border/60 text-xs dark:border-[0.5px] dark:border-[#161718]" size="sm">
           <SelectValue placeholder={`${pageSize}`} />
         </SelectTrigger>
         <SelectContent side="top" className="min-w-[50px]">
@@ -296,7 +296,7 @@ function DataGridPagination(props: DataGridPaginationProps) {
                 table.setPageSize(Number(value));
               }}
             >
-              <SelectTrigger className="h-8 w-[4.5rem] border-[0.5px] border-[#161718] text-xs" size="sm">
+              <SelectTrigger className="h-8 w-[4.5rem] border border-border/60 text-xs dark:border-[0.5px] dark:border-[#161718]" size="sm">
                 <SelectValue placeholder={`${pageSize}`} />
               </SelectTrigger>
               <SelectContent side="top" className="min-w-[50px]">

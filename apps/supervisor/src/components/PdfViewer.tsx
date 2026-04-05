@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw, X, FileText, Upload, Search } from "lucide-react";
+import { Loader2, RefreshCw, X, FileText, Upload, Search, Expand } from "lucide-react";
 
 interface PdfViewerProps {
   file: File | null;
@@ -31,7 +31,7 @@ export function PdfViewer({
 }: PdfViewerProps) {
   const [isLoading, setIsLoading] = useState(false);
   const pdfSrc = url
-    ? `${url}${url.includes("#") ? "&" : "#"}toolbar=0&navpanes=0&scrollbar=0&zoom=page-width`
+    ? `${url}${url.includes("#") ? "&" : "#"}toolbar=0&navpanes=0&scrollbar=1&view=FitH`
     : null;
 
   // Reset loading when URL changes to a valid URL
@@ -47,10 +47,10 @@ export function PdfViewer({
 
   if (url) {
     return (
-      <div className="flex-1 flex flex-col min-h-0 relative">
-        <div className="shrink-0 border-b border-border/60 bg-background/90 px-3 py-3">
+      <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/45">
+        <div className="shrink-0 border-b border-border/60 bg-background/70 px-4 py-4">
           <div className="flex min-w-0 items-start gap-3">
-            <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30">
+            <div className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/30">
               <FileText className="size-4 text-red-500 dark:text-red-400" />
             </div>
             <div className="min-w-0 flex-1">
@@ -64,30 +64,45 @@ export function PdfViewer({
                 {file?.name}
               </span>
             </div>
+            {url ? (
+              <Button
+                asChild
+                variant="ghost"
+                size="icon"
+                className="size-8 shrink-0 text-muted-foreground hover:bg-muted"
+                title="Abrir en grande"
+              >
+                <a href={url} target="_blank" rel="noreferrer">
+                  <Expand className="size-4" />
+                </a>
+              </Button>
+            ) : null}
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
+            {onAnalyze ? (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 rounded-lg border-primary/25 px-3 text-[11px] font-semibold text-primary hover:bg-primary/10"
+                onClick={onAnalyze}
+                disabled={!file || isAnalyzing}
+              >
+                {isAnalyzing ? (
+                  <Loader2 className="mr-2 size-3.5 animate-spin" />
+                ) : (
+                  <Search className="mr-2 size-3.5" />
+                )}
+                {isAnalyzing ? "Analizando..." : "Analizar PDF"}
+              </Button>
+            ) : null}
             <Button
               size="sm"
-              variant="outline"
-              className="h-8 rounded-lg border-primary/25 px-3 text-[11px] font-semibold text-primary hover:bg-primary/10"
-              onClick={onAnalyze}
-              disabled={!file || isAnalyzing}
-            >
-              {isAnalyzing ? (
-                <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
-              ) : (
-                <Search className="w-3.5 h-3.5 mr-2" />
-              )}
-              {isAnalyzing ? "Analizando..." : "Analizar PDF"}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              className="h-8 rounded-lg border-border/60 px-3 text-[11px] font-semibold hover:bg-muted"
+              variant="ghost"
+              className="h-8 rounded-lg px-3 text-[11px] font-semibold text-muted-foreground hover:bg-muted hover:text-foreground"
               onClick={() => document.getElementById("pdf-upload")?.click()}
             >
-              <RefreshCw className="w-3.5 h-3.5 mr-2" />
+              <RefreshCw className="mr-2 size-3.5" />
               {t("test.changePdf")}
             </Button>
             <Button
@@ -97,16 +112,16 @@ export function PdfViewer({
               onClick={onRemove}
               title="Cerrar archivo"
             >
-              <X className="w-4 h-4" />
+              <X className="size-4" />
             </Button>
           </div>
         </div>
 
-        <div className="relative flex-1 bg-muted/20">
+        <div className="relative min-h-0 flex-1 bg-[#121212]">
           {isLoading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/50 z-10 backdrop-blur-sm">
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/60 backdrop-blur-sm">
               <div className="flex flex-col items-center">
-                <Loader2 className="w-8 h-8 text-primary animate-spin mb-2" />
+                <Loader2 className="mb-2 size-8 animate-spin text-primary" />
                 <p className="text-sm font-medium text-muted-foreground">
                   Cargando visualizador...
                 </p>
@@ -115,7 +130,7 @@ export function PdfViewer({
           )}
           <iframe
             src={pdfSrc ?? undefined}
-            className="w-full h-full border-none"
+            className="h-full min-h-[28rem] w-full border-none bg-white"
             title="PDF Preview"
             onLoad={handleIframeLoad}
           />
@@ -132,7 +147,7 @@ export function PdfViewer({
   }
 
   return (
-    <div className="flex-1 flex flex-col p-4 sm:p-8">
+    <div className="flex flex-1 flex-col p-4 sm:p-8">
       <div
         className={`
                     flex-1 flex flex-col items-center justify-center border-2 border-dashed rounded-xl transition-all duration-200 select-none min-h-[300px]

@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { AutoResizeInput } from "@/components/ui/auto-resize-input";
+import { Input } from "@/components/ui/input";
 import { AlertCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface CleanAutoInputProps {
   label: string;
@@ -54,24 +56,50 @@ export function CleanAutoInput({
           {label}
         </label>
       </div>
-      <div className="relative inline-flex items-center">
-        <AutoResizeInput
-          disabled={!onChange}
-          value={value ?? ""}
-          onChange={(e) => handleChange(e.target.value)}
-          placeholder="-"
-          minWidth={minWidth}
-          fullWidth={fullWidth}
-          className={`h-10 bg-background font-mono text-sm transition-all hover:bg-background focus:bg-background dark:bg-muted/20 dark:hover:bg-muted/35 ${
-            error
-              ? "border-destructive ring-1 ring-destructive/20"
-              : "border-input/80"
-          } ${unit ? "pr-8" : ""} ${className || ""}`}
-        />
-        {unit && (
-          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-xs font-semibold text-muted-foreground">
-            {unit}
-          </span>
+      <div
+        className={cn(
+          "relative",
+          unit ? "w-full min-w-0" : "inline-flex min-w-0 max-w-full items-center",
+        )}
+      >
+        {unit ? (
+          <>
+            <Input
+              disabled={!onChange}
+              value={value ?? ""}
+              onChange={(e) => handleChange(e.target.value)}
+              placeholder="-"
+              type={type === "number" ? "number" : "text"}
+              className={cn(
+                "h-10 w-full bg-background pr-12 font-mono text-sm transition-all hover:bg-background focus:bg-background dark:bg-muted/20 dark:hover:bg-muted/35",
+                error
+                  ? "border-destructive ring-1 ring-destructive/20"
+                  : "border-input/80",
+                className,
+              )}
+            />
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold tabular-nums text-muted-foreground">
+              {unit}
+            </span>
+          </>
+        ) : (
+          <AutoResizeInput
+            disabled={!onChange}
+            value={value ?? ""}
+            onChange={(e) => handleChange(e.target.value)}
+            placeholder="-"
+            minWidth={minWidth}
+            fullWidth={fullWidth}
+            type={type === "number" ? "number" : "text"}
+            className={cn(
+              "h-10 bg-background font-mono text-sm transition-all hover:bg-background focus:bg-background dark:bg-muted/20 dark:hover:bg-muted/35",
+              error
+                ? "border-destructive ring-1 ring-destructive/20"
+                : "border-input/80",
+              fullWidth && "w-full max-w-full",
+              className,
+            )}
+          />
         )}
         {error && (
           <div className="absolute -bottom-4 left-0 flex items-center gap-1 text-[11px] font-medium text-destructive animate-in fade-in slide-in-from-top-1">

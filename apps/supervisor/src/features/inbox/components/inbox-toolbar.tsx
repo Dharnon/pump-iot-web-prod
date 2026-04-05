@@ -82,7 +82,7 @@ export function InboxToolbar({
           value={globalFilter}
           onChange={(event) => onGlobalFilterChange(event.target.value)}
           placeholder={t("table.search")}
-          className="h-9 w-full min-w-0 border-white pl-9 focus-visible:border-white"
+          className="h-9 w-full min-w-0 pl-9 focus-visible:border-white shadow-none"
         />
       </div>
 

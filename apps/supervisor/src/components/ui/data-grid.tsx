@@ -149,7 +149,7 @@ function DataGrid<TData extends object>({ children, table, ...props }: DataGridP
       body: '',
       bodyRow: 'hover:bg-muted/50 dark:hover:bg-white/[0.04]',
       bodyRowDivider:
-        '[&>td]:border-b-[0.5px] [&>td]:border-[#161718]',
+        '[&>td]:border-b [&>td]:border-border/60 dark:[&>td]:border-b-[0.5px] dark:[&>td]:border-[#161718]',
       footer: '',
       edgeCell: '',
     },

@@ -227,7 +227,7 @@ export function WorkspaceTable<TData extends object, TValue>({
       tableClassNames={{
         headerSticky:
           "sticky top-0 z-10 bg-[#f5f5f5] supports-[backdrop-filter]:bg-[#f5f5f5]/95 dark:bg-[#262626] dark:supports-[backdrop-filter]:bg-[#262626]/95",
-        headerRow: "bg-transparent",
+        headerRow: "border-b border-border/40 bg-transparent",
         headerCell:
           "h-10 min-h-10 px-3 py-2 text-xs font-medium normal-case tracking-normal text-muted-foreground",
         body: "bg-transparent",
@@ -255,10 +255,10 @@ export function WorkspaceTable<TData extends object, TValue>({
         <div
           className={cn(
             "my-1 flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg",
-            "border-[0.5px] border-[#161718] bg-card/40 dark:bg-[#0a0a0a]",
+            "border border-border/50 bg-card/40 dark:bg-[#0a0a0a]",
           )}
         >
-          <div className="min-h-0 flex-1 overflow-auto">
+          <div className="scrollbar-surface min-h-0 flex-1 overflow-auto [scrollbar-gutter:stable]">
             <DataGridTable />
           </div>
         </div>

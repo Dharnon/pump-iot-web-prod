@@ -21,7 +21,6 @@ import type { UseTestDetailPageResult } from "@/features/test-detail";
 import { BombaDataSection } from "./BombaDataSection";
 import { DetailsSection } from "./DetailsSection";
 import { DetailPreviewPanel } from "./DetailPreviewPanel";
-import { DetailSectionGrid } from "./DetailSectionGrid";
 import { DetailStateActions } from "./DetailStateActions";
 import { FluidH2OSection } from "./FluidH2OSection";
 import { FluidSection } from "./FluidSection";
@@ -83,6 +82,32 @@ export function DetailView({
 
   const shouldShowTestsToPerform = viewConfig.mode === "PENDING";
 
+  const generalInfoSection = useMemo(() => {
+    if (!test) {
+      return null;
+    }
+
+    return (
+      <GeneralInfoSection
+        generalInfo={test.generalInfo}
+        bancoId={test.bancoId ?? null}
+        onBankChange={handleBankChange}
+        t={t}
+        onDataChange={handlePdfDataChange}
+        allFieldsEditable={viewConfig.allFieldsEditable}
+        showQty={viewConfig.mode === "PENDING"}
+        isPending={viewConfig.mode === "PENDING"}
+      />
+    );
+  }, [
+    handleBankChange,
+    handlePdfDataChange,
+    t,
+    test,
+    viewConfig.allFieldsEditable,
+    viewConfig.mode,
+  ]);
+
   const leftColumn = useMemo(() => {
     if (!test) {
       return null;
@@ -90,17 +115,6 @@ export function DetailView({
 
     return (
       <>
-        <GeneralInfoSection
-          generalInfo={test.generalInfo}
-          bancoId={test.bancoId ?? null}
-          onBankChange={handleBankChange}
-          t={t}
-          onDataChange={handlePdfDataChange}
-          allFieldsEditable={viewConfig.allFieldsEditable}
-          showQty={viewConfig.mode === "PENDING"}
-          isPending={viewConfig.mode === "PENDING"}
-        />
-
         {shouldShowTestsToPerform ? (
           <TestsToPerformSection
             testsToPerform={testsToPerform}
@@ -115,16 +129,9 @@ export function DetailView({
           onDataChange={handlePdfDataChange}
           allFieldsEditable={viewConfig.allFieldsEditable}
         />
-
-        <FluidSection
-          pdfData={test.pdfData}
-          onDataChange={handlePdfDataChange}
-          allFieldsEditable={viewConfig.allFieldsEditable}
-        />
       </>
     );
   }, [
-    handleBankChange,
     handlePdfDataChange,
     shouldShowTestsToPerform,
     t,
@@ -132,7 +139,6 @@ export function DetailView({
     testsToPerform,
     toggleTest,
     viewConfig.allFieldsEditable,
-    viewConfig.mode,
   ]);
 
   const rightColumn = useMemo(() => {
@@ -155,11 +161,6 @@ export function DetailView({
             allFieldsEditable={viewConfig.allFieldsEditable}
           />
         ) : null}
-
-        <DetailsSection
-          pdfData={test.pdfData}
-          onDataChange={handlePdfDataChange}
-        />
       </>
     );
   }, [
@@ -167,6 +168,58 @@ export function DetailView({
     test,
     viewConfig.allFieldsEditable,
     viewConfig.showExtendedSections,
+  ]);
+
+  const commentsSection = useMemo(() => {
+    if (!test) {
+      return null;
+    }
+
+    return (
+      <DetailsSection
+        pdfData={test.pdfData}
+        onDataChange={handlePdfDataChange}
+      />
+    );
+  }, [handlePdfDataChange, test]);
+
+  const fluidSection = useMemo(() => {
+    if (!test) {
+      return null;
+    }
+
+    return (
+      <FluidSection
+        pdfData={test.pdfData}
+        onDataChange={handlePdfDataChange}
+        allFieldsEditable={viewConfig.allFieldsEditable}
+      />
+    );
+  }, [handlePdfDataChange, test, viewConfig.allFieldsEditable]);
+
+  const formSurface = useMemo(() => {
+    if (!test) {
+      return null;
+    }
+
+    return (
+      <div className="flex flex-col gap-5 pb-2">
+        {generalInfoSection}
+        <div className="grid min-w-0 gap-5 xl:grid-cols-2 xl:items-start xl:gap-6">
+          <div className="flex min-w-0 flex-col gap-5">{leftColumn}</div>
+          <div className="flex min-w-0 flex-col gap-5">{rightColumn}</div>
+        </div>
+        {fluidSection}
+        {commentsSection}
+      </div>
+    );
+  }, [
+    commentsSection,
+    fluidSection,
+    generalInfoSection,
+    leftColumn,
+    rightColumn,
+    test,
   ]);
 
   const detailPageHeader = useMemo(() => {
@@ -252,21 +305,17 @@ export function DetailView({
 
   return (
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[var(--supervisor-page-background)]">
-      <div className="relative min-h-0 flex-1 p-3 md:p-4">
+      <div className="relative min-h-0 flex-1 px-3 py-3 md:px-6 md:py-5">
         <div
           className={cn(
-            "grid h-full min-h-0 gap-4",
+            "grid h-full min-h-0 gap-4 md:gap-5",
             isPdfExpanded && !isMobile
-              ? "xl:grid-cols-[minmax(0,1fr)_26rem] 2xl:grid-cols-[minmax(0,1fr)_29rem]"
+              ? "xl:grid-cols-[minmax(0,1fr)_30rem] 2xl:grid-cols-[minmax(0,1fr)_34rem]"
               : "grid-cols-1",
           )}
         >
           <ScrollArea className="min-h-0">
-            <DetailSectionGrid
-              left={leftColumn}
-              right={rightColumn}
-              className="pb-1"
-            />
+            {formSurface}
           </ScrollArea>
 
           <DetailPreviewPanel

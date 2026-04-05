@@ -24,7 +24,7 @@ export function MotorDataSection({
         <img
           src="/icons/motor.png"
           alt="Motor"
-          className="size-5 brightness-0 dark:invert"
+          className="size-6 brightness-0 dark:invert"
         />
       }
       contentClassName="space-y-0"

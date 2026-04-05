@@ -84,7 +84,7 @@ export function FluidH2OSection({
   return (
     <DetailSectionCard
       title="Punto garantizado en agua (H2O)"
-      icon={<Droplets className="size-4 text-blue-500" />}
+      icon={<Droplets className="size-5 text-blue-500" />}
       action={
         showCalculatedIndicators ? (
           <div className="flex items-center gap-1 rounded-full bg-blue-500/10 px-2 py-1 text-xs text-blue-300">
@@ -95,9 +95,8 @@ export function FluidH2OSection({
       }
     >
       <ResponsiveFieldGrid
-        minItemWidth={140}
-        compactMinItemWidth={115}
-        denseMinItemWidth={95}
+        layout="container-2col"
+        gapClassName="gap-3"
       >
         <div className="relative">
           <CleanInput
@@ -110,7 +109,7 @@ export function FluidH2OSection({
             unit="m3/h"
             onChange={(val) => handleChange("flowRate", val)}
             className="h-10 text-sm font-mono"
-            containerClassName="min-w-0"
+            containerClassName="min-w-0 w-full"
             type="number"
           />
           {isCalculated("flowRate") && (
@@ -132,7 +131,7 @@ export function FluidH2OSection({
             unit="m"
             onChange={(val) => handleChange("head", val)}
             className="h-10 text-sm font-mono"
-            containerClassName="min-w-0"
+            containerClassName="min-w-0 w-full"
             type="number"
           />
           {isCalculated("head") && (
@@ -154,7 +153,7 @@ export function FluidH2OSection({
             unit="rpm"
             onChange={(val) => handleChange("rpm", val)}
             className="h-10 text-sm font-mono"
-            containerClassName="min-w-0"
+            containerClassName="min-w-0 w-full"
             type="number"
           />
           {isCalculated("rpm") && (
@@ -176,7 +175,7 @@ export function FluidH2OSection({
             unit="kW"
             onChange={(val) => handleChange("maxPower", val)}
             className="h-10 text-sm font-mono"
-            containerClassName="min-w-0"
+            containerClassName="min-w-0 w-full"
             type="number"
           />
           {isCalculated("maxPower") && (
@@ -198,7 +197,7 @@ export function FluidH2OSection({
             unit="%"
             onChange={(val) => handleChange("efficiency", val)}
             className="h-10 text-sm font-mono"
-            containerClassName="min-w-0"
+            containerClassName="min-w-0 w-full"
             type="number"
           />
           {isCalculated("efficiency") && (
@@ -215,7 +214,7 @@ export function FluidH2OSection({
           unit="m"
           onChange={(val) => handleChange("npshr", val)}
           className="h-10 text-sm font-mono"
-          containerClassName="min-w-0"
+          containerClassName="min-w-0 w-full"
           type="number"
         />
 
@@ -226,7 +225,7 @@ export function FluidH2OSection({
           onChange={(val) => handleChange("qMin", val)}
           className="h-10 text-sm font-mono"
           labelClassName="text-red-500"
-          containerClassName="min-w-0"
+          containerClassName="min-w-0 w-full"
           type="number"
         />
 
@@ -237,27 +236,27 @@ export function FluidH2OSection({
           onChange={(val) => handleChange("bepFlow", val)}
           className="h-10 text-sm font-mono"
           labelClassName="text-red-500"
-          containerClassName="min-w-0"
+          containerClassName="min-w-0 w-full"
           type="number"
         />
       </ResponsiveFieldGrid>
 
-      {showCalculatedIndicators && fluidData.density && (
-        <div className="rounded-lg bg-muted/30 p-2 text-xs text-muted-foreground">
-          <p>
-            <strong>Valores calculados usando:</strong>
+      {showCalculatedIndicators &&
+        (pdfData?.density != null || pdfData?.ce != null) && (
+        <div className="rounded-lg border border-border/60 bg-muted/5 px-3 py-2.5 text-xs leading-relaxed text-muted-foreground dark:bg-muted/15">
+          <p className="font-medium text-foreground/90">
+            Valores calculados usando:
           </p>
-          <ul className="mt-1 space-y-0.5">
-            {fluidData.density > 0 && (
-              <li>- Densidad: {fluidData.density} kg/m3</li>
+          <ul className="mt-1.5 list-inside list-disc space-y-0.5">
+            {pdfData?.density != null && Number(pdfData.density) > 0 && (
+              <li>Densidad: {pdfData.density} kg/m³</li>
             )}
-            {fluidData.ce && (
-              <li>- CE (Coeficiente Eficiencia): {fluidData.ce}</li>
+            {pdfData?.ce != null && pdfData.ce !== "" && (
+              <li>CE (coef. eficiencia): {pdfData.ce}</li>
             )}
           </ul>
-          <p className="mt-1 text-blue-600">
-            Los valores se actualizan automaticamente al cambiar los datos del
-            fluido.
+          <p className="mt-2 text-[11px] text-primary/90">
+            Se actualizan al cambiar los datos del fluido.
           </p>
         </div>
       )}

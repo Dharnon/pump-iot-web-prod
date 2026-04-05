@@ -4,7 +4,6 @@ import type { ChangeEvent, DragEvent } from "react";
 import { FileSpreadsheet, FileText } from "lucide-react";
 
 import { PdfViewer } from "@/components/PdfViewer";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -89,7 +88,7 @@ function PreviewContent({
   return (
     <div className={cn("flex h-full min-h-0 flex-col", className)}>
       <div className="border-b border-border/60 px-4 py-3">
-        <div className="mb-2">
+        <div className="mb-3">
           <h3 className="text-sm font-semibold tracking-tight text-foreground">
             Document source
           </h3>
@@ -111,23 +110,21 @@ function PreviewContent({
         </Tabs>
       </div>
 
-      <div className="min-h-0 flex-1 p-3">
+      <div className="min-h-0 flex-1 p-4">
         {previewMode === "pdf" ? (
-          <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/50">
-            <PdfViewer
-              file={file}
-              url={url}
-              onUpload={showPdfUpload ? onUpload : () => undefined}
-              onRemove={onRemove}
-              onDrop={showPdfUpload ? onDrop : () => undefined}
-              onDragOver={showPdfUpload ? onDragOver : () => undefined}
-              onDragLeave={showPdfUpload ? onDragLeave : () => undefined}
-              isDragging={isDragging}
-              onAnalyze={showPdfUpload ? onAnalyze : undefined}
-              isAnalyzing={isAnalyzing}
-              t={t}
-            />
-          </div>
+          <PdfViewer
+            file={file}
+            url={url}
+            onUpload={showPdfUpload ? onUpload : () => undefined}
+            onRemove={onRemove}
+            onDrop={showPdfUpload ? onDrop : () => undefined}
+            onDragOver={showPdfUpload ? onDragOver : () => undefined}
+            onDragLeave={showPdfUpload ? onDragLeave : () => undefined}
+            isDragging={isDragging}
+            onAnalyze={showPdfUpload ? onAnalyze : undefined}
+            isAnalyzing={isAnalyzing}
+            t={t}
+          />
         ) : (
           <ExcelPreviewPlaceholder />
         )}
@@ -166,10 +163,8 @@ export function DetailPreviewPanel({
   }
 
   return (
-    <aside className="min-h-0 overflow-hidden rounded-2xl border border-border/60 bg-card/45 shadow-sm">
-      <ScrollArea className="h-full">
-        <PreviewContent {...props} />
-      </ScrollArea>
+    <aside className="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-border/60 bg-card/35 shadow-sm">
+      <PreviewContent {...props} className="h-full" />
     </aside>
   );
 }

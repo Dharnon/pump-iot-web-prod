@@ -32,33 +32,36 @@ export function TestsToPerformSection({ testsToPerform, onToggleTest, t }: Tests
   return (
     <DetailSectionCard
       title={t("test.testsToPerform")}
-      icon={<Activity className="size-4" />}
+      icon={<Activity className="size-5" />}
       contentClassName="space-y-0"
     >
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {TESTS_TO_PERFORM.map(({ key, label }) => (
-          <div
+          <button
             key={key}
+            type="button"
             onClick={() => onToggleTest(key)}
-            className={`flex items-center justify-between px-2.5 py-1.5 rounded-md border cursor-pointer transition-all ${
+            className={`flex min-h-10 w-full min-w-0 items-center justify-between gap-2 rounded-lg border px-3 py-2 text-left transition-colors ${
               testsToPerform[key as keyof TestsToPerform]
-                ? 'bg-primary/10 border-primary/30 text-primary shadow-sm'
-                : 'bg-muted/30 border-border text-muted-foreground hover:border-primary/20'
+                ? "border-primary/35 bg-primary/10 text-primary shadow-sm"
+                : "border-border/60 bg-muted/5 text-muted-foreground hover:border-border hover:bg-muted/15 dark:bg-muted/10"
             }`}
           >
-            <span className="mr-2 text-xs font-semibold leading-tight">
+            <span className="text-[11px] font-semibold uppercase leading-tight tracking-wide">
               {label}
             </span>
-            <div className={`w-3 h-3 rounded-sm border flex items-center justify-center transition-colors ${
-              testsToPerform[key as keyof TestsToPerform]
-                ? 'bg-primary border-primary'
-                : 'border-muted-foreground/30 bg-background'
-            }`}>
-              {testsToPerform[key as keyof TestsToPerform] && (
-                <Check className="w-2 h-2 text-white" />
-              )}
+            <div
+              className={`flex size-3.5 shrink-0 items-center justify-center rounded border transition-colors ${
+                testsToPerform[key as keyof TestsToPerform]
+                  ? "border-primary bg-primary"
+                  : "border-input bg-background"
+              }`}
+            >
+              {testsToPerform[key as keyof TestsToPerform] ? (
+                <Check className="size-2 text-primary-foreground" />
+              ) : null}
             </div>
-          </div>
+          </button>
         ))}
       </div>
     </DetailSectionCard>

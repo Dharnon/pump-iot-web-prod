@@ -95,7 +95,7 @@ function DataGridTableHeadRow<TData>({
             ? 'bg-transparent'
             : 'bg-muted/40 dark:bg-[#232323]',
         props.tableLayout?.headerBorder &&
-          '[&>th]:border-b-[0.5px] [&>th]:border-[#161718]',
+          '[&>th]:border-b [&>th]:border-border/60 dark:[&>th]:border-b-[0.5px] dark:[&>th]:border-[#161718]',
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'bg-transparent',
         props.tableClassNames?.headerRow,
@@ -210,7 +210,7 @@ function DataGridTableBodyRowSkeleton({ children }: { children: ReactNode }) {
         !props.tableLayout?.stripped &&
           props.tableLayout?.rowBorder &&
           (props.tableClassNames?.bodyRowDivider ??
-            '[&>td]:border-b-[0.5px] [&>td]:border-[#161718]'),
+            '[&>td]:border-b [&>td]:border-border/60 dark:[&>td]:border-b-[0.5px] dark:[&>td]:border-[#161718]'),
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'odd:bg-muted/90 hover:bg-transparent odd:hover:bg-muted',
         table.options.enableRowSelection && '[&_>:first-child]:relative',
@@ -276,7 +276,7 @@ function DataGridTableBodyRow<TData>({
           cn(
             'hover:bg-muted/20 dark:hover:bg-white/[0.03]',
             props.tableClassNames?.bodyRowDivider ??
-              '[&>td]:border-b-[0.5px] [&>td]:border-[#161718]',
+              '[&>td]:border-b [&>td]:border-border/60 dark:[&>td]:border-b-[0.5px] dark:[&>td]:border-[#161718]',
           ),
         props.tableLayout?.cellBorder && '[&_>:last-child]:border-e-0',
         props.tableLayout?.stripped && 'odd:bg-muted/90 hover:bg-transparent odd:hover:bg-muted',
@@ -297,7 +297,7 @@ function DataGridTableBodyRowExpandded<TData>({ row }: { row: Row<TData> }) {
       className={cn(
         props.tableLayout?.rowBorder &&
           (props.tableClassNames?.bodyRowDivider ??
-            '[&>td]:border-b-[0.5px] [&>td]:border-[#161718]'),
+            '[&>td]:border-b [&>td]:border-border/60 dark:[&>td]:border-b-[0.5px] dark:[&>td]:border-[#161718]'),
       )}
     >
       <td colSpan={row.getVisibleCells().length}>
