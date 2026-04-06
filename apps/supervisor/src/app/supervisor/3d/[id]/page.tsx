@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Scene3D } from '@/components/3d/Scene3D';
 import { Button } from '@/components/ui/button';
@@ -11,12 +11,8 @@ export default function Test3DViewer() {
   const router = useRouter();
   const testId = params?.id as string;
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isRunning, setIsRunning] = useState(false);
-  const [motorSpeed, setMotorSpeed] = useState(50);
-
-  useEffect(() => {
-    setIsRunning(true);
-  }, []);
+  const [isRunning] = useState(true);
+  const [motorSpeed] = useState(50);
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-[var(--supervisor-page-background)]">

@@ -73,7 +73,7 @@ export function DetailStateActions({
 
       <Button
         size="sm"
-        className="rounded-md bg-red-600 px-4 text-white shadow-lg shadow-red-950/25 hover:bg-red-700"
+        className="rounded-md bg-red-600 px-4 text-white shadow-none hover:bg-red-700"
         onClick={handleSave}
         disabled={
           saving ||

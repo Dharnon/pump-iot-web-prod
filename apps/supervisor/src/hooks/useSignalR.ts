@@ -11,7 +11,7 @@
  * Note: supervisor is a Next.js app so API URL comes from NEXT_PUBLIC_API_URL.
  */
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   HubConnection,
   HubConnectionBuilder,
@@ -48,7 +48,9 @@ export function useSignalR({ onListUpdated }: UseSignalROptions = {}): UseSignal
   const [locks, setLocks] = useState<Locks>({});
 
   const onListUpdatedRef = useRef(onListUpdated);
-  onListUpdatedRef.current = onListUpdated;
+  useEffect(() => {
+    onListUpdatedRef.current = onListUpdated;
+  }, [onListUpdated]);
 
   useEffect(() => {
     const connection = new HubConnectionBuilder()

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCw, X, FileText, Upload, Search, Expand } from "lucide-react";
 
@@ -29,21 +29,11 @@ export function PdfViewer({
   isAnalyzing = false,
   t,
 }: PdfViewerProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const pdfSrc = url
     ? `${url}${url.includes("#") ? "&" : "#"}toolbar=0&navpanes=0&scrollbar=1&view=FitH`
     : null;
-
-  // Reset loading when URL changes to a valid URL
-  useEffect(() => {
-    if (url) {
-      setIsLoading(true);
-    }
-  }, [url]);
-
-  const handleIframeLoad = () => {
-    setIsLoading(false);
-  };
+  const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
+  const isLoading = Boolean(pdfSrc && loadedSrc !== pdfSrc);
 
   if (url) {
     return (
@@ -132,7 +122,7 @@ export function PdfViewer({
             src={pdfSrc ?? undefined}
             className="h-full min-h-[28rem] w-full border-none bg-white"
             title="PDF Preview"
-            onLoad={handleIframeLoad}
+            onLoad={() => setLoadedSrc(pdfSrc)}
           />
         </div>
         <input

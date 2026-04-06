@@ -156,12 +156,12 @@ export function GeneralInfoSection({
             <div className="flex min-w-0 w-full flex-col gap-2">
               <label className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
                 <Wrench className="size-3.5 shrink-0 text-primary/70" />
-                Bomba
+                {t("fieldBank")}
               </label>
               <BankSelect
                 currentBankId={bancoId ?? null}
                 onBankChange={onBankChange}
-                placeholder="Selec. bomba"
+                placeholder={t("fieldBankPlaceholder")}
                 className="h-10 text-sm"
               />
             </div>
@@ -202,7 +202,7 @@ export function GeneralInfoSection({
         ) : null}
         {bancoId !== null && bancoId !== undefined ? (
           <InfoField
-            label={t("field.bank") || "Banco"}
+            label={t("fieldBank")}
             value={`Banco ${bancoId}`}
             className="border-primary/25 bg-primary/[0.06]"
           />

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 type Language = "en" | "es";
 
@@ -111,6 +111,8 @@ const translations: Record<Language, Record<string, string>> = {
     "field.workOrder": "Work Order",
     "field.item": "ITEM",
     "field.clientOrder": "Client Order",
+    "fieldBank": "Bench",
+    "fieldBankPlaceholder": "Select bench",
 
     // PDF Fields
     "pdf.flow": "Flow",
@@ -257,6 +259,8 @@ const translations: Record<Language, Record<string, string>> = {
     "field.workOrder": "Orden Trabajo",
     "field.item": "ITEM",
     "field.clientOrder": "Ped. Cliente",
+    "fieldBank": "Banco",
+    "fieldBankPlaceholder": "Selecc. banco",
 
     // PDF Fields
     "pdf.flow": "Caudal",
@@ -313,15 +317,13 @@ const translations: Record<Language, Record<string, string>> = {
 };
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<Language>("es");
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    const stored = localStorage.getItem("language") as Language;
-    if (stored && (stored === "en" || stored === "es")) {
-      setLanguage(stored);
+  const [language, setLanguage] = useState<Language>(() => {
+    if (typeof window === "undefined") {
+      return "es";
     }
-  }, []);
+    const stored = localStorage.getItem("language") as Language;
+    return stored && (stored === "en" || stored === "es") ? stored : "es";
+  });
 
   const handleSetLanguage = (lang: Language) => {
     setLanguage(lang);

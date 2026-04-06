@@ -387,7 +387,7 @@ export function ImportModal({ onImportSuccess }: ImportModalProps) {
                 {step === "importing" && (
                     <div className="text-center py-8">
                         <Loader2 className="w-10 h-10 mx-auto text-primary animate-spin mb-3" />
-                        <p className="text-sm text-muted-foreground">Importando datos de "{selectedSheet}"...</p>
+                        <p className="text-sm text-muted-foreground">Importando datos de &quot;{selectedSheet}&quot;...</p>
                     </div>
                 )}
 

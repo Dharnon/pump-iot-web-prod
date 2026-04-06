@@ -75,14 +75,24 @@ export function ConfigurationToolbar({
           onValueChange={(value) => onActiveTabChange(value as ConfigurationTab)}
           className="w-full lg:w-auto"
         >
-          <TabsList variant="line" className="flex-wrap">
-            <TabsTrigger value="bancos">
+          <TabsList className="h-9 w-full min-w-0 flex-wrap justify-start gap-1 border border-border bg-secondary shadow-sm sm:w-auto sm:flex-nowrap">
+            <TabsTrigger
+              value="bancos"
+              className="gap-1.5 data-[state=inactive]:bg-secondary data-[state=active]:bg-background data-[state=active]:shadow-sm dark:data-[state=inactive]:bg-secondary dark:data-[state=active]:bg-background"
+            >
               Bancos
-              <Badge variant="secondary">{banksCount}</Badge>
+              <Badge variant="secondary" className="font-normal tabular-nums">
+                {banksCount}
+              </Badge>
             </TabsTrigger>
-            <TabsTrigger value="motores">
+            <TabsTrigger
+              value="motores"
+              className="gap-1.5 data-[state=inactive]:bg-secondary data-[state=active]:bg-background data-[state=active]:shadow-sm dark:data-[state=inactive]:bg-secondary dark:data-[state=active]:bg-background"
+            >
               Motores
-              <Badge variant="secondary">{motorsCount}</Badge>
+              <Badge variant="secondary" className="font-normal tabular-nums">
+                {motorsCount}
+              </Badge>
             </TabsTrigger>
           </TabsList>
         </Tabs>

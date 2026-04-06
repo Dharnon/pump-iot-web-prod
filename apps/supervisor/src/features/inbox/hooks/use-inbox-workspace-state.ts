@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import type {
   InboxStatusFilter,
@@ -19,63 +19,80 @@ const STORAGE_KEYS = {
   statusFilter: "dashboardStatusFilter",
 } as const;
 
+function normalizeStatusFilter(
+  nextViewMode: InboxViewMode,
+  currentStatus: InboxStatusFilter,
+): InboxStatusFilter {
+  if (
+    nextViewMode === "pending" &&
+    currentStatus !== "PENDING" &&
+    currentStatus !== "all"
+  ) {
+    return "PENDING";
+  }
+
+  if (
+    (nextViewMode === "protocols" ||
+      nextViewMode === "en_banco" ||
+      nextViewMode === "completed") &&
+    currentStatus === "PENDING"
+  ) {
+    return "all";
+  }
+
+  return currentStatus;
+}
+
 export function useInboxWorkspaceState() {
   const [globalFilter, setGlobalFilter] = useState("");
-  const [statusFilter, setStatusFilter] =
-    useState<InboxStatusFilter>("PENDING");
-  const [viewMode, setViewMode] = useState<InboxViewMode>("pending");
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
+  const [viewMode, setViewModeState] = useState<InboxViewMode>(() => {
+    if (typeof window === "undefined") {
+      return "pending";
+    }
     const savedViewMode = localStorage.getItem(
       STORAGE_KEYS.viewMode,
     ) as InboxViewMode | null;
+    return savedViewMode && VALID_VIEW_MODES.includes(savedViewMode)
+      ? savedViewMode
+      : "pending";
+  });
+  const [statusFilter, setStatusFilterState] = useState<InboxStatusFilter>(() => {
+    if (typeof window === "undefined") {
+      return "PENDING";
+    }
     const savedStatusFilter = localStorage.getItem(
       STORAGE_KEYS.statusFilter,
     ) as InboxStatusFilter | null;
+    const initialStatus = savedStatusFilter ?? "PENDING";
+    const savedViewMode = localStorage.getItem(
+      STORAGE_KEYS.viewMode,
+    ) as InboxViewMode | null;
+    const initialViewMode =
+      savedViewMode && VALID_VIEW_MODES.includes(savedViewMode)
+        ? savedViewMode
+        : "pending";
+    return normalizeStatusFilter(initialViewMode, initialStatus);
+  });
 
-    if (savedViewMode && VALID_VIEW_MODES.includes(savedViewMode)) {
-      setViewMode(savedViewMode);
-    }
-
-    if (savedStatusFilter) {
-      setStatusFilter(savedStatusFilter);
-    }
-
-    setIsReady(true);
+  const setViewMode = useCallback((nextViewMode: InboxViewMode) => {
+    setViewModeState(nextViewMode);
+    setStatusFilterState((current) =>
+      normalizeStatusFilter(nextViewMode, current),
+    );
   }, []);
 
+  const setStatusFilter = useCallback((nextStatus: InboxStatusFilter) => {
+    setStatusFilterState(normalizeStatusFilter(viewMode, nextStatus));
+  }, [viewMode]);
+
   useEffect(() => {
-    if (!isReady) {
+    if (typeof window === "undefined") {
       return;
     }
 
     localStorage.setItem(STORAGE_KEYS.viewMode, viewMode);
     localStorage.setItem(STORAGE_KEYS.statusFilter, statusFilter);
-  }, [isReady, statusFilter, viewMode]);
-
-  useEffect(() => {
-    if (!isReady) {
-      return;
-    }
-
-    if (
-      viewMode === "pending" &&
-      statusFilter !== "PENDING" &&
-      statusFilter !== "all"
-    ) {
-      setStatusFilter("PENDING");
-    }
-
-    if (
-      (viewMode === "protocols" ||
-        viewMode === "en_banco" ||
-        viewMode === "completed") &&
-      statusFilter === "PENDING"
-    ) {
-      setStatusFilter("all");
-    }
-  }, [isReady, statusFilter, viewMode]);
+  }, [statusFilter, viewMode]);
 
   return {
     globalFilter,
