@@ -16,6 +16,7 @@ interface BombaDataSectionProps {
   };
   onDataChange: (field: string, value: string) => void;
   allFieldsEditable?: boolean;
+  className?: string;
 }
 
 export function BombaDataSection({
@@ -23,10 +24,12 @@ export function BombaDataSection({
   generalInfo,
   onDataChange,
   allFieldsEditable = false,
+  className,
 }: BombaDataSectionProps) {
   return (
     <DetailSectionCard
       title="Datos bomba"
+      className={className}
       icon={
         <img
           src="/icons/water-pump.png"

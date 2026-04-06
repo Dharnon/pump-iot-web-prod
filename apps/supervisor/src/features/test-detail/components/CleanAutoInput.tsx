@@ -4,6 +4,10 @@ import { Input } from "@/components/ui/input";
 import { AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/** Dark-mode fill for detail form fields */
+const inputSurfaceClass =
+  "bg-background transition-all hover:bg-background focus:bg-background dark:bg-[#212121] dark:hover:bg-[#212121] dark:focus:bg-[#212121]";
+
 interface CleanAutoInputProps {
   label: string;
   value: any;
@@ -71,7 +75,8 @@ export function CleanAutoInput({
               placeholder="-"
               type={type === "number" ? "number" : "text"}
               className={cn(
-                "h-10 w-full bg-background pr-12 font-mono text-sm transition-all hover:bg-background focus:bg-background dark:bg-muted/20 dark:hover:bg-muted/35",
+                "h-10 w-full pr-12 font-mono text-sm",
+                inputSurfaceClass,
                 error
                   ? "border-destructive ring-1 ring-destructive/20"
                   : "border-input/80",
@@ -92,7 +97,8 @@ export function CleanAutoInput({
             fullWidth={fullWidth}
             type={type === "number" ? "number" : "text"}
             className={cn(
-              "h-10 bg-background font-mono text-sm transition-all hover:bg-background focus:bg-background dark:bg-muted/20 dark:hover:bg-muted/35",
+              "h-10 font-mono text-sm",
+              inputSurfaceClass,
               error
                 ? "border-destructive ring-1 ring-destructive/20"
                 : "border-input/80",

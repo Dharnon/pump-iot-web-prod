@@ -12,12 +12,14 @@ interface FluidSectionProps {
   pdfData: TestPdfData | null | undefined;
   onDataChange: (field: string, value: string) => void;
   allFieldsEditable?: boolean;
+  className?: string;
 }
 
-export function FluidSection({ pdfData, onDataChange }: FluidSectionProps) {
+export function FluidSection({ pdfData, onDataChange, className }: FluidSectionProps) {
   return (
     <DetailSectionCard
       title="Punto garantizado en fluido"
+      className={className}
       icon={<Droplets className="size-5 text-orange-500" />}
       contentClassName="space-y-0"
     >

@@ -22,11 +22,13 @@ interface FluidH2OSectionProps {
   pdfData: TestPdfData | null | undefined;
   onDataChange: (field: string, value: string) => void;
   allFieldsEditable?: boolean;
+  className?: string;
 }
 
 export function FluidH2OSection({
   pdfData,
   onDataChange,
+  className,
 }: FluidH2OSectionProps) {
   const calculatedWater = useMemo(() => {
     const fluidData: FluidData = {
@@ -84,6 +86,7 @@ export function FluidH2OSection({
   return (
     <DetailSectionCard
       title="Punto garantizado en agua (H2O)"
+      className={className}
       icon={<Droplets className="size-5 text-blue-500" />}
       action={
         showCalculatedIndicators ? (

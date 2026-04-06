@@ -21,6 +21,8 @@ interface GeneralInfoSectionProps {
   allFieldsEditable?: boolean;
   showQty?: boolean;
   isPending?: boolean;
+  /** e.g. `h-full min-h-0` when paired in a grid row */
+  className?: string;
 }
 
 /** Fecha ISO o texto libre → lectura corta en locale */
@@ -39,21 +41,25 @@ function formatGeneralDate(raw?: string): string {
   });
 }
 
-/** Stable column counts so the header row lines up with the rest of the form. */
+/**
+ * Responsive columns (never 5 in one row): avoids truncated inputs on wide screens.
+ * 5 fields → 3 + 2; 4 → 2×2; 3 → up to 3 columns from `md`.
+ */
 function generalInfoGridClass(fieldCount: number): string {
+  const base = "grid gap-3";
   if (fieldCount <= 1) {
-    return "grid grid-cols-1 gap-3";
+    return `${base} grid-cols-1`;
   }
   if (fieldCount === 2) {
-    return "grid grid-cols-1 gap-3 sm:grid-cols-2";
+    return `${base} grid-cols-1 sm:grid-cols-2`;
   }
   if (fieldCount === 3) {
-    return "grid grid-cols-1 gap-3 sm:grid-cols-3";
+    return `${base} grid-cols-1 sm:grid-cols-2 md:grid-cols-3`;
   }
   if (fieldCount === 4) {
-    return "grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4";
+    return `${base} grid-cols-1 sm:grid-cols-2`;
   }
-  return "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5";
+  return `${base} grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`;
 }
 
 function InfoField({
@@ -91,6 +97,7 @@ export function GeneralInfoSection({
   onDataChange,
   allFieldsEditable = false,
   showQty = true,
+  className,
 }: GeneralInfoSectionProps) {
   if (allFieldsEditable && onDataChange) {
     const fieldCount =
@@ -100,6 +107,7 @@ export function GeneralInfoSection({
       <DetailSectionCard
         title={t("test.generalInfo")}
         icon={<FileText className="size-5" />}
+        className={className}
         contentClassName="space-y-0"
       >
         <div className={cn("min-w-0", generalInfoGridClass(fieldCount))}>
@@ -172,6 +180,7 @@ export function GeneralInfoSection({
     <DetailSectionCard
       title={t("test.generalInfo")}
       icon={<FileText className="size-5" />}
+      className={className}
       contentClassName="space-y-0"
     >
       <div className={cn("min-w-0", generalInfoGridClass(readOnlyFieldCount))}>
