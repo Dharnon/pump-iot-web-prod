@@ -254,7 +254,7 @@ export function FluidH2OSection({
             {pdfData?.density != null && Number(pdfData.density) > 0 && (
               <li>Densidad: {pdfData.density} kg/m³</li>
             )}
-            {pdfData?.ce != null && pdfData.ce !== "" && (
+            {pdfData?.ce != null && (
               <li>CE (coef. eficiencia): {pdfData.ce}</li>
             )}
           </ul>

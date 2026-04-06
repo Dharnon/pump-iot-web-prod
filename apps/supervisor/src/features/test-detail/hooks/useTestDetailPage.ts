@@ -152,7 +152,7 @@ export function useTestDetailPage(
   const handlePdfDataChange = useCallback((field: string, value: TestDetailFieldValue) => {
     updateTestData(field, value);
 
-    const pdfData = test?.pdfData || {};
+    const pdfData = test?.pdfData;
     const fluidFields = [
       "fluidPower",
       "fluidEfficiency",
@@ -164,13 +164,13 @@ export function useTestDetailPage(
     ];
 
     if (fluidFields.includes(field) || field === "density" || field === "ce") {
-      const density = parseFloat(String(field === "density" ? value : pdfData.density)) || 1000;
-      const fluidPower = parseFloat(String(field === "fluidPower" ? value : pdfData.fluidPower)) || 0;
-      const fluidEfficiency = parseFloat(String(field === "fluidEfficiency" ? value : pdfData.fluidEfficiency)) || 0;
-      const fluidRpm = parseFloat(String(field === "fluidRpm" ? value : pdfData.fluidRpm)) || 0;
-      const ce = parseFloat(String(field === "ce" ? value : pdfData.ce)) || 1;
-      const fluidFlowRate = parseFloat(String(field === "fluidFlowRate" ? value : pdfData.fluidFlowRate)) || 0;
-      const fluidHead = parseFloat(String(field === "fluidHead" ? value : pdfData.fluidHead)) || 0;
+      const density = parseFloat(String(field === "density" ? value : pdfData?.density)) || 1000;
+      const fluidPower = parseFloat(String(field === "fluidPower" ? value : pdfData?.fluidPower)) || 0;
+      const fluidEfficiency = parseFloat(String(field === "fluidEfficiency" ? value : pdfData?.fluidEfficiency)) || 0;
+      const fluidRpm = parseFloat(String(field === "fluidRpm" ? value : pdfData?.fluidRpm)) || 0;
+      const ce = parseFloat(String(field === "ce" ? value : pdfData?.ce)) || 1;
+      const fluidFlowRate = parseFloat(String(field === "fluidFlowRate" ? value : pdfData?.fluidFlowRate)) || 0;
+      const fluidHead = parseFloat(String(field === "fluidHead" ? value : pdfData?.fluidHead)) || 0;
 
       const waterPower = density > 0 ? (fluidPower * 1000 / density).toFixed(2) : "0";
       const waterEfficiency = ce > 0 ? (fluidEfficiency / ce).toFixed(2) : "0";

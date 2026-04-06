@@ -2,6 +2,8 @@
  * MotorDataSection Component
  */
 
+import Image from "next/image";
+
 import { CleanAutoInput } from "./CleanAutoInput";
 import { ResponsiveFieldFlow } from "./ResponsiveFieldFlow";
 import type { TestPdfData } from "../services/dtoMapper";
@@ -21,9 +23,11 @@ export function MotorDataSection({
     <DetailSectionCard
       title="Motor"
       icon={
-        <img
+        <Image
           src="/icons/motor.png"
           alt="Motor"
+          width={24}
+          height={24}
           className="size-6 brightness-0 dark:invert"
         />
       }

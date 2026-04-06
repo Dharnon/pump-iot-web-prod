@@ -65,7 +65,10 @@ export function useTestSave(): UseTestSaveResult {
           viewMode === "PENDING",
         );
 
-        const result = await patchTest(test.id, requestBody);
+        const result = await patchTest(
+          test.id,
+          requestBody as unknown as Record<string, unknown>,
+        );
 
         if (pdfFile) {
           let protocolIds: (string | number)[] = [];

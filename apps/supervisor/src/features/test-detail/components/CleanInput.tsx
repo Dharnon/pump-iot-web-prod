@@ -9,7 +9,7 @@ const inputSurfaceClass =
 
 interface CleanInputProps {
   label: string;
-  value: any;
+  value: string | number | null | undefined;
   unit?: string;
   onChange?: (val: string) => void;
   className?: string;

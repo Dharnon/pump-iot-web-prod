@@ -100,6 +100,11 @@ export interface ExtractedSpecs {
     sealType?: string;
 }
 
+type PdfTextItem = {
+    transform: number[];
+    str: string;
+};
+
 // =============================================================================
 // FUNCIÓN PRINCIPAL DE EXTRACCIÓN
 // =============================================================================
@@ -154,7 +159,7 @@ export async function extractSpecsFromPdf(file: File): Promise<ExtractedSpecs> {
             // Los agrupamos por líneas (coordenada Y similar) y luego
             // ordenamos por X para reconstruir el orden de lectura.
 
-            const items = textContent.items as any[];
+            const items = textContent.items as PdfTextItem[];
 
             // Tolerancia en píxeles para considerar que dos items están en la misma línea
             const yTolerance = 5;
@@ -235,7 +240,7 @@ function parseTextToSpecs(text: string): ExtractedSpecs {
             const match = text.match(pattern);
             if (match && match[1]) {
                 // Limpiar: quitar comas de miles, convertir a número
-                let numStr = match[1].replace(/,/g, '');
+                const numStr = match[1].replace(/,/g, '');
                 return parseFloat(numStr);
             }
         }

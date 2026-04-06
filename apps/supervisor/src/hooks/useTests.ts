@@ -16,11 +16,11 @@ export function useTests() {
 
     if (isMock) {
         return {
-            tests: MOCK_TESTS,
+            tests: MOCK_TESTS as Test[],
             isLoading: false,
             isValidating: false,
             isError: null,
-            mutate: () => Promise.resolve([] as any)
+            mutate: () => Promise.resolve([] as Test[])
         };
     }
 

@@ -1,6 +1,15 @@
 import { Test } from '@/lib/api';
 
-export const MOCK_TESTS: Test[] = [
+type MockGeneralInfo = Test['generalInfo'] & {
+    modeloBomba: string;
+    ordenTrabajo: string;
+};
+
+type MockTest = Omit<Test, 'generalInfo'> & {
+    generalInfo: MockGeneralInfo;
+};
+
+export const MOCK_TESTS: MockTest[] = [
     {
         id: "MOCK-1",
         status: 'PENDING',
@@ -13,7 +22,7 @@ export const MOCK_TESTS: Test[] = [
             ordenDeTrabajo: "OT-1001",
             ordenTrabajo: "OT-1001",         // Dual field support
             numeroBombas: 2
-        } as any, // Cast to allow extra fields for UI compatibility
+        },
     },
     {
         id: "MOCK-2",
@@ -28,7 +37,7 @@ export const MOCK_TESTS: Test[] = [
             ordenDeTrabajo: "OT-1002",
             ordenTrabajo: "OT-1002",
             numeroBombas: 1
-        } as any,
+        },
     },
     {
         id: "MOCK-3",
@@ -43,7 +52,7 @@ export const MOCK_TESTS: Test[] = [
             ordenDeTrabajo: "OT-1003",
             ordenTrabajo: "OT-1003",
             numeroBombas: 5
-        } as any,
+        },
     },
     {
         id: "MOCK-4",
@@ -58,7 +67,7 @@ export const MOCK_TESTS: Test[] = [
             ordenDeTrabajo: "OT-1004",
             ordenTrabajo: "OT-1004",
             numeroBombas: 1
-        } as any,
+        },
     },
     {
         id: "MOCK-5",
@@ -73,7 +82,7 @@ export const MOCK_TESTS: Test[] = [
             ordenDeTrabajo: "OT-1005",
             ordenTrabajo: "OT-1005",
             numeroBombas: 2
-        } as any,
+        },
     },
     {
         id: "MOCK-6",
@@ -87,6 +96,6 @@ export const MOCK_TESTS: Test[] = [
             ordenDeTrabajo: "OT-1006",
             ordenTrabajo: "OT-1006",
             numeroBombas: 3
-        } as any,
+        },
     }
 ];

@@ -23,7 +23,7 @@ export interface TestPdfData {
   modeloBomba?: string;
   suctionDiameter?: number;
   dischargeDiameter?: number;
-  impellerDiameter?: string;
+  impellerDiameter?: string | number;
   sealType?: string;
   vertical?: boolean | string;
   
@@ -79,7 +79,7 @@ export interface TestPdfData {
 
 export interface TestSaveDTO {
   status?: string; // Optional, only set when finalizing from PENDING
-  bancoId: number;
+  bancoId: number | null;
   generalInfo: {
     pedido: string;
     cliente: string;
@@ -167,11 +167,12 @@ export function mapTestToSaveDTO(
   setStatusGenerated: boolean = true
 ): TestSaveDTO {
   // Helper to safely convert any value to string or undefined
-  const toString = (val: any) => val !== undefined && val !== null ? String(val) : undefined;
+  const toString = (val: string | number | boolean | null | undefined) =>
+    val !== undefined && val !== null ? String(val) : undefined;
 
   return {
     status: setStatusGenerated ? "GENERADO" : undefined,
-    bancoId: bancoId > 0 ? bancoId : (null as any),
+    bancoId: bancoId > 0 ? bancoId : null,
     generalInfo: {
       pedido: generalInfo.pedido,
       cliente: generalInfo.cliente,

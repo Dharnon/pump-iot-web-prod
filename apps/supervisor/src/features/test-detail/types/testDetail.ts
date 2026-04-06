@@ -1,9 +1,18 @@
 import type { TestsToPerform } from "@/lib/schemas";
+import type { ExtractedSpecs } from "@/lib/pdfExtractionService";
 import type { TestGeneralInfo, TestPdfData } from "../services/dtoMapper";
+import type {
+  BombaEntity,
+  DetallesEntity,
+  FluidoEntity,
+  FluidoH2OEntity,
+  MotorEntity,
+} from "../services/entityMapper";
 
 export type TestDetailStatus =
   | "PENDING"
   | "SIN_PROCESAR"
+  | "PROCESADO"
   | "EN_PROCESO"
   | "EN_BANCO"
   | "GENERADO"
@@ -12,7 +21,7 @@ export type TestDetailStatus =
 
 export type TestDetailFieldValue = string | number | boolean | null | undefined;
 
-export type PdfExtractionSpecs = Partial<TestPdfData>;
+export type PdfExtractionSpecs = ExtractedSpecs;
 
 export interface TestDetailRecord {
   id: string;
@@ -21,12 +30,12 @@ export interface TestDetailRecord {
   fecha?: string;
   status: TestDetailStatus;
   generalInfo: TestGeneralInfo;
-  bomba?: Record<string, unknown>;
+  bomba?: BombaEntity;
   cliente?: Record<string, unknown>;
-  motor?: Record<string, unknown>;
-  fluido?: Record<string, unknown>;
-  fluidoH2O?: Record<string, unknown>;
-  detalles?: Record<string, unknown>;
+  motor?: MotorEntity;
+  fluido?: FluidoEntity;
+  fluidoH2O?: FluidoH2OEntity;
+  detalles?: DetallesEntity;
   hasPdf?: boolean;
   pdfData?: TestPdfData;
   testsToPerform?: TestsToPerform;

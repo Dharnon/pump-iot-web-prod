@@ -7,7 +7,7 @@
 
 import type { TestPdfData } from './dtoMapper';
 
-interface BombaEntity {
+export interface BombaEntity {
   item?: string;
   tipo?: string;
   diametroAspiracion?: number;
@@ -17,7 +17,7 @@ interface BombaEntity {
   vertical?: boolean;
 }
 
-interface FluidoH2OEntity {
+export interface FluidoH2OEntity {
   caudal?: number;
   altura?: number;
   velocidad?: number;
@@ -26,7 +26,7 @@ interface FluidoH2OEntity {
   npshRequerido?: number;
 }
 
-interface FluidoEntity {
+export interface FluidoEntity {
   nombre?: string;
   temperatura?: number;
   viscosidad?: number;
@@ -41,7 +41,7 @@ interface FluidoEntity {
   rendimientoCoeficiente?: number;
 }
 
-interface DetallesEntity {
+export interface DetallesEntity {
   comentario?: string;
   comentarioInterno?: string;
   correccionManometrica?: number;
@@ -53,7 +53,7 @@ interface DetallesEntity {
   tiempoFuncionamientoBomba?: number;
 }
 
-interface MotorEntity {
+export interface MotorEntity {
   marca?: string;
   tipo?: string;
   potencia?: number;

@@ -2,6 +2,8 @@
  * BombaDataSection Component
  */
 
+import Image from "next/image";
+
 import { CleanAutoInput } from "./CleanAutoInput";
 import { ResponsiveFieldFlow } from "./ResponsiveFieldFlow";
 import type { TestPdfData } from "../services/dtoMapper";
@@ -31,9 +33,11 @@ export function BombaDataSection({
       title="Datos bomba"
       className={className}
       icon={
-        <img
+        <Image
           src="/icons/water-pump.png"
           alt="Bomba"
+          width={24}
+          height={24}
           className="size-6 brightness-0 dark:invert"
         />
       }

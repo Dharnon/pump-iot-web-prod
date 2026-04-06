@@ -13,13 +13,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useLanguage } from "@/lib/language-context";
+import { BancoFormDialog } from "@/features/configuration/components/banco-form-dialog";
+import { BancosTable } from "@/features/configuration/components/bancos-table";
 import { ConfigurationPage } from "@/features/configuration/components/configuration-page";
+import { MotorFormDialog } from "@/features/configuration/components/motor-form-dialog";
+import { MotoresTable } from "@/features/configuration/components/motores-table";
 import { useConfiguration } from "@/features/configuration/hooks/use-configuration";
-
-import { BancoFormDialog } from "./components/banco-form-dialog";
-import { BancosTable } from "./components/bancos-table";
-import { MotorFormDialog } from "./components/motor-form-dialog";
-import { MotoresTable } from "./components/motores-table";
 
 export default function ConfiguracionPageRoute() {
   const { t } = useLanguage();
@@ -159,7 +158,6 @@ export default function ConfiguracionPageRoute() {
       activeBanks={configuration.bancoStats.activos}
       banksWithoutMotor={banksWithoutMotor}
       motorTemplates={configuration.motorStats.total}
-      t={t}
       table={table}
       dialogs={dialogs}
     />

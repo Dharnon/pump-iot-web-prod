@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, type ComponentProps } from "react";
 import { useRouter } from "next/navigation";
 import { Kanban } from "react-kanban-kit";
 import { toast } from "sonner";
 import useSWR from "swr";
-import type { BoardItem, CardRenderProps, ConfigMap } from "react-kanban-kit";
+import type { BoardItem } from "react-kanban-kit";
 import { useSupervisorPageHeader } from "@/components/supervisor/supervisor-page-header-context";
 import { useSignalR } from "@/hooks/useSignalR";
 import { useTests } from "@/hooks/useTests";
@@ -101,9 +101,11 @@ export default function ProgramacionPage() {
   const statPillClass =
     "inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-foreground/85";
 
-  const configMap: ConfigMap = {
+  type KanbanConfigMap = NonNullable<ComponentProps<typeof Kanban>["configMap"]>;
+
+  const configMap: KanbanConfigMap = {
     card: {
-      render: ({ data }: CardRenderProps) => {
+      render: ({ data }: { data: BoardItem }) => {
         const boardItem = data as ProgramacionBoardNode;
         const test = boardItem.content as ProgramacionCardContent | undefined;
         const isCompleted = test?.status === "COMPLETED";

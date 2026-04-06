@@ -10,7 +10,7 @@ const inputSurfaceClass =
 
 interface CleanAutoInputProps {
   label: string;
-  value: any;
+  value: string | number | null | undefined;
   unit?: string;
   onChange?: (val: string) => void;
   className?: string;
@@ -51,7 +51,11 @@ export function CleanAutoInput({
 
   return (
     <div
-      className={`flex min-w-0 flex-col gap-2 ${containerClassName || ""}`}
+      className={cn(
+        "flex min-w-0 flex-col gap-2",
+        fullWidth && "w-full",
+        containerClassName,
+      )}
     >
       <div className="flex justify-between">
         <label
@@ -94,7 +98,6 @@ export function CleanAutoInput({
             onChange={(e) => handleChange(e.target.value)}
             placeholder="-"
             minWidth={minWidth}
-            fullWidth={fullWidth}
             type={type === "number" ? "number" : "text"}
             className={cn(
               "h-10 font-mono text-sm",
@@ -102,7 +105,7 @@ export function CleanAutoInput({
               error
                 ? "border-destructive ring-1 ring-destructive/20"
                 : "border-input/80",
-              fullWidth && "w-full max-w-full",
+              fullWidth && "!w-full max-w-full",
               className,
             )}
           />

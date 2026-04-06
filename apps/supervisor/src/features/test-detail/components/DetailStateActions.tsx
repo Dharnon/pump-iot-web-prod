@@ -41,7 +41,10 @@ export function DetailStateActions({
   viewMode,
 }: DetailStateActionsProps) {
   const canMoveToBank =
-    onMoveToBank && (test.status === "GENERATED" || test.status === "GENERADO");
+    onMoveToBank &&
+    (test.status === "GENERATED" ||
+      test.status === "GENERADO" ||
+      test.status === "PROCESADO");
   const canReturnToProcessed =
     onReturnToProcessed && test.status === "EN_BANCO";
 
@@ -75,11 +78,13 @@ export function DetailStateActions({
         size="sm"
         className="rounded-md bg-red-600 px-4 text-white shadow-none hover:bg-red-700"
         onClick={handleSave}
-        disabled={
+          disabled={
           saving ||
           test.status === "SIN_PROCESAR" ||
           (viewMode === "PENDING" &&
-            (test.status === "GENERATED" || test.status === "PROCESADO"))
+            (test.status === "GENERATED" ||
+              test.status === "PROCESADO" ||
+              test.status === "GENERADO"))
         }
       >
         {saving ? (

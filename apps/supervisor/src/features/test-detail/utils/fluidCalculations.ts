@@ -64,44 +64,45 @@ export function calculateWaterFromFluid(
 ): CalculatedWaterData {
     const density = fluid.density ?? 1; // Default to 1 to avoid division by zero
     const ce = fluid.ce ?? 1; // Default to 1 to avoid division by zero
+    const manual = manualWater ?? {};
 
     // Helper to check if a manual value exists
     const hasManual = (key: keyof WaterData) =>
-        manualWater && manualWater[key] !== undefined && manualWater[key] !== null;
+        manual[key] !== undefined && manual[key] !== null;
 
     // Caudal: direct from fluid (or PDF), can be overridden manually
     const flowRate = hasManual('flowRate')
-        ? manualWater.flowRate
+        ? manual.flowRate
         : fluid.fluidFlowRate ?? null;
 
     // Altura: direct from fluid (or PDF), can be overridden manually  
     const head = hasManual('head')
-        ? manualWater.head
+        ? manual.head
         : fluid.fluidHead ?? null;
 
     // Velocidad: direct from fluid, can be overridden manually
     const rpm = hasManual('rpm')
-        ? manualWater.rpm
+        ? manual.rpm
         : fluid.fluidRpm ?? null;
 
     // Potencia: fluidPower / density
     const maxPower = hasManual('maxPower')
-        ? manualWater.maxPower
+        ? manual.maxPower
         : (fluid.fluidPower && density > 0)
             ? fluid.fluidPower / density
             : null;
 
     // Eficiencia: fluidEfficiency / CE
     const efficiency = hasManual('efficiency')
-        ? manualWater.efficiency
+        ? manual.efficiency
         : (fluid.fluidEfficiency && ce > 0)
             ? fluid.fluidEfficiency / ce
             : null;
 
     // NPSHR, QMin, BEP - always manual (from PDF or entered manually)
-    const npshr = manualWater?.npshr ?? null;
-    const qMin = manualWater?.qMin ?? null;
-    const bepFlow = manualWater?.bepFlow ?? null;
+    const npshr = manual.npshr ?? null;
+    const qMin = manual.qMin ?? null;
+    const bepFlow = manual.bepFlow ?? null;
 
     return {
         flowRate,

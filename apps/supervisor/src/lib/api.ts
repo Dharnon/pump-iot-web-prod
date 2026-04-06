@@ -40,6 +40,8 @@
  * @example En .env.local:
  * NEXT_PUBLIC_API_URL=http://192.168.1.100:4000
  */
+import type { TestDetailRecord } from '@/features/test-detail/types/testDetail';
+
 const getApiBaseUrl = () => {
     const envUrl = process.env.NEXT_PUBLIC_API_URL;
     if (envUrl) return envUrl;
@@ -141,7 +143,7 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
  * Fetcher function for SWR
  * @param url - The endpoint URL
  */
-export const swrFetcher = (url: string) => fetchApi<any>(url);
+export const swrFetcher = <T,>(url: string) => fetchApi<T>(url);
 
 // =============================================================================
 // AUTENTICACIÓN
@@ -338,8 +340,15 @@ export async function getTests(): Promise<Test[]> {
  * @param id - Identificador de la prueba (ej: "pending-1" o "123")
  * @returns Datos detallados de la prueba
  */
-export async function getTestById(id: string): Promise<any> {
-    return fetchApi<any>(`/api/tests/${id}`);
+export async function getTestById(id: string): Promise<TestDetailRecord> {
+    return fetchApi<TestDetailRecord>(`/api/tests/${id}`);
+}
+
+export interface TestPatchResponse {
+    success?: boolean;
+    id?: number;
+    ids?: number[];
+    message?: string;
 }
 
 /**
@@ -349,8 +358,8 @@ export async function getTestById(id: string): Promise<any> {
  * @param data - Objeto con los campos a actualizar (status, technicalInfo, etc.)
  * @returns Resultado de la operación
  */
-export async function patchTest(id: string, data: any): Promise<any> {
-    return fetchApi<any>(`/api/tests/${id}`, {
+export async function patchTest(id: string, data: Record<string, unknown>): Promise<TestPatchResponse> {
+    return fetchApi<TestPatchResponse>(`/api/tests/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data)
     });
@@ -362,8 +371,8 @@ export async function patchTest(id: string, data: any): Promise<any> {
  * @param id - ID de la prueba o protocolo
  * @returns Resultado de la operación
  */
-export async function deleteTest(id: string): Promise<any> {
-    return fetchApi<any>(`/api/tests/${id}`, {
+export async function deleteTest(id: string): Promise<void> {
+    return fetchApi<void>(`/api/tests/${id}`, {
         method: 'DELETE'
     });
 }
@@ -394,8 +403,8 @@ export async function generateProtocols(
  * @param ids - Ordered list of test IDs (NumeroProtocolo)
  * @param bancoId - Optional bank ID to move the tests to
  */
-export async function reorderTests(ids: number[], bancoId?: number): Promise<any> {
-    return fetchApi('/api/tests/reorder', {
+export async function reorderTests(ids: number[], bancoId?: number): Promise<void> {
+    return fetchApi<void>('/api/tests/reorder', {
         method: 'POST',
         body: JSON.stringify({ ids, bancoId })
     });
@@ -456,9 +465,9 @@ export async function updateBanco(id: number, data: Partial<Banco>): Promise<Ban
 export async function deleteBanco(
     id: number,
     options?: { hard?: boolean }
-): Promise<any> {
+): Promise<void> {
     if (!options?.hard) {
-        return fetchApi<any>(`/api/bancos/${id}`, {
+        return fetchApi<void>(`/api/bancos/${id}`, {
             method: 'DELETE'
         });
     }
@@ -473,13 +482,13 @@ export async function deleteBanco(
 
     for (const endpoint of hardDeleteEndpoints) {
         try {
-            return await fetchApi<any>(endpoint, { method: 'DELETE' });
+            return await fetchApi<void>(endpoint, { method: 'DELETE' });
         } catch {
             // Keep trying alternative hard-delete endpoints.
         }
     }
 
-    return fetchApi<any>(`/api/bancos/${id}`, {
+    return fetchApi<void>(`/api/bancos/${id}`, {
         method: 'DELETE'
     });
 }
@@ -521,8 +530,8 @@ export async function updateMotor(id: number, data: Partial<MotorPlantilla>): Pr
     });
 }
 
-export async function deleteMotor(id: number): Promise<any> {
-    return fetchApi<any>(`/api/motores/${id}`, {
+export async function deleteMotor(id: number): Promise<void> {
+    return fetchApi<void>(`/api/motores/${id}`, {
         method: 'DELETE'
     });
 }

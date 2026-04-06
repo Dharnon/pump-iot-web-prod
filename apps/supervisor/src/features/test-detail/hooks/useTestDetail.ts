@@ -48,14 +48,12 @@ export function useTestDetail(testId: string): UseTestDetailResult {
         // Dynamic import to avoid bundling mock data in production if not needed, 
         // though here it's fine.
         const { MOCK_TEST_DETAIL } = await import('./mockData');
-        console.log("USING MOCK DATA");
-
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 800));
 
         data = { ...MOCK_TEST_DETAIL, id: testId };
       } else {
-        data = await getTestById(testId);
+        data = await getTestById(testId) as TestDetailRecord;
       }
 
       // If generated/completed, map entity data to pdfData for form editing using service layer
