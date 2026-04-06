@@ -54,7 +54,7 @@ export function MotorDataSection({
           unit="kW"
           onChange={(val) => onDataChange("motorPotencia", val)}
           className="h-10 text-sm font-mono"
-          minWidth={105}
+          minWidth={88}
           type="number"
         />
         <CleanAutoInput
@@ -63,7 +63,7 @@ export function MotorDataSection({
           unit="rpm"
           onChange={(val) => onDataChange("motorVelocidad", val)}
           className="h-10 text-sm font-mono"
-          minWidth={110}
+          minWidth={92}
           type="number"
         />
         <CleanAutoInput
@@ -72,7 +72,7 @@ export function MotorDataSection({
           unit="A"
           onChange={(val) => onDataChange("motorIntensidad", val)}
           className="h-10 text-sm font-mono"
-          minWidth={100}
+          minWidth={84}
           type="number"
         />
         <CleanAutoInput
@@ -81,7 +81,7 @@ export function MotorDataSection({
           unit="%"
           onChange={(val) => onDataChange("motorRendimiento25", val)}
           className="h-10 text-sm font-mono"
-          minWidth={95}
+          minWidth={78}
           type="number"
         />
         <CleanAutoInput
@@ -90,7 +90,7 @@ export function MotorDataSection({
           unit="%"
           onChange={(val) => onDataChange("motorRendimiento50", val)}
           className="h-10 text-sm font-mono"
-          minWidth={95}
+          minWidth={78}
           type="number"
         />
         <CleanAutoInput
@@ -99,7 +99,7 @@ export function MotorDataSection({
           unit="%"
           onChange={(val) => onDataChange("motorRendimiento75", val)}
           className="h-10 text-sm font-mono"
-          minWidth={95}
+          minWidth={78}
           type="number"
         />
         <CleanAutoInput
@@ -108,7 +108,7 @@ export function MotorDataSection({
           unit="%"
           onChange={(val) => onDataChange("motorRendimiento100", val)}
           className="h-10 text-sm font-mono"
-          minWidth={95}
+          minWidth={78}
           type="number"
         />
         <CleanAutoInput
@@ -117,7 +117,7 @@ export function MotorDataSection({
           unit="%"
           onChange={(val) => onDataChange("motorRendimiento125", val)}
           className="h-10 text-sm font-mono"
-          minWidth={95}
+          minWidth={78}
           type="number"
         />
       </ResponsiveFieldFlow>

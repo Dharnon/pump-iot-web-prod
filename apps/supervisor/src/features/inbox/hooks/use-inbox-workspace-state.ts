@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import type {
+  InboxMetricId,
   InboxStatusFilter,
   InboxViewMode,
 } from "@/features/inbox/lib/inbox-selectors";
@@ -85,6 +86,33 @@ export function useInboxWorkspaceState() {
     setStatusFilterState(normalizeStatusFilter(viewMode, nextStatus));
   }, [viewMode]);
 
+  const selectInboxMetric = useCallback((metric: InboxMetricId) => {
+    switch (metric) {
+      case "pending":
+        setViewModeState("pending");
+        setStatusFilterState("PENDING");
+        break;
+      case "protocols_generated":
+        setViewModeState("protocols");
+        setStatusFilterState("all");
+        break;
+      case "en_banco":
+        setViewModeState("en_banco");
+        setStatusFilterState("all");
+        break;
+      case "active":
+        setViewModeState("protocols");
+        setStatusFilterState("IN_PROGRESS");
+        break;
+      case "completed":
+        setViewModeState("completed");
+        setStatusFilterState("all");
+        break;
+      default:
+        break;
+    }
+  }, []);
+
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -101,5 +129,6 @@ export function useInboxWorkspaceState() {
     setStatusFilter,
     viewMode,
     setViewMode,
+    selectInboxMetric,
   };
 }

@@ -24,10 +24,6 @@ import { InboxViewTabs } from "./inbox-view-tabs";
 function InboxTopBar({
   viewMode,
   onViewModeChange,
-  pendingCount,
-  generatedCount,
-  enBancoCount,
-  completedCount,
   statusFilter,
   onStatusFilterChange,
   globalFilter,
@@ -39,10 +35,6 @@ function InboxTopBar({
 }: {
   viewMode: InboxViewMode;
   onViewModeChange: (value: InboxViewMode) => void;
-  pendingCount: number;
-  generatedCount: number;
-  enBancoCount: number;
-  completedCount: number;
   statusFilter: InboxStatusFilter;
   onStatusFilterChange: (value: InboxStatusFilter) => void;
   globalFilter: string;
@@ -58,10 +50,6 @@ function InboxTopBar({
         <InboxViewTabs
           viewMode={viewMode}
           onViewModeChange={onViewModeChange}
-          pendingCount={pendingCount}
-          generatedCount={generatedCount}
-          enBancoCount={enBancoCount}
-          completedCount={completedCount}
         />
       </div>
       <div className="flex min-h-9 min-w-0 flex-1 flex-nowrap items-center justify-end gap-2 overflow-x-auto [scrollbar-width:thin]">
@@ -116,6 +104,9 @@ export function InboxPage() {
         enBancoCount={inboxData.enBancoCount}
         activeCount={inboxData.inProgressTests.length}
         completedCount={inboxData.completedCount}
+        viewMode={workspace.viewMode}
+        statusFilter={workspace.statusFilter}
+        onMetricSelect={workspace.selectInboxMetric}
       />
 
       <WorkspaceSurface className="min-h-0 flex-1 flex-col gap-3">
@@ -124,10 +115,6 @@ export function InboxPage() {
             <InboxTopBar
               viewMode={workspace.viewMode}
               onViewModeChange={workspace.setViewMode}
-              pendingCount={inboxData.pendingTests.length}
-              generatedCount={inboxData.generatedTests.length}
-              enBancoCount={inboxData.enBancoCount}
-              completedCount={inboxData.completedCount}
               statusFilter={workspace.statusFilter}
               onStatusFilterChange={workspace.setStatusFilter}
               globalFilter={workspace.globalFilter}
@@ -146,10 +133,6 @@ export function InboxPage() {
             <InboxTopBar
               viewMode={workspace.viewMode}
               onViewModeChange={workspace.setViewMode}
-              pendingCount={inboxData.pendingTests.length}
-              generatedCount={inboxData.generatedTests.length}
-              enBancoCount={inboxData.enBancoCount}
-              completedCount={inboxData.completedCount}
               statusFilter={workspace.statusFilter}
               onStatusFilterChange={workspace.setStatusFilter}
               globalFilter={workspace.globalFilter}
@@ -172,10 +155,6 @@ export function InboxPage() {
               key={workspace.viewMode}
               viewMode={workspace.viewMode}
               onViewModeChange={workspace.setViewMode}
-              pendingCount={inboxData.pendingTests.length}
-              generatedCount={inboxData.generatedTests.length}
-              enBancoCount={inboxData.enBancoCount}
-              completedCount={inboxData.completedCount}
               statusFilter={workspace.statusFilter}
               onStatusFilterChange={workspace.setStatusFilter}
               globalFilter={workspace.globalFilter}

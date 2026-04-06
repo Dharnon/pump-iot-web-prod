@@ -2,10 +2,11 @@
 
 import type { ReactNode } from "react";
 
+import { WorkspaceSurface } from "@/components/workspace/workspace-surface";
+
 import type { ConfigurationTab } from "./configuration-toolbar";
 import { ConfigurationHeaderRegistration } from "./configuration-header-registration";
 import { ConfigurationMetrics } from "./configuration-metrics";
-import { ConfigurationSurface } from "./configuration-surface";
 import { ConfigurationToolbar } from "./configuration-toolbar";
 
 export function ConfigurationPage({
@@ -14,8 +15,6 @@ export function ConfigurationPage({
   searchValue,
   onSearchValueChange,
   onCreate,
-  banksCount,
-  motorsCount,
   banksWithMotorCount,
   banksInactiveCount,
   activeBanks,
@@ -29,8 +28,6 @@ export function ConfigurationPage({
   searchValue: string;
   onSearchValueChange: (value: string) => void;
   onCreate: () => void;
-  banksCount: number;
-  motorsCount: number;
   banksWithMotorCount: number;
   banksInactiveCount: number;
   activeBanks: number;
@@ -51,21 +48,17 @@ export function ConfigurationPage({
           banksUsingMotorTemplate={banksWithMotorCount}
         />
 
-        <ConfigurationSurface>
+        <WorkspaceSurface className="min-h-0 flex-1 flex-col gap-3">
           <ConfigurationToolbar
             activeTab={activeTab}
             onActiveTabChange={onActiveTabChange}
             searchValue={searchValue}
             onSearchValueChange={onSearchValueChange}
             onCreate={onCreate}
-            banksCount={banksCount}
-            motorsCount={motorsCount}
-            banksWithMotorCount={banksWithMotorCount}
-            banksInactiveCount={banksInactiveCount}
           />
 
-          <div className="flex min-h-0 flex-col">{table}</div>
-        </ConfigurationSurface>
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">{table}</div>
+        </WorkspaceSurface>
       </div>
 
       {dialogs}

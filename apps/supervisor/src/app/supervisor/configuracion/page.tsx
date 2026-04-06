@@ -151,8 +151,6 @@ export default function ConfiguracionPageRoute() {
           ? configuration.openBancoDialog()
           : configuration.openMotorDialog()
       }
-      banksCount={configuration.bancoStats.total}
-      motorsCount={configuration.motorStats.total}
       banksWithMotorCount={banksWithMotor}
       banksInactiveCount={configuration.bancoStats.inactivos}
       activeBanks={configuration.bancoStats.activos}

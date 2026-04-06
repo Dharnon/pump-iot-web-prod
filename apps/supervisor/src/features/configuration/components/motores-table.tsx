@@ -35,7 +35,7 @@ export function MotoresTable({
   searchQuery,
 }: MotoresTableProps) {
   return (
-    <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-border/60 bg-card/40 shadow-sm">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-lg border border-border/50 bg-card/40 dark:bg-[#0a0a0a]">
       <Table>
         <TableHeader>
           <TableRow>

@@ -6,6 +6,7 @@ export type InboxViewMode =
   | "protocols"
   | "en_banco"
   | "completed";
+
 export type InboxStatusFilter =
   | "all"
   | "PENDING"
@@ -14,6 +15,43 @@ export type InboxStatusFilter =
   | "IN_PROGRESS"
   | "COMPLETED"
   | "EN_BANCO";
+
+/** Tarjetas de métricas del inbox (alineadas con filtros / pestañas) */
+export type InboxMetricId =
+  | "pending"
+  | "protocols_generated"
+  | "en_banco"
+  | "active"
+  | "completed";
+
+export function isInboxMetricSelected(
+  id: InboxMetricId,
+  viewMode: InboxViewMode,
+  statusFilter: InboxStatusFilter,
+): boolean {
+  switch (id) {
+    case "pending":
+      return viewMode === "pending";
+    case "protocols_generated":
+      return (
+        viewMode === "protocols" &&
+        (statusFilter === "all" ||
+          statusFilter === "GENERATED" ||
+          statusFilter === "GENERADO")
+      );
+    case "en_banco":
+      return (
+        viewMode === "en_banco" ||
+        (viewMode === "protocols" && statusFilter === "EN_BANCO")
+      );
+    case "active":
+      return viewMode === "protocols" && statusFilter === "IN_PROGRESS";
+    case "completed":
+      return viewMode === "completed";
+    default:
+      return false;
+  }
+}
 
 export function getPendingTests(tests: Test[]) {
   return tests.filter((test) => test.id.startsWith("pending-"));

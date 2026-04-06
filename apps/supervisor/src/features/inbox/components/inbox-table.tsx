@@ -22,10 +22,6 @@ export function InboxTable<TData extends object, TValue>({
   onRowClick,
   viewMode,
   onViewModeChange,
-  pendingCount,
-  generatedCount,
-  enBancoCount,
-  completedCount,
   statusFilter,
   onStatusFilterChange,
   onGlobalFilterChange,
@@ -41,10 +37,6 @@ export function InboxTable<TData extends object, TValue>({
   onRowClick: (row: TData) => void;
   viewMode: InboxViewMode;
   onViewModeChange: (value: InboxViewMode) => void;
-  pendingCount: number;
-  generatedCount: number;
-  enBancoCount: number;
-  completedCount: number;
   statusFilter: InboxStatusFilter;
   onStatusFilterChange: (value: InboxStatusFilter) => void;
   onGlobalFilterChange: (value: string) => void;
@@ -57,10 +49,6 @@ export function InboxTable<TData extends object, TValue>({
     <InboxViewTabs
       viewMode={viewMode}
       onViewModeChange={onViewModeChange}
-      pendingCount={pendingCount}
-      generatedCount={generatedCount}
-      enBancoCount={enBancoCount}
-      completedCount={completedCount}
     />
   );
 

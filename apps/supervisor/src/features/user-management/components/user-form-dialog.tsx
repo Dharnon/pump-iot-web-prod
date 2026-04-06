@@ -1,7 +1,10 @@
+"use client";
+
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+
 import {
   Dialog,
   DialogContent,
@@ -27,9 +30,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { User } from "../hooks/useUsers";
-
 import { Switch } from "@/components/ui/switch";
+
+import type { User, UserFormData } from "@/features/user-management/types";
 
 const userSchema = z.object({
   username: z
@@ -38,7 +41,7 @@ const userSchema = z.object({
   email: z.string().email("Ingrese un correo electrónico válido"),
   role: z.enum(["supervisor", "operario"]),
   isActive: z.boolean(),
-  password: z.string(), // Always a string (can be empty string for edit)
+  password: z.string(),
 });
 
 type UserFormValues = z.infer<typeof userSchema>;
@@ -46,8 +49,8 @@ type UserFormValues = z.infer<typeof userSchema>;
 interface UserFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  user?: User | null; // If null, creating new user
-  onSubmit: (data: UserFormValues) => Promise<void>;
+  user?: User | null;
+  onSubmit: (data: UserFormData) => Promise<void>;
 }
 
 export function UserFormDialog({
@@ -67,27 +70,29 @@ export function UserFormDialog({
     },
   });
 
-  // Reset form when dialog opens/closes or user changes
   useEffect(() => {
-    if (open) {
-      if (user) {
-        form.reset({
-          username: user.username,
-          email: user.email || "",
-          role: user.role,
-          isActive: user.isActive,
-          password: "",
-        });
-      } else {
-        form.reset({
-          username: "",
-          email: "",
-          role: "operario",
-          isActive: true, // Default active for new users
-          password: "",
-        });
-      }
+    if (!open) {
+      return;
     }
+
+    if (user) {
+      form.reset({
+        username: user.username,
+        email: user.email || "",
+        role: user.role,
+        isActive: user.isActive,
+        password: "",
+      });
+      return;
+    }
+
+    form.reset({
+      username: "",
+      email: "",
+      role: "operario",
+      isActive: true,
+      password: "",
+    });
   }, [open, user, form]);
 
   const handleSubmit = async (data: UserFormValues) => {
@@ -97,6 +102,7 @@ export function UserFormDialog({
       });
       return;
     }
+
     await onSubmit(data);
     onOpenChange(false);
   };
@@ -105,7 +111,7 @@ export function UserFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{user ? "Editar Usuario" : "Crear Usuario"}</DialogTitle>
+          <DialogTitle>{user ? "Editar usuario" : "Crear usuario"}</DialogTitle>
           <DialogDescription>
             {user
               ? "Modifique los datos del usuario aquí."
@@ -137,7 +143,7 @@ export function UserFormDialog({
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Correo Electrónico</FormLabel>
+                  <FormLabel>Correo electrónico</FormLabel>
                   <FormControl>
                     <Input placeholder="Ej: juan@flowserve.com" {...field} />
                   </FormControl>
@@ -200,7 +206,7 @@ export function UserFormDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    {user ? "Contraseña (Opcional)" : "Contraseña"}
+                    {user ? "Contraseña (opcional)" : "Contraseña"}
                   </FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="******" {...field} />
@@ -221,3 +227,4 @@ export function UserFormDialog({
     </Dialog>
   );
 }
+

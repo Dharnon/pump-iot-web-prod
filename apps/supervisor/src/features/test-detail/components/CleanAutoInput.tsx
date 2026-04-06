@@ -49,11 +49,17 @@ export function CleanAutoInput({
     if (onChange) onChange(val);
   };
 
+  const unitFieldMaxWidth =
+    unit && typeof minWidth === "number"
+      ? `${minWidth + 52}px`
+      : undefined;
+
   return (
     <div
       className={cn(
         "flex min-w-0 flex-col gap-2",
         fullWidth && "w-full",
+        unit && !fullWidth && "w-fit max-w-full shrink-0",
         containerClassName,
       )}
     >
@@ -67,8 +73,15 @@ export function CleanAutoInput({
       <div
         className={cn(
           "relative",
-          unit ? "w-full min-w-0" : "inline-flex min-w-0 max-w-full items-center",
+          unit
+            ? "w-full min-w-0 max-w-full"
+            : "inline-flex min-w-0 max-w-full items-center",
         )}
+        style={
+          unit && unitFieldMaxWidth && !fullWidth
+            ? { maxWidth: unitFieldMaxWidth }
+            : undefined
+        }
       >
         {unit ? (
           <>
@@ -79,7 +92,7 @@ export function CleanAutoInput({
               placeholder="-"
               type={type === "number" ? "number" : "text"}
               className={cn(
-                "h-10 w-full pr-12 font-mono text-sm",
+                "h-10 w-full min-w-0 pr-12 font-mono text-sm",
                 inputSurfaceClass,
                 error
                   ? "border-destructive ring-1 ring-destructive/20"
