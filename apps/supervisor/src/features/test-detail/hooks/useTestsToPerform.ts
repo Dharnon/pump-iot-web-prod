@@ -13,6 +13,7 @@ import type { PdfExtractionSpecs } from "../types/testDetail";
 export interface UseTestsToPerformResult {
   testsToPerform: TestsToPerform;
   toggleTest: (key: string) => void;
+  applyTestsPatch: (patch: Partial<TestsToPerform>) => void;
   setTestsToPerform: React.Dispatch<React.SetStateAction<TestsToPerform>>;
   autoSetTests: (specs: PdfExtractionSpecs) => void;
 }
@@ -36,6 +37,24 @@ export function useTestsToPerform(): UseTestsToPerformResult {
   }, []);
 
   /**
+   * Applies a partial patch to tests without toggle semantics.
+   */
+  const applyTestsPatch = useCallback((patch: Partial<TestsToPerform>) => {
+    const sanitizedPatch = Object.fromEntries(
+      Object.entries(patch).filter(([, value]) => value !== undefined),
+    ) as Partial<TestsToPerform>;
+
+    if (Object.keys(sanitizedPatch).length === 0) {
+      return;
+    }
+
+    setTestsToPerform((prev) => ({
+      ...prev,
+      ...sanitizedPatch,
+    }));
+  }, []);
+
+  /**
    * Auto-sets tests based on extracted PDF specs
    */
   const autoSetTests = useCallback((specs: PdfExtractionSpecs) => {
@@ -51,6 +70,7 @@ export function useTestsToPerform(): UseTestsToPerformResult {
   return {
     testsToPerform,
     toggleTest,
+    applyTestsPatch,
     setTestsToPerform,
     autoSetTests,
   };

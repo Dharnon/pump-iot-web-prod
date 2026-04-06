@@ -111,6 +111,8 @@ export async function fetchApi<T>(endpoint: string, options?: RequestInit): Prom
                 const errorJson = JSON.parse(errorText);
                 throw new Error(
                     errorJson.error ||
+                        errorJson.detail ||
+                        errorJson.title ||
                         errorJson.message ||
                         `Error HTTP ${response.status}`,
                 );
@@ -420,20 +422,29 @@ export interface Banco {
     nombre: string;
     estado: boolean;
     motorPlantillaId?: number | null;
-    motorPlantilla?: {
-        id: number;
-        nombre?: string;
-        marca?: string;
-        tipo?: string;
-        potencia?: number;
-        velocidad?: number;
-        intensidad?: number;
-        rendimiento25?: number;
-        rendimiento50?: number;
-        rendimiento75?: number;
-        rendimiento100?: number;
-        rendimiento125?: number;
-    } | null;
+    motorPlantilla?: BancoMotorPlantilla | null;
+    motores?: BancoMotorPlantilla[] | null;
+}
+
+export interface BancoMotorPlantilla {
+    id: number;
+    nombre?: string;
+    marca?: string;
+    tipo?: string;
+    potencia?: number;
+    velocidad?: number;
+    intensidad?: number;
+    rendimiento25?: number;
+    rendimiento50?: number;
+    rendimiento75?: number;
+    rendimiento100?: number;
+    rendimiento125?: number;
+}
+
+export interface BancoOption {
+    id: number;
+    nombre: string;
+    estado?: boolean;
 }
 
 export async function getBancos(): Promise<Banco[]> {
@@ -465,7 +476,7 @@ export async function updateBanco(id: number, data: Partial<Banco>): Promise<Ban
 export async function deleteBanco(
     id: number,
     options?: { hard?: boolean }
-): Promise<void> {
+): Promise<{ message?: string } | void> {
     if (!options?.hard) {
         return fetchApi<void>(`/api/bancos/${id}`, {
             method: 'DELETE'
@@ -510,6 +521,8 @@ export interface MotorPlantilla {
     rendimiento75?: number | null;
     rendimiento100?: number | null;
     rendimiento125?: number | null;
+    bancoId?: number | null;
+    bancoNombre?: string | null;
 }
 
 export async function getMotores(): Promise<MotorPlantilla[]> {

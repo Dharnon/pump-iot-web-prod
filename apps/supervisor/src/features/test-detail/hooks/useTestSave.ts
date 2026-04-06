@@ -62,6 +62,8 @@ export function useTestSave(): UseTestSaveResult {
           test.generalInfo,
           test.pdfData,
           test.bancoId ?? 0,
+          test.motorPlantillaId ?? null,
+          test.testsToPerform,
           viewMode === "PENDING",
         );
 

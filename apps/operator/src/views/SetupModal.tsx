@@ -259,7 +259,7 @@ export const SetupModal: React.FC = () => {
                     <FileTextIconFixed className="w-4 h-4 text-primary" />
                     Información General
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-1.5">
                       <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
                         Fecha
@@ -278,22 +278,6 @@ export const SetupModal: React.FC = () => {
                           handleProtocolChange("jobDate", e.target.value)
                         }
                         className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-medium text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
-                        Cantidad Bombas
-                      </label>
-                      <input
-                        type="number"
-                        value={protocolForm.pumpQuantity || ""}
-                        onChange={(e) =>
-                          handleProtocolChange(
-                            "pumpQuantity",
-                            Number(e.target.value),
-                          )
-                        }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-mono font-bold text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -570,51 +554,8 @@ export const SetupModal: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Row 2: Pressures & Temps */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* PRESSURES */}
-                  <div className="glass-panel p-6 rounded-3xl border border-border/50 bg-card/60">
-                    <h3 className="text-sm font-semibold text-foreground mb-6 flex items-center gap-2">
-                      <DropletsIcon className="w-4 h-4 text-primary" />
-                      Presiones
-                    </h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
-                          Correc. Manom.
-                        </label>
-                        <input
-                          type="number"
-                          value={protocolForm.manometricCorrection || ""}
-                          onChange={(e) =>
-                            handleProtocolChange(
-                              "manometricCorrection",
-                              Number(e.target.value),
-                            )
-                          }
-                          className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-mono font-bold text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold ml-1">
-                          P. Atmosférica
-                        </label>
-                        <input
-                          type="number"
-                          value={protocolForm.atmosphericPressure || ""}
-                          onChange={(e) =>
-                            handleProtocolChange(
-                              "atmosphericPressure",
-                              Number(e.target.value),
-                            )
-                          }
-                          className="w-full bg-secondary/30 border border-white/5 rounded-xl px-3 py-2 text-sm font-mono font-bold text-foreground focus:ring-1 focus:ring-primary/50 outline-none transition-all"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* TEMPERATURES */}
+                {/* Row 2: Temperatures */}
+                <div className="grid grid-cols-1 gap-6">
                   <div className="glass-panel p-6 rounded-3xl border border-border/50 bg-card/60">
                     <h3 className="text-sm font-semibold text-foreground mb-6 flex items-center gap-2">
                       <DropletsIcon className="w-4 h-4 text-primary" />

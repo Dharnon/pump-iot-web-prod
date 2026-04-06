@@ -11,15 +11,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Zap, Save } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
-import { MotorPlantilla } from "@/lib/api";
+import { BancoOption, MotorPlantilla } from "@/lib/api";
 
 interface MotorFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   motor: Partial<MotorPlantilla>;
   editingMotor: MotorPlantilla | null;
+  bancos: BancoOption[];
   onChange: (data: Partial<MotorPlantilla>) => void;
   onSubmit: () => void;
 }
@@ -29,6 +37,7 @@ export function MotorFormDialog({
   onOpenChange,
   motor,
   editingMotor,
+  bancos,
   onChange,
   onSubmit,
 }: MotorFormDialogProps) {
@@ -69,6 +78,30 @@ export function MotorFormDialog({
                 placeholder="Siemens"
               />
             </div>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="motor-banco">Banco</Label>
+            <Select
+              value={motor.bancoId != null ? String(motor.bancoId) : "none"}
+              onValueChange={(value) =>
+                onChange({
+                  ...motor,
+                  bancoId: value === "none" ? null : Number(value),
+                })
+              }
+            >
+              <SelectTrigger id="motor-banco">
+                <SelectValue placeholder="Sin banco" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sin banco</SelectItem>
+                {bancos.map((banco) => (
+                  <SelectItem key={banco.id} value={String(banco.id)}>
+                    {banco.nombre}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">

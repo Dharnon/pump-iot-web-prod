@@ -27,6 +27,9 @@ export interface TestDetailRecord {
   id: string;
   numeroProtocolo?: number;
   bancoId?: number;
+  motorPlantillaId?: number | null;
+  availableBankMotors?: BankTemplateMotor[];
+  isBankChangeLocked?: boolean;
   fecha?: string;
   status: TestDetailStatus;
   generalInfo: TestGeneralInfo;
@@ -43,6 +46,7 @@ export interface TestDetailRecord {
 }
 
 export interface BankTemplateMotor {
+  id?: number;
   nombre?: string;
   marca?: string;
   tipo?: string;
@@ -58,4 +62,5 @@ export interface BankTemplateMotor {
 
 export interface BankTemplate {
   motorPlantilla?: BankTemplateMotor | null;
+  motores?: BankTemplateMotor[] | null;
 }

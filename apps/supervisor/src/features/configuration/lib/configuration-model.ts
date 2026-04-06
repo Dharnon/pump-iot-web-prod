@@ -9,7 +9,6 @@ export function createEmptyBancoForm(): BancoFormState {
   return {
     nombre: "",
     estado: true,
-    motorPlantillaId: null,
   };
 }
 
@@ -26,6 +25,7 @@ export function createEmptyMotorForm(): MotorFormState {
     rendimiento75: null,
     rendimiento100: null,
     rendimiento125: null,
+    bancoId: null,
   };
 }
 

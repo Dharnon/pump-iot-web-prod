@@ -4,21 +4,44 @@
 
 import Image from "next/image";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CleanAutoInput } from "./CleanAutoInput";
 import { ResponsiveFieldFlow } from "./ResponsiveFieldFlow";
 import type { TestPdfData } from "../services/dtoMapper";
 import { DetailSectionCard } from "./DetailSectionCard";
+import type { BankTemplateMotor } from "../types/testDetail";
 
 interface MotorDataSectionProps {
   pdfData: TestPdfData | null | undefined;
   onDataChange: (field: string, value: string) => void;
   allFieldsEditable?: boolean;
+  availableBankMotors?: BankTemplateMotor[];
+  selectedMotorPlantillaId?: number | null;
+  onMotorTemplateChange?: (motorPlantillaId: number) => void;
 }
 
 export function MotorDataSection({
   pdfData,
   onDataChange,
+  allFieldsEditable = false,
+  availableBankMotors = [],
+  selectedMotorPlantillaId,
+  onMotorTemplateChange,
 }: MotorDataSectionProps) {
+  const selectableBankMotors = availableBankMotors.filter(
+    (motor): motor is BankTemplateMotor & { id: number } => typeof motor.id === "number",
+  );
+  const shouldShowTemplateSelector =
+    allFieldsEditable &&
+    selectableBankMotors.length > 1 &&
+    typeof onMotorTemplateChange === "function";
+
   return (
     <DetailSectionCard
       title="Motor"
@@ -33,6 +56,33 @@ export function MotorDataSection({
       }
       contentClassName="space-y-0"
     >
+      {shouldShowTemplateSelector ? (
+        <div className="mb-3">
+          <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            Plantilla de motor
+          </label>
+          <Select
+            value={
+              selectedMotorPlantillaId != null
+                ? String(selectedMotorPlantillaId)
+                : undefined
+            }
+            onValueChange={(value) => onMotorTemplateChange?.(Number(value))}
+          >
+            <SelectTrigger className="h-10">
+              <SelectValue placeholder="Seleccionar motor" />
+            </SelectTrigger>
+            <SelectContent>
+              {selectableBankMotors.map((motor) => (
+                <SelectItem key={motor.id} value={String(motor.id)}>
+                  {motor.nombre || motor.marca || `Motor ${motor.id}`}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      ) : null}
+
       <ResponsiveFieldFlow>
         <CleanAutoInput
           label="Marca"

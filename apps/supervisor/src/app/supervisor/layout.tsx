@@ -55,7 +55,9 @@ function readCookie(name: string) {
   }
 
   const match = document.cookie.match(
-    new RegExp(`(?:^|; )${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}=([^;]*)`),
+    new RegExp(
+      `(?:^|; )${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}=([^;]*)`,
+    ),
   );
 
   return match ? decodeURIComponent(match[1]) : null;
@@ -77,8 +79,9 @@ export default function SupervisorLayout({
   const router = useRouter();
   const { language, setLanguage } = useLanguage();
   const [mounted, setMounted] = useState(false);
-  const [{ user, checkingSession }, setSessionState] =
-    useState<SessionState>(getInitialSessionState);
+  const [{ user, checkingSession }, setSessionState] = useState<SessionState>(
+    getInitialSessionState,
+  );
 
   useEffect(() => {
     setMounted(true);
@@ -194,9 +197,9 @@ export default function SupervisorLayout({
         <AppSidebar
           currentPath={pathname}
           user={{
-            name: user.username,
+            name: user.username || "Usuario",
             email: user.email ?? user.role,
-            initials: user.username.slice(0, 2).toUpperCase(),
+            initials: (user.username?.slice(0, 2) || "US").toUpperCase(),
           }}
           currentLanguage={language}
           languageOptions={[

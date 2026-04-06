@@ -6,9 +6,12 @@
  * Dependency Inversion: Business logic depends on this abstraction, not implementation.
  */
 
+import type { TestsToPerform } from "@/lib/schemas";
+
 export interface TestGeneralInfo {
   pedido: string;
   posicion?: string;
+  pedidoCliente?: string;
   cliente: string;
   modeloBomba?: string;
   ordenTrabajo?: string;
@@ -36,6 +39,7 @@ export interface TestPdfData {
   npshr?: number;
   qMin?: number;
   bepFlow?: number;
+  qMax?: number;
 
   // Fluid Point
   liquidDescription?: string;
@@ -80,6 +84,8 @@ export interface TestPdfData {
 export interface TestSaveDTO {
   status?: string; // Optional, only set when finalizing from PENDING
   bancoId: number | null;
+  motorPlantillaId?: number | null;
+  testsToPerform?: TestsToPerform;
   generalInfo: {
     pedido: string;
     cliente: string;
@@ -89,6 +95,7 @@ export interface TestSaveDTO {
     fecha?: string;
     item?: string;
     posicion?: string;
+    pedidoCliente?: string;
   };
   pdfData?: {
     // Bomba fields
@@ -109,6 +116,7 @@ export interface TestSaveDTO {
     npshr?: string;
     qMin?: string;
     bepFlow?: string;
+    qMax?: string;
 
     // Fluid Point
     liquidDescription?: string;
@@ -164,6 +172,8 @@ export function mapTestToSaveDTO(
   generalInfo: TestGeneralInfo,
   pdfData: TestPdfData | null | undefined,
   bancoId: number = 0,
+  motorPlantillaId: number | null = null,
+  testsToPerform?: TestsToPerform,
   setStatusGenerated: boolean = true
 ): TestSaveDTO {
   // Helper to safely convert any value to string or undefined
@@ -173,6 +183,8 @@ export function mapTestToSaveDTO(
   return {
     status: setStatusGenerated ? "GENERADO" : undefined,
     bancoId: bancoId > 0 ? bancoId : null,
+    motorPlantillaId: motorPlantillaId && motorPlantillaId > 0 ? motorPlantillaId : null,
+    testsToPerform,
     generalInfo: {
       pedido: generalInfo.pedido,
       cliente: generalInfo.cliente,
@@ -181,7 +193,8 @@ export function mapTestToSaveDTO(
       numeroBombas: generalInfo.numeroBombas,
       fecha: generalInfo.fecha,
       item: generalInfo.item,
-      posicion: generalInfo.posicion
+      posicion: generalInfo.posicion,
+      pedidoCliente: generalInfo.pedidoCliente
     },
     pdfData: pdfData ? {
       // Bomba fields
@@ -202,6 +215,7 @@ export function mapTestToSaveDTO(
       npshr: toString(pdfData.npshr),
       qMin: toString(pdfData.qMin),
       bepFlow: toString(pdfData.bepFlow),
+      qMax: toString(pdfData.qMax),
 
       // Fluid Point
       liquidDescription: pdfData.liquidDescription,

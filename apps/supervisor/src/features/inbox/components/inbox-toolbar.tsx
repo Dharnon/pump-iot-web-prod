@@ -36,7 +36,7 @@ export function InboxStatusFilterSelect({
 
   return (
     <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-      <SelectTrigger className="h-9 w-[11rem] shrink-0">
+      <SelectTrigger className="h-9 w-full min-w-0 sm:w-[11rem] sm:shrink-0">
         <SelectValue placeholder={t("table.filter")} />
       </SelectTrigger>
       <SelectContent>
@@ -75,19 +75,19 @@ export function InboxToolbar({
   t: (key: string) => string;
 }) {
   return (
-    <div className="flex min-w-0 flex-nowrap items-center justify-end gap-2">
-      <div className="relative min-w-0 max-w-full flex-1 basis-[14rem] sm:min-w-[12rem] sm:basis-[16rem] md:max-w-md">
+    <div className="flex w-full min-w-0 flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+      <div className="relative min-w-0 w-full sm:min-w-[12rem] sm:flex-1 sm:max-w-md">
         <SearchIcon className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           value={globalFilter}
           onChange={(event) => onGlobalFilterChange(event.target.value)}
           placeholder={t("table.search")}
-          className="h-9 w-full min-w-0 pl-9 focus-visible:border-white shadow-none"
+          className="h-9 w-full min-w-0 pl-9 shadow-none focus-visible:border-white"
         />
       </div>
 
       {viewMode === "pending" ? (
-        <>
+        <div className="flex w-full flex-wrap items-center justify-end gap-2 sm:w-auto sm:justify-end">
           <Button
             type="button"
             variant="outline"
@@ -101,7 +101,7 @@ export function InboxToolbar({
           <div className="flex shrink-0 items-center">
             <InboxImportAction onImportSuccess={onImportSuccess} />
           </div>
-        </>
+        </div>
       ) : null}
     </div>
   );

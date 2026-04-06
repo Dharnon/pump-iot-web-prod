@@ -238,14 +238,18 @@ export function WorkspaceTable<TData extends object, TValue>({
     >
       {/* Misma idea que shadcn DataTable: fila superior justify-between + px horizontal */}
       {showTopBar ? (
-        <div className="flex w-full min-w-0 flex-col gap-3 py-1 sm:flex-row sm:items-center sm:justify-start sm:gap-4">
+        <div className="flex w-full min-w-0 flex-col gap-3 py-1 lg:flex-row lg:items-start lg:gap-4">
           {tableChrome ? (
-            <div className="flex w-full min-w-0 shrink-0 items-center sm:w-auto">{tableChrome}</div>
+            <div className="flex w-full min-w-0 shrink-0 items-center lg:max-w-[min(100%,42rem)] lg:min-w-0">
+              {tableChrome}
+            </div>
           ) : null}
-          <div className="flex min-h-9 min-w-0 flex-1 flex-nowrap items-center justify-end gap-2 overflow-x-auto [scrollbar-width:thin]">
+          <div className="flex min-h-9 min-w-0 w-full flex-1 flex-wrap items-center justify-end gap-2 lg:min-w-0">
             {columnMenuButton}
             {toolbarLeading}
-            {toolbar}
+            <div className="min-w-0 w-full flex-1 basis-[min(100%,18rem)] sm:flex-[1_1_18rem] lg:w-auto lg:max-w-none">
+              {toolbar}
+            </div>
           </div>
         </div>
       ) : null}

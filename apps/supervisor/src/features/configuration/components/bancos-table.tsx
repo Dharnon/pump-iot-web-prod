@@ -82,14 +82,20 @@ export function BancosTable({
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {banco.motorPlantilla ? (
-                    <div className="flex flex-col">
+                  {(banco.motores?.length ?? 0) > 0 ? (
+                    <div className="flex flex-col gap-1">
                       <span className="text-sm font-medium">
-                        {banco.motorPlantilla.nombre}
+                        {banco.motores?.length}{" "}
+                        {(banco.motores?.length ?? 0) > 1
+                          ? "motores asignados"
+                          : "motor asignado"}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {banco.motorPlantilla.marca}{" "}
-                        {banco.motorPlantilla.potencia}kW
+                        {(banco.motores ?? [])
+                          .slice(0, 2)
+                          .map((motor) => motor.nombre || motor.marca || `#${motor.id}`)
+                          .join(", ")}
+                        {(banco.motores?.length ?? 0) > 2 ? "..." : ""}
                       </span>
                     </div>
                   ) : (

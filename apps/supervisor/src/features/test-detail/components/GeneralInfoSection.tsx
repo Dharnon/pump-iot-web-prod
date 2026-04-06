@@ -19,6 +19,7 @@ interface GeneralInfoSectionProps {
   t: UseLanguageReturn["t"];
   onDataChange?: (field: string, value: string) => void;
   allFieldsEditable?: boolean;
+  bankChangeDisabled?: boolean;
   showQty?: boolean;
   isPending?: boolean;
   /** e.g. `h-full min-h-0` when paired in a grid row */
@@ -96,6 +97,7 @@ export function GeneralInfoSection({
   t,
   onDataChange,
   allFieldsEditable = false,
+  bankChangeDisabled = false,
   showQty = true,
   className,
 }: GeneralInfoSectionProps) {
@@ -162,6 +164,7 @@ export function GeneralInfoSection({
                 currentBankId={bancoId ?? null}
                 onBankChange={onBankChange}
                 placeholder={t("fieldBankPlaceholder")}
+                disabled={bankChangeDisabled}
                 className="h-10 text-sm"
               />
             </div>

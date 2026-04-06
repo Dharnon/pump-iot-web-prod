@@ -70,12 +70,16 @@ export function DetailView({
     togglePdf,
     testsToPerform,
     toggleTest,
+    csvImporting,
+    csvImportResult,
+    handleApplyCsvImport,
     handlePdfDataChange,
     isMobile,
     viewConfig,
     deleting,
     handleDelete,
     handleBankChange,
+    handleMotorTemplateChange,
   } = hookResult;
 
   const [previewMode, setPreviewMode] = useState<"pdf" | "excel">("pdf");
@@ -95,6 +99,7 @@ export function DetailView({
             generalInfo={test.generalInfo}
             bancoId={test.bancoId ?? null}
             onBankChange={handleBankChange}
+            bankChangeDisabled={Boolean(test.isBankChangeLocked)}
             t={t}
             onDataChange={handlePdfDataChange}
             allFieldsEditable={viewConfig.allFieldsEditable}
@@ -140,6 +145,9 @@ export function DetailView({
           <MotorDataSection
             pdfData={test.pdfData}
             onDataChange={handlePdfDataChange}
+            availableBankMotors={test.availableBankMotors}
+            selectedMotorPlantillaId={test.motorPlantillaId}
+            onMotorTemplateChange={handleMotorTemplateChange}
             allFieldsEditable={viewConfig.allFieldsEditable}
           />
         ) : null}
@@ -152,6 +160,7 @@ export function DetailView({
     );
   }, [
     handleBankChange,
+    handleMotorTemplateChange,
     handlePdfDataChange,
     shouldShowTestsToPerform,
     test,
@@ -280,6 +289,9 @@ export function DetailView({
             onAnalyze={handleAnalyzePdf}
             isAnalyzing={extracting}
             showPdfUpload={viewConfig.showPdfUpload}
+            csvImporting={csvImporting}
+            csvImportResult={csvImportResult}
+            onApplyCsvImport={handleApplyCsvImport}
             t={t}
           />
         </div>

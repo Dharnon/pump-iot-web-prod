@@ -20,9 +20,21 @@ import { usePdfUpload } from "./usePdfUpload";
 import { useTestDetail } from "./useTestDetail";
 import { useTestSave } from "./useTestSave";
 import { useTestsToPerform } from "./useTestsToPerform";
-import type { TestDetailFieldValue, TestDetailRecord, BankTemplate } from "../types/testDetail";
+import { parseCsvTemplateImportFile } from "../services/csvTemplateImport";
+import type {
+  TestDetailFieldValue,
+  TestDetailRecord,
+  BankTemplate,
+  BankTemplateMotor,
+} from "../types/testDetail";
 import type { ViewMode, ViewConfig } from "../types/viewMode";
 import { getViewConfig } from "../types/viewMode";
+
+export interface CsvImportResult {
+  fileName: string;
+  appliedFields: string[];
+  warnings: string[];
+}
 
 export interface UseTestDetailPageResult {
   test: TestDetailRecord | null;
@@ -54,13 +66,76 @@ export interface UseTestDetailPageResult {
 
   testsToPerform: TestsToPerform;
   toggleTest: (key: string) => void;
+  csvImporting: boolean;
+  csvImportResult: CsvImportResult | null;
+  handleApplyCsvImport: (file: File) => Promise<void>;
 
   handlePdfDataChange: (field: string, value: TestDetailFieldValue) => void;
   handleBankChange: (bankId: number) => Promise<void>;
+  handleMotorTemplateChange: (motorPlantillaId: number) => void;
 
   setTest: React.Dispatch<React.SetStateAction<TestDetailRecord | null>>;
   isMobile: boolean;
   viewConfig: ViewConfig;
+}
+
+function normalizeBankMotors(bankData: BankTemplate): BankTemplateMotor[] {
+  if (Array.isArray(bankData.motores) && bankData.motores.length > 0) {
+    return bankData.motores.filter(Boolean);
+  }
+
+  if (bankData.motorPlantilla) {
+    return [bankData.motorPlantilla];
+  }
+
+  return [];
+}
+
+function applyMotorTemplate(
+  previous: TestDetailRecord,
+  template: BankTemplateMotor,
+): TestDetailRecord {
+  return {
+    ...previous,
+    motorPlantillaId: template.id ?? null,
+    pdfData: {
+      ...previous.pdfData,
+      motorMarca: template.marca ?? "",
+      motorTipo: template.tipo ?? "",
+      motorPotencia: template.potencia ?? undefined,
+      motorVelocidad: template.velocidad ?? undefined,
+      motorIntensidad: template.intensidad ?? undefined,
+      motorRendimiento25: template.rendimiento25 ?? undefined,
+      motorRendimiento50: template.rendimiento50 ?? undefined,
+      motorRendimiento75: template.rendimiento75 ?? undefined,
+      motorRendimiento100: template.rendimiento100 ?? undefined,
+      motorRendimiento125: template.rendimiento125 ?? undefined,
+    },
+  };
+}
+
+function clearMotorTemplate(previous: TestDetailRecord): TestDetailRecord {
+  return {
+    ...previous,
+    motorPlantillaId: null,
+    pdfData: clearMotorFields(previous),
+  };
+}
+
+function clearMotorFields(previous: TestDetailRecord) {
+  return {
+    ...previous.pdfData,
+    motorMarca: "",
+    motorTipo: "",
+    motorPotencia: undefined,
+    motorVelocidad: undefined,
+    motorIntensidad: undefined,
+    motorRendimiento25: undefined,
+    motorRendimiento50: undefined,
+    motorRendimiento75: undefined,
+    motorRendimiento100: undefined,
+    motorRendimiento125: undefined,
+  };
 }
 
 export function useTestDetailPage(
@@ -72,9 +147,11 @@ export function useTestDetailPage(
   const viewConfig = getViewConfig(viewMode);
 
   const { test, loading, error, updateTestData, setTest: setTestFn } = useTestDetail(testId);
-  const { testsToPerform, toggleTest, autoSetTests } = useTestsToPerform();
+  const { testsToPerform, toggleTest, autoSetTests, applyTestsPatch } = useTestsToPerform();
   const { saving, saveTest } = useTestSave();
   const { isPdfExpanded, pdfPanelRef, togglePdf, onPanelResize } = usePdfPanel();
+  const [csvImporting, setCsvImporting] = useState(false);
+  const [csvImportResult, setCsvImportResult] = useState<CsvImportResult | null>(null);
 
   const {
     pdfFile,
@@ -127,8 +204,15 @@ export function useTestDetailPage(
 
   const handleSave = useCallback(async () => {
     if (!test) return;
-    await saveTest(test, pdfFile, viewMode);
-  }, [test, pdfFile, saveTest, viewMode]);
+    await saveTest(
+      {
+        ...test,
+        testsToPerform,
+      },
+      pdfFile,
+      viewMode,
+    );
+  }, [test, testsToPerform, pdfFile, saveTest, viewMode]);
 
   const [deleting, setDeleting] = useState(false);
   const router = useRouter();
@@ -195,62 +279,163 @@ export function useTestDetailPage(
         if (!prev) return null;
         return {
           ...prev,
-          pdfData: {
-            ...prev.pdfData,
-            motorMarca: "",
-            motorTipo: "",
-            motorPotencia: undefined,
-            motorVelocidad: undefined,
-            motorIntensidad: undefined,
-            motorRendimiento25: undefined,
-            motorRendimiento50: undefined,
-            motorRendimiento75: undefined,
-            motorRendimiento100: undefined,
-            motorRendimiento125: undefined,
-          },
+          pdfData: clearMotorFields(prev),
         };
       });
       toast.info(t("test.motorFieldsCleared") || "Motor del pedido seleccionado. Campos de motor limpiados.");
     }
   }, [toggleTest, testsToPerform, setTestFn, t]);
 
-  const handleBankChange = useCallback(async (bankId: number) => {
+  const handleApplyCsvImport = useCallback(async (file: File) => {
+    if (!file) {
+      return;
+    }
+
+    setCsvImporting(true);
+
     try {
-      setTestFn((prev) => (prev ? { ...prev, bancoId: bankId } : null));
+      const parsed = await parseCsvTemplateImportFile(file);
+
+      setTestFn((previous) => {
+        if (!previous) {
+          return previous;
+        }
+
+        const shouldClearMotor = parsed.testsToPerform.motorDelPedido === true;
+
+        return {
+          ...previous,
+          generalInfo: {
+            ...previous.generalInfo,
+            ...parsed.generalInfo,
+          },
+          pdfData: {
+            ...(shouldClearMotor ? clearMotorFields(previous) : previous.pdfData),
+            ...parsed.pdfData,
+          },
+        };
+      });
+
+      applyTestsPatch(parsed.testsToPerform);
+
+      const appliedFields = [
+        ...parsed.applied.generalInfo.map((field) => `generalInfo.${field}`),
+        ...parsed.applied.pdfData.map((field) => `pdfData.${field}`),
+        ...parsed.applied.testsToPerform.map((field) => `testsToPerform.${field}`),
+      ];
+
+      const warnings = [...parsed.warnings];
+      if (parsed.applied.pdfData.includes("qMax")) {
+        warnings.push("Qmax se importa en la UI actual pero puede no persistir si el backend no lo soporta.");
+      }
+
+      setCsvImportResult({
+        fileName: file.name,
+        appliedFields,
+        warnings,
+      });
+
+      if (appliedFields.length > 0) {
+        toast.success(`Importación aplicada: ${appliedFields.length} campos actualizados.`);
+      } else {
+        toast.info("El CSV no contiene valores aplicables con el formato esperado.");
+      }
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "No se pudo procesar el CSV.";
+      setCsvImportResult({
+        fileName: file.name,
+        appliedFields: [],
+        warnings: [message],
+      });
+      toast.error(message);
+    } finally {
+      setCsvImporting(false);
+    }
+  }, [applyTestsPatch, setTestFn]);
+
+  const handleBankChange = useCallback(async (bankId: number) => {
+    if (test?.isBankChangeLocked) {
+      toast.error(
+        t("test.bankChangeLocked") ||
+          "No se puede cambiar el banco porque el protocolo está bloqueado.",
+      );
+      return;
+    }
+
+    try {
+      setTestFn((prev) =>
+        prev
+          ? {
+              ...prev,
+              bancoId: bankId,
+              motorPlantillaId: null,
+              availableBankMotors: [],
+            }
+          : null,
+      );
 
       const bankData = await getBancoById(bankId);
       const typedBankData = bankData as BankTemplate;
+      const bankMotors = normalizeBankMotors(typedBankData);
 
-      if (typedBankData.motorPlantilla) {
-        const mp = typedBankData.motorPlantilla;
-        toast.info(t("test.loadingMotorTemplate") || `Cargando plantilla de motor: ${mp.nombre || mp.marca}`);
+      setTestFn((prev) => {
+        if (!prev) return null;
 
-        setTestFn((prev) => {
-          if (!prev) return null;
+        const baseState: TestDetailRecord = {
+          ...prev,
+          availableBankMotors: bankMotors,
+        };
 
-          return {
-            ...prev,
-            pdfData: {
-              ...prev.pdfData,
-              motorMarca: mp.marca || prev.pdfData?.motorMarca,
-              motorTipo: mp.tipo || prev.pdfData?.motorTipo,
-              motorPotencia: mp.potencia ?? prev.pdfData?.motorPotencia,
-              motorVelocidad: mp.velocidad ?? prev.pdfData?.motorVelocidad,
-              motorIntensidad: mp.intensidad ?? prev.pdfData?.motorIntensidad,
-              motorRendimiento25: mp.rendimiento25 ?? prev.pdfData?.motorRendimiento25,
-              motorRendimiento50: mp.rendimiento50 ?? prev.pdfData?.motorRendimiento50,
-              motorRendimiento75: mp.rendimiento75 ?? prev.pdfData?.motorRendimiento75,
-              motorRendimiento100: mp.rendimiento100 ?? prev.pdfData?.motorRendimiento100,
-              motorRendimiento125: mp.rendimiento125 ?? prev.pdfData?.motorRendimiento125,
-            },
-          };
-        });
+        if (bankMotors.length === 1) {
+          return applyMotorTemplate(baseState, bankMotors[0]);
+        }
+
+        if (bankMotors.length > 1) {
+          const preselected =
+            bankMotors.find((motor) => motor.id === prev.motorPlantillaId) ?? null;
+          return preselected ? applyMotorTemplate(baseState, preselected) : clearMotorTemplate(baseState);
+        }
+
+        return clearMotorTemplate(baseState);
+      });
+
+      if (bankMotors.length === 1) {
+        const mp = bankMotors[0];
+        toast.info(
+          t("test.loadingMotorTemplate") ||
+            `Cargando plantilla de motor: ${mp.nombre || mp.marca || mp.id}`,
+        );
         toast.success(t("test.motorTemplateLoaded") || "Datos del motor actualizados");
+      } else if (bankMotors.length > 1) {
+        toast.info(
+          t("test.selectMotorTemplate") ||
+            "Este banco tiene varios motores. Selecciona una plantilla de motor.",
+        );
+      } else {
+        toast.info(
+          t("test.noMotorTemplates") ||
+            "Este banco no tiene motores configurados. Completa el motor manualmente.",
+        );
       }
     } catch (error: unknown) {
       console.error("Error auto-filling motor data:", error);
     }
-  }, [setTestFn, t]);
+  }, [setTestFn, t, test?.isBankChangeLocked]);
+
+  const handleMotorTemplateChange = useCallback((motorPlantillaId: number) => {
+    setTestFn((prev) => {
+      if (!prev) return null;
+      const selectedTemplate =
+        prev.availableBankMotors?.find((motor) => motor.id === motorPlantillaId) ?? null;
+
+      if (!selectedTemplate) {
+        return prev;
+      }
+
+      return applyMotorTemplate(prev, selectedTemplate);
+    });
+  }, [setTestFn]);
 
   return {
     test,
@@ -276,8 +461,12 @@ export function useTestDetailPage(
     onPanelResize,
     testsToPerform,
     toggleTest: handleToggleTest,
+    csvImporting,
+    csvImportResult,
+    handleApplyCsvImport,
     handlePdfDataChange,
     handleBankChange,
+    handleMotorTemplateChange,
     setTest: setTestFn,
     isMobile,
     viewConfig,

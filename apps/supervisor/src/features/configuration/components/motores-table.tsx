@@ -41,6 +41,7 @@ export function MotoresTable({
           <TableRow>
             <TableHead>ID</TableHead>
             <TableHead>Plantilla</TableHead>
+            <TableHead>Banco</TableHead>
             <TableHead>Marca</TableHead>
             <TableHead>Tipo</TableHead>
             <TableHead>Potencia</TableHead>
@@ -51,14 +52,14 @@ export function MotoresTable({
         <TableBody>
           {loading ? (
             <TableRow>
-              <TableCell colSpan={7} className="h-24 text-center">
+              <TableCell colSpan={8} className="h-24 text-center">
                 Cargando motores...
               </TableCell>
             </TableRow>
           ) : motores.length === 0 ? (
             <TableRow>
               <TableCell
-                colSpan={7}
+                colSpan={8}
                 className="h-28 text-center text-muted-foreground"
               >
                 {searchQuery
@@ -71,6 +72,7 @@ export function MotoresTable({
               <TableRow key={motor.id}>
                 <TableCell className="font-mono text-sm">{motor.id}</TableCell>
                 <TableCell className="font-medium">{motor.nombre}</TableCell>
+                <TableCell>{motor.bancoNombre || motor.bancoId || "-"}</TableCell>
                 <TableCell>{motor.marca || "-"}</TableCell>
                 <TableCell>{motor.tipo || "-"}</TableCell>
                 <TableCell>

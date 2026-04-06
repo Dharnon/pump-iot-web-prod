@@ -6,6 +6,7 @@ import {
   deleteBanco,
   getAllBancos,
   type Banco,
+  type BancoMotorPlantilla,
   type MotorPlantilla,
   updateBanco,
 } from "@/lib/api";
@@ -16,6 +17,32 @@ import {
   toBancoMotorPlantilla,
   type BancoFormState,
 } from "../lib/configuration-model";
+
+function normalizeBancoMotors(
+  banco: Banco,
+  motores: MotorPlantilla[],
+): BancoMotorPlantilla[] {
+  if (banco.motores?.length) {
+    return banco.motores;
+  }
+
+  if (banco.motorPlantillaId != null) {
+    const selectedMotor = motores.find(
+      (motor) => motor.id === banco.motorPlantillaId,
+    );
+
+    const normalizedMotor = toBancoMotorPlantilla(selectedMotor);
+    if (normalizedMotor) {
+      return [normalizedMotor];
+    }
+  }
+
+  if (banco.motorPlantilla) {
+    return [banco.motorPlantilla];
+  }
+
+  return [];
+}
 
 export function useConfigurationBancosState(motores: MotorPlantilla[]) {
   const [bancos, setBancos] = useState<Banco[]>([]);
@@ -30,18 +57,17 @@ export function useConfigurationBancosState(motores: MotorPlantilla[]) {
 
   const normalizeBanco = useCallback(
     (banco: Banco): Banco => {
-      if (banco.motorPlantillaId == null) {
-        return { ...banco, motorPlantilla: null };
-      }
-
-      const selectedMotor = motores.find(
-        (motor) => motor.id === banco.motorPlantillaId,
-      );
+      const bancoMotores = normalizeBancoMotors(banco, motores);
+      const selectedMotor =
+        bancoMotores.find((motor) => motor.id === banco.motorPlantillaId) ??
+        bancoMotores[0] ??
+        null;
 
       return {
         ...banco,
-        motorPlantilla:
-          toBancoMotorPlantilla(selectedMotor) ?? banco.motorPlantilla ?? null,
+        motores: bancoMotores,
+        motorPlantilla: selectedMotor,
+        motorPlantillaId: selectedMotor?.id ?? null,
       };
     },
     [motores],
@@ -71,9 +97,13 @@ export function useConfigurationBancosState(motores: MotorPlantilla[]) {
     () =>
       bancos.filter((banco) => {
         const query = bancoSearch.toLowerCase();
+        const matchesMotor = (banco.motores ?? []).some((motor) =>
+          `${motor.nombre ?? ""} ${motor.marca ?? ""}`.toLowerCase().includes(query),
+        );
+
         return (
           banco.nombre.toLowerCase().includes(query) ||
-          (banco.motorPlantilla?.nombre?.toLowerCase().includes(query) ?? false)
+          matchesMotor
         );
       }),
     [bancoSearch, bancos],
@@ -85,7 +115,6 @@ export function useConfigurationBancosState(motores: MotorPlantilla[]) {
       setBancoForm({
         nombre: banco.nombre,
         estado: banco.estado,
-        motorPlantillaId: banco.motorPlantillaId,
       });
     } else {
       setEditingBanco(null);
@@ -100,15 +129,19 @@ export function useConfigurationBancosState(motores: MotorPlantilla[]) {
 
     try {
       let savedBanco: Banco;
+      const payload = {
+        nombre: bancoForm.nombre,
+        estado: bancoForm.estado,
+      };
 
       if (editingBanco) {
         savedBanco = await updateBanco(editingBanco.id, {
-          ...bancoForm,
+          ...payload,
           id: editingBanco.id,
         });
       } else {
         try {
-          savedBanco = await createBanco(bancoForm);
+          savedBanco = await createBanco(payload);
         } catch (error: unknown) {
           const message = getErrorMessage(error).toLowerCase();
           const bancoNombre = `${bancoForm.nombre || ""}`.trim().toLowerCase();
@@ -125,7 +158,7 @@ export function useConfigurationBancosState(motores: MotorPlantilla[]) {
           if (duplicateError && inactiveMatch) {
             savedBanco = await updateBanco(inactiveMatch.id, {
               id: inactiveMatch.id,
-              ...bancoForm,
+              ...payload,
               estado: true,
             });
             successMessage = "Banco reactivado";
@@ -168,7 +201,7 @@ export function useConfigurationBancosState(motores: MotorPlantilla[]) {
       toast.error("Error al guardar el banco");
       return null;
     }
-  }, [bancoForm, bancos, editingBanco, loadBancos, normalizeBanco]);
+  }, [bancoForm.estado, bancoForm.nombre, bancos, editingBanco, loadBancos, normalizeBanco]);
 
   const deleteSelectedBanco = useCallback(async () => {
     if (!bancoToDelete) {
@@ -177,7 +210,13 @@ export function useConfigurationBancosState(motores: MotorPlantilla[]) {
 
     try {
       const deleteResult = await deleteBanco(bancoToDelete.id, { hard: true });
-      const isInactiveResponse = `${deleteResult?.message || ""}`
+      const deleteMessage =
+        typeof deleteResult === "object" &&
+        deleteResult !== null &&
+        "message" in deleteResult
+          ? String((deleteResult as { message?: unknown }).message ?? "")
+          : "";
+      const isInactiveResponse = deleteMessage
         .toLowerCase()
         .includes("inactive");
 
@@ -200,22 +239,50 @@ export function useConfigurationBancosState(motores: MotorPlantilla[]) {
   }, [bancoToDelete]);
 
   const syncMotorReference = useCallback((savedMotor: MotorPlantilla) => {
+    const normalizedMotor = toBancoMotorPlantilla(savedMotor);
+
     setBancos((previousBancos) =>
-      previousBancos.map((banco) =>
-        banco.motorPlantillaId === savedMotor.id
-          ? { ...banco, motorPlantilla: toBancoMotorPlantilla(savedMotor) }
-          : banco,
-      ),
+      previousBancos.map((banco) => {
+        const currentMotores = (banco.motores ?? []).filter(
+          (motor) => motor.id !== savedMotor.id,
+        );
+
+        if (savedMotor.bancoId !== banco.id || !normalizedMotor) {
+          const fallbackMotor = currentMotores[0] ?? null;
+          return {
+            ...banco,
+            motores: currentMotores,
+            motorPlantilla: fallbackMotor,
+            motorPlantillaId: fallbackMotor?.id ?? null,
+          };
+        }
+
+        const nextMotores = [normalizedMotor, ...currentMotores];
+        return {
+          ...banco,
+          motores: nextMotores,
+          motorPlantilla: nextMotores[0],
+          motorPlantillaId: nextMotores[0]?.id ?? null,
+        };
+      }),
     );
   }, []);
 
   const clearMotorReference = useCallback((motorId: number) => {
     setBancos((previousBancos) =>
-      previousBancos.map((banco) =>
-        banco.motorPlantillaId === motorId
-          ? { ...banco, motorPlantillaId: null, motorPlantilla: null }
-          : banco,
-      ),
+      previousBancos.map((banco) => {
+        const nextMotores = (banco.motores ?? []).filter(
+          (motor) => motor.id !== motorId,
+        );
+        const fallbackMotor = nextMotores[0] ?? null;
+
+        return {
+          ...banco,
+          motores: nextMotores,
+          motorPlantillaId: fallbackMotor?.id ?? null,
+          motorPlantilla: fallbackMotor,
+        };
+      }),
     );
   }, []);
 

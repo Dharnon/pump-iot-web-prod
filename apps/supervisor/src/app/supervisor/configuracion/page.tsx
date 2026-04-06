@@ -26,14 +26,14 @@ export default function ConfiguracionPageRoute() {
 
   const banksWithMotor = useMemo(
     () =>
-      configuration.bancos.filter((banco) => banco.motorPlantillaId != null)
+      configuration.bancos.filter((banco) => (banco.motores?.length ?? 0) > 0)
         .length,
     [configuration.bancos],
   );
 
   const banksWithoutMotor = useMemo(
     () =>
-      configuration.bancos.filter((banco) => banco.motorPlantillaId == null)
+      configuration.bancos.filter((banco) => (banco.motores?.length ?? 0) === 0)
         .length,
     [configuration.bancos],
   );
@@ -74,6 +74,11 @@ export default function ConfiguracionPageRoute() {
         onOpenChange={configuration.setMotorDialogOpen}
         motor={configuration.motorForm}
         editingMotor={configuration.editingMotor}
+        bancos={configuration.bancos.map((banco) => ({
+          id: banco.id,
+          nombre: banco.nombre,
+          estado: banco.estado,
+        }))}
         onChange={configuration.setMotorForm}
         onSubmit={configuration.handleSaveMotor}
       />
@@ -83,7 +88,6 @@ export default function ConfiguracionPageRoute() {
         onOpenChange={configuration.setBancoDialogOpen}
         banco={configuration.bancoForm}
         editingBanco={configuration.editingBanco}
-        motores={configuration.motores}
         onChange={configuration.setBancoForm}
         onSubmit={configuration.handleSaveBanco}
       />

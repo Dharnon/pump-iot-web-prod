@@ -62,6 +62,9 @@ export const SetupPage: React.FC = () => {
   const { currentJob, testConfig, setTestConfig, updateJob } = useJob();
   const { setCurrentView } = useNavigation();
   const { leaveTestSession } = useTestSessionNavigation();
+  const [activeTab, setActiveTab] = useState<"protocol" | "config" | "docs">(
+    "protocol",
+  );
 
   const [selectedBank, setSelectedBank] = useState<
     (typeof BANK_OPTIONS)[number]
@@ -244,7 +247,13 @@ export const SetupPage: React.FC = () => {
           </div>
 
           {/* Tabs */}
-          <Tabs defaultValue="protocol" className="hidden md:block">
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) =>
+              setActiveTab(value as "protocol" | "config" | "docs")
+            }
+            className="hidden md:block"
+          >
             <TabsList className="bg-secondary/50 p-1 rounded-xl">
               <TabsTrigger value="protocol" className="rounded-lg px-3 text-xs">
                 <ClipboardListIcon className="w-3 h-3 mr-1.5" /> Protocolo
@@ -259,7 +268,13 @@ export const SetupPage: React.FC = () => {
           </Tabs>
 
           {/* Mobile Tabs */}
-          <Tabs defaultValue="protocol" className="md:hidden">
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) =>
+              setActiveTab(value as "protocol" | "config" | "docs")
+            }
+            className="md:hidden"
+          >
             <TabsList className="bg-secondary/50 p-1 rounded-xl">
               <TabsTrigger value="protocol" className="rounded-lg px-2">
                 <ClipboardListIcon className="w-4 h-4" />
@@ -305,7 +320,13 @@ export const SetupPage: React.FC = () => {
 
         {/* Content Area - Dense Grid Layout */}
         <div className="flex-1 overflow-y-auto p-2 md:p-3 w-full bg-secondary/5">
-          <Tabs defaultValue="protocol" className="h-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) =>
+              setActiveTab(value as "protocol" | "config" | "docs")
+            }
+            className="h-full"
+          >
             {/* PROTOCOL TAB - Dense Grid */}
             <TabsContent
               value="protocol"
@@ -318,7 +339,7 @@ export const SetupPage: React.FC = () => {
                     <FileTextIconFixed className="w-3 h-3 text-primary" />
                     Información General
                   </h3>
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-2 gap-y-1.5">
                     <div className="space-y-0.5">
                       <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
                         Fecha
@@ -337,22 +358,6 @@ export const SetupPage: React.FC = () => {
                           handleProtocolChange("jobDate", e.target.value)
                         }
                         className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-medium"
-                      />
-                    </div>
-                    <div className="space-y-0.5">
-                      <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
-                        Cant. Bombas
-                      </label>
-                      <input
-                        type="number"
-                        value={protocolForm.pumpQuantity || ""}
-                        onChange={(e) =>
-                          handleProtocolChange(
-                            "pumpQuantity",
-                            Number(e.target.value),
-                          )
-                        }
-                        className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono font-bold"
                       />
                     </div>
                     <div className="space-y-0.5">
@@ -742,51 +747,8 @@ export const SetupPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="bg-card/60 rounded-xl border border-border/50 p-2 flex flex-col gap-3">
-                  {/* Presiones */}
+                <div className="bg-card/60 rounded-xl border border-border/50 p-2">
                   <div>
-                    <h3 className="text-[11px] font-bold text-foreground mb-1.5 flex items-center gap-1.5">
-                      <DropletsIcon className="w-3 h-3 text-primary" />
-                      Presiones
-                    </h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-0.5">
-                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
-                          Correc. Manom.
-                        </label>
-                        <input
-                          type="number"
-                          value={protocolForm.manometricCorrection || ""}
-                          onChange={(e) =>
-                            handleProtocolChange(
-                              "manometricCorrection",
-                              Number(e.target.value),
-                            )
-                          }
-                          className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
-                        />
-                      </div>
-                      <div className="space-y-0.5">
-                        <label className="text-[8px] uppercase tracking-wider text-muted-foreground font-semibold">
-                          P. Atmosférica
-                        </label>
-                        <input
-                          type="number"
-                          value={protocolForm.atmosphericPressure || ""}
-                          onChange={(e) =>
-                            handleProtocolChange(
-                              "atmosphericPressure",
-                              Number(e.target.value),
-                            )
-                          }
-                          className="w-full bg-secondary/30 border border-white/5 rounded-lg px-2 py-1 text-xs font-mono"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Temperaturas */}
-                  <div className="border-t border-border/50 pt-2">
                     <h3 className="text-[11px] font-bold text-foreground mb-1.5 flex items-center gap-1.5">
                       <DropletsIcon className="w-3 h-3 text-orange-400" />
                       Temp. (°C)

@@ -12,23 +12,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Database, Save } from "lucide-react";
 import { useLanguage } from "@/lib/language-context";
-import { Banco, MotorPlantilla } from "@/lib/api";
+import { Banco } from "@/lib/api";
 
 interface BancoFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   banco: Partial<Banco>;
   editingBanco: Banco | null;
-  motores: MotorPlantilla[];
   onChange: (data: Partial<Banco>) => void;
   onSubmit: () => void;
 }
@@ -38,7 +30,6 @@ export function BancoFormDialog({
   onOpenChange,
   banco,
   editingBanco,
-  motores,
   onChange,
   onSubmit,
 }: BancoFormDialogProps) {
@@ -74,30 +65,6 @@ export function BancoFormDialog({
               }
             />
             <Label htmlFor="banco-estado">{t("config.active")}</Label>
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="banco-motor">{t("config.motores")}</Label>
-            <Select
-              value={banco.motorPlantillaId?.toString() || "none"}
-              onValueChange={(value) =>
-                onChange({
-                  ...banco,
-                  motorPlantillaId: value === "none" ? null : Number(value),
-                })
-              }
-            >
-              <SelectTrigger id="banco-motor" className="bg-background">
-                <SelectValue placeholder={t("config.noMotor")} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">{t("config.noMotor")}</SelectItem>
-                {motores.map((motor) => (
-                  <SelectItem key={motor.id} value={motor.id.toString()}>
-                    {motor.nombre} ({motor.marca})
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
         </div>
         <DialogFooter>
