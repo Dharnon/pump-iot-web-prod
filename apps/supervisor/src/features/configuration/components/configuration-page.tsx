@@ -21,7 +21,6 @@ export function ConfigurationPage({
   activeBanks,
   banksWithoutMotor,
   motorTemplates,
-  t,
   table,
   dialogs,
 }: {
@@ -37,7 +36,6 @@ export function ConfigurationPage({
   activeBanks: number;
   banksWithoutMotor: number;
   motorTemplates: number;
-  t: (key: string) => string;
   table: ReactNode;
   dialogs?: ReactNode;
 }) {
@@ -64,7 +62,6 @@ export function ConfigurationPage({
             motorsCount={motorsCount}
             banksWithMotorCount={banksWithMotorCount}
             banksInactiveCount={banksInactiveCount}
-            t={t}
           />
 
           <div className="flex min-h-0 flex-col">{table}</div>

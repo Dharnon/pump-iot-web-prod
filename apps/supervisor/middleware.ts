@@ -96,12 +96,12 @@ export async function middleware(request: NextRequest) {
             console.log('[Middleware] Token validated successfully');
             return NextResponse.next();
 
-        } catch (error) {
+        } catch {
             // =====================================================================
             // FAIL-SAFE DEFAULT (Principio de Seguridad OT)
             // =====================================================================
             // Si hay cualquier error (red, timeout, backend caído), denegamos acceso
-            console.error('[Middleware] Token validation error:', error);
+            console.error('[Middleware] Token validation error');
 
             const loginUrl = new URL('/login', request.url);
             loginUrl.searchParams.set('callbackUrl', pathname);
@@ -137,7 +137,7 @@ export async function middleware(request: NextRequest) {
                 // Token válido → Redirigir a supervisor
                 return NextResponse.redirect(new URL('/supervisor', request.url));
             }
-        } catch (error) {
+        } catch {
             // Si falla la validación, permitir acceso a login (borrar cookie)
             const response = NextResponse.next();
             response.cookies.delete('token');

@@ -5,19 +5,26 @@ import { useRouter } from "next/navigation";
 import { Kanban } from "react-kanban-kit";
 import { toast } from "sonner";
 import useSWR from "swr";
+import type { BoardItem, CardRenderProps, ConfigMap } from "react-kanban-kit";
 import { useSupervisorPageHeader } from "@/components/supervisor/supervisor-page-header-context";
 import { useSignalR } from "@/hooks/useSignalR";
 import { useTests } from "@/hooks/useTests";
 import { reorderTests, swrFetcher } from "@/lib/api";
-
-interface BoardData {
-  root: any;
-  [key: string]: any;
-}
+import type {
+  ProgramacionBank,
+  ProgramacionBoardData,
+  ProgramacionBoardNode,
+  ProgramacionCardContent,
+  ProgramacionMove,
+} from "@/features/programacion/types";
+import {
+  buildBoardData,
+  getColumnBankId,
+} from "@/features/programacion/lib/programacion-utils";
 
 export default function ProgramacionPage() {
   const { tests, mutate: mutateTests } = useTests();
-  const { data: bancos } = useSWR("/api/bancos", swrFetcher);
+  const { data: bancos } = useSWR<ProgramacionBank[]>("/api/bancos", swrFetcher);
   const router = useRouter();
 
   const { locks } = useSignalR({
@@ -26,89 +33,15 @@ export default function ProgramacionPage() {
     },
   });
 
-  const [boardData] = useMemo(() => {
-    const data: BoardData = {
-      root: {
-        id: "root",
-        title: "Bancos",
-        children: [],
-        totalChildrenCount: 0,
-        parentId: null,
-      },
-    };
+  const boardData = useMemo<ProgramacionBoardData>(
+    () => buildBoardData(bancos, tests, locks),
+    [tests, bancos, locks],
+  );
 
-    if (!bancos) return [data, false];
-
-    const sortedBancos = [...bancos].sort((a: any, b: any) =>
-      (a.nombre || "").localeCompare(b.nombre || "", undefined, {
-        numeric: true,
-        sensitivity: "base",
-      }),
-    );
-
-    sortedBancos.forEach((bank: any) => {
-      data[`col-${bank.id}`] = {
-        id: `col-${bank.id}`,
-        title: bank.nombre,
-        children: [],
-        totalChildrenCount: 0,
-        parentId: "root",
-        content: { bankId: bank.id },
-      };
-    });
-
-    data.root.children = sortedBancos.map((b: any) => `col-${b.id}`);
-    data.root.totalChildrenCount = sortedBancos.length;
-
-    if (!tests) return [data, false];
-
-    const kanbanTests = tests
-      .filter(
-        (t: any) =>
-          !t.id.toString().startsWith("pending-") &&
-          (t.status === "EN_BANCO" || t.status === "IN_PROGRESS"),
-      )
-      .sort(
-        (a, b) =>
-          (a.orden || 0) - (b.orden || 0) ||
-          a.id.toString().localeCompare(b.id.toString()),
-      );
-
-    kanbanTests.forEach((test: any) => {
-      const bankId = test.bancoId;
-      if (bankId && data[`col-${bankId}`]) {
-        const bankCol = data[`col-${bankId}`];
-        const taskId = `task-${test.id}`;
-
-        bankCol.children.push(taskId);
-        bankCol.totalChildrenCount++;
-
-        data[taskId] = {
-          id: taskId,
-          title: `#${test.id}`,
-          parentId: `col-${bankId}`,
-          children: [],
-          totalChildrenCount: 0,
-          type: "card",
-          content: {
-            ...test,
-            cliente: test.generalInfo?.cliente || test.cliente,
-            tipoBomba: test.generalInfo?.modeloBomba || test.tipoBomba,
-            ordenTrabajo: test.generalInfo?.ordenTrabajo || test.ordenTrabajo,
-            isLocked: !!locks[test.id],
-            lockedBy: locks[test.id],
-          },
-        };
-      }
-    });
-
-    return [data, true];
-  }, [tests, bancos, locks]);
-
-  const handleCardMove = async (move: any) => {
+  const handleCardMove = async (move: ProgramacionMove) => {
     const { cardId, toColumnId, position: toIndex } = move;
     const movingTestIdStr = cardId.replace("task-", "");
-    const toBankId = boardData[toColumnId]?.content?.bankId;
+    const toBankId = getColumnBankId(boardData[toColumnId]);
     const bankName = boardData[toColumnId]?.title;
 
     if (!tests || !toBankId) return;
@@ -148,7 +81,7 @@ export default function ProgramacionPage() {
                 ? "IN_PROGRESS"
                 : "EN_BANCO"
               : t.status,
-        } as any;
+        };
       }
 
       return t;
@@ -159,8 +92,8 @@ export default function ProgramacionPage() {
       await reorderTests(protocolIdsInOrder, toBankId);
       mutateTests();
       toast.success(`Movido y reordenado en ${bankName}`);
-    } catch (error: any) {
-      toast.error(error.message || "Error al mover");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Error al mover");
       mutateTests();
     }
   };
@@ -168,10 +101,11 @@ export default function ProgramacionPage() {
   const statPillClass =
     "inline-flex items-center gap-2 rounded-full border border-border/70 bg-muted/40 px-2.5 py-1 text-[11px] font-medium text-foreground/85";
 
-  const configMap = {
+  const configMap: ConfigMap = {
     card: {
-      render: ({ data }: any) => {
-        const test = data.content;
+      render: ({ data }: CardRenderProps) => {
+        const boardItem = data as ProgramacionBoardNode;
+        const test = boardItem.content as ProgramacionCardContent | undefined;
         const isCompleted = test?.status === "COMPLETED";
         const isInProgress = test?.status === "IN_PROGRESS";
         const isLocked = test?.isLocked;
@@ -236,7 +170,7 @@ export default function ProgramacionPage() {
                 {test?.cliente || "-"}
               </p>
               <p className="truncate text-[11px] text-slate-500 dark:text-slate-300/80">
-                {test?.tipoBomba || test?.modelo || "-"}
+                {test?.tipoBomba || "-"}
               </p>
               {test?.ordenTrabajo && (
                 <p className="mt-1 text-[10px] font-mono text-slate-500 dark:text-slate-300/65">
@@ -252,13 +186,13 @@ export default function ProgramacionPage() {
   };
 
   const stats = useMemo(() => {
-    const all = tests?.filter((t: any) => !t.id.startsWith("pending-")) || [];
+    const all = tests?.filter((t) => !t.id.startsWith("pending-")) || [];
     return {
       pending: all.filter(
-        (t: any) => t.status === "GENERATED" || t.status === "GENERADO",
+        (t) => t.status === "GENERATED" || t.status === "GENERADO",
       ).length,
-      inProgress: all.filter((t: any) => t.status === "IN_PROGRESS").length,
-      completed: all.filter((t: any) => t.status === "COMPLETED").length,
+      inProgress: all.filter((t) => t.status === "IN_PROGRESS").length,
+      completed: all.filter((t) => t.status === "COMPLETED").length,
     };
   }, [tests]);
 
@@ -314,7 +248,7 @@ export default function ProgramacionPage() {
               "h-[calc(100%-56px)] space-y-2 overflow-y-auto p-2.5 dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0)_18%)]"
             }
             cardsGap={6}
-            renderColumnHeader={(column: any) => (
+            renderColumnHeader={(column: BoardItem) => (
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-semibold tracking-tight text-slate-800 dark:text-slate-100">
                   {column.title}

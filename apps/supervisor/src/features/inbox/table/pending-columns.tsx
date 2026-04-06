@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
+import type { Column, ColumnDef } from "@tanstack/react-table";
 import {
   AlertCircle,
   ArrowDown,
@@ -99,7 +99,13 @@ const getStatusConfig = (status: string, t: (key: string) => string) => {
   );
 };
 
-function SortableHeader({ column, title }: { column: any; title: string }) {
+function SortableHeader({
+  column,
+  title,
+}: {
+  column: Column<PendingTestItem, unknown>;
+  title: string;
+}) {
   return (
     <Button
       variant="ghost"

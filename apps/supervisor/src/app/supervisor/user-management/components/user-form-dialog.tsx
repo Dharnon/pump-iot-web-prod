@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { User, UserRole } from "../hooks/useUsers";
+import { User } from "../hooks/useUsers";
 
 import { Switch } from "@/components/ui/switch";
 
@@ -56,8 +56,8 @@ export function UserFormDialog({
   user,
   onSubmit,
 }: UserFormDialogProps) {
-  const form = useForm<any>({
-    resolver: zodResolver(userSchema) as any,
+  const form = useForm<UserFormValues>({
+    resolver: zodResolver(userSchema),
     defaultValues: {
       username: "",
       email: "",

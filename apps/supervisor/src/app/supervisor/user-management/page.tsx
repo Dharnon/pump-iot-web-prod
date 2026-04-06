@@ -2,7 +2,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, Users, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -92,7 +92,12 @@ export default function UserManagementPage() {
 
     useSupervisorPageHeader(userManagementHeader);
 
-    const handleFormSubmit = async (data: any) => {
+    const handleFormSubmit = async (data: {
+        username: string;
+        email: string;
+        role: User["role"];
+        isActive: boolean;
+    }) => {
         if (editingUser) {
             await updateUser(editingUser.id, {
                 username: data.username,

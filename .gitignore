@@ -51,3 +51,6 @@ pnpm-debug.log*
 # IDEs
 .vscode
 .idea
+
+.superpowers
+.docs

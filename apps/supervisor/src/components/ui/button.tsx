@@ -421,7 +421,7 @@ function ButtonArrow({ icon: Icon = ChevronDown, className, ...props }: ButtonAr
     <Icon
       data-slot="button-arrow"
       className={cn('ms-auto -me-1', className)}
-      {...(props as any)}
+      {...props}
     />
   );
 }

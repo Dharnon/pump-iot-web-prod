@@ -1,6 +1,7 @@
-import { TestPdfData } from '../services/dtoMapper';
+import type { TestPdfData } from "../services/dtoMapper";
+import type { TestDetailRecord } from "../types/testDetail";
 
-export const MOCK_TEST_DETAIL: any = {
+export const MOCK_TEST_DETAIL: TestDetailRecord = {
   id: "MOCK-12345",
   numeroProtocolo: 12345,
   bancoId: 1,
@@ -14,7 +15,7 @@ export const MOCK_TEST_DETAIL: any = {
     ordenTrabajo: "OT-2024-999",
     numeroBombas: 1,
     fecha: new Date().toISOString(),
-    item: "ITEM-1"
+    item: "ITEM-1",
   },
   testsToPerform: {},
   createdAt: new Date().toISOString(),
@@ -27,7 +28,7 @@ export const MOCK_TEST_DETAIL: any = {
     impellerDiameter: "250",
     sealType: "MECANICO",
     vertical: false,
-    
+
     flowRate: 150,
     head: 45,
     rpm: 1450,
@@ -39,14 +40,14 @@ export const MOCK_TEST_DETAIL: any = {
     temperature: 25,
     viscosity: 1,
     density: 1000,
-    
+
     motorMarca: "SIEMENS",
     motorTipo: "1LA7",
     motorPotencia: 30,
     motorVelocidad: 1470,
     motorIntensidad: 55,
-    
+
     tolerance: "ISO 9906 Grade 2B",
-    internalComment: "Datos simulados para pruebas de frontend"
-  } as TestPdfData
+    internalComment: "Datos simulados para pruebas de frontend",
+  } satisfies TestPdfData,
 };

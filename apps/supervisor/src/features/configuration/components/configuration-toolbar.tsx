@@ -19,7 +19,6 @@ export function ConfigurationToolbar({
   motorsCount,
   banksWithMotorCount,
   banksInactiveCount,
-  t,
 }: {
   activeTab: ConfigurationTab;
   onActiveTabChange: (value: ConfigurationTab) => void;
@@ -30,7 +29,6 @@ export function ConfigurationToolbar({
   motorsCount: number;
   banksWithMotorCount: number;
   banksInactiveCount: number;
-  t: (key: string) => string;
 }) {
   return (
     <div className="flex flex-col gap-3 border-b border-border/50 pb-4">

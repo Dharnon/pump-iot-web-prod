@@ -31,8 +31,8 @@ const ResizablePanelGroup = ({
 )
 
 const ResizablePanel = React.forwardRef<
-    any, // Using any for handle to avoid type conflicts since the package exports are unstable
-    any
+    React.ElementRef<typeof Panel>,
+    React.ComponentPropsWithoutRef<typeof Panel>
 >((props, ref) => (
     <Panel panelRef={ref} {...props} />
 ))

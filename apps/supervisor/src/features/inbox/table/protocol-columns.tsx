@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
+import type { Column, ColumnDef } from "@tanstack/react-table";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -112,7 +112,13 @@ const getStatusConfig = (status: string, t: (key: string) => string) => {
   return config[status] || config.GENERADO;
 };
 
-function SortableHeader({ column, title }: { column: any; title: string }) {
+function SortableHeader({
+  column,
+  title,
+}: {
+  column: Column<ProtocolItem, unknown>;
+  title: string;
+}) {
   return (
     <Button
       variant="ghost"

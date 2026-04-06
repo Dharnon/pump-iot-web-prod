@@ -141,7 +141,7 @@ export function ImportModal({ onImportSuccess }: ImportModalProps) {
      * Resetea todo el estado al cerrar el modal.
      * Vuelve al paso 1 y limpia todos los valores.
      */
-    const resetState = () => {
+    const resetState = useCallback(() => {
         setStep("upload");
         setFile(null);
         setSheets([]);
@@ -149,16 +149,16 @@ export function ImportModal({ onImportSuccess }: ImportModalProps) {
         setError(null);
         setResult(null);
         setIsLoading(false);
-    };
+    }, []);
 
     /**
      * Handler para cambio de estado open del Dialog.
      * Al cerrar, resetea el estado.
      */
-    const handleOpenChange = (newOpen: boolean) => {
+    const handleOpenChange = useCallback((newOpen: boolean) => {
         setOpen(newOpen);
         if (!newOpen) resetState();
-    };
+    }, [resetState]);
 
     // =========================================================================
     // HANDLERS DE ARCHIVO
@@ -168,12 +168,82 @@ export function ImportModal({ onImportSuccess }: ImportModalProps) {
      * Handler para drop de archivo (drag & drop).
      * Previene el comportamiento por defecto y procesa el archivo.
      */
+    const importWithSheet = useCallback(async (fileToImport: File, sheet: string) => {
+        setStep("importing");
+        setIsLoading(true);
+        setError(null);
+
+        try {
+            const data = await importExcel(fileToImport, sheet);
+
+            // Guardar resultado para mostrar en paso success
+            setResult({ filename: fileToImport.name, count: data.count });
+            setStep("success");
+
+            // Notificar al padre (para que refresque datos)
+            onImportSuccess(fileToImport.name, data.count);
+
+            // Auto-cerrar modal despues de 2 segundos
+            setTimeout(() => {
+                setOpen(false);
+                resetState();
+            }, 2000);
+        } catch {
+            setError("Error al importar el archivo.");
+            setStep("select-sheet"); // Volver a seleccion para reintentar
+        } finally {
+            setIsLoading(false);
+        }
+    }, [onImportSuccess, resetState]);
+
+    /**
+     * Detecta las hojas disponibles en el archivo Excel.
+     *
+     * Proceso:
+     * 1. Valida extension del archivo (.xlsx, .xls)
+     * 2. Envía el archivo al backend para analisis
+     * 3. Si solo hay 1 hoja -> importa directamente
+     * 4. Si hay multiples hojas -> muestra selector (paso 2)
+     *
+     * @param selectedFile - Archivo Excel a analizar
+     */
+    const detectSheets = useCallback(async (selectedFile: File) => {
+        // Validar extension
+        const validTypes = [".xlsx", ".xls"];
+        const isValid = validTypes.some((ext) => selectedFile.name.toLowerCase().endsWith(ext));
+
+        if (!isValid) {
+            setError("Formato inválido. Solo .xlsx, .xls");
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+        setFile(selectedFile);
+
+        try {
+            const data = await getExcelSheets(selectedFile);
+            setSheets(data.sheets);
+
+            if (data.sheets.length === 1) {
+                setSelectedSheet(data.sheets[0]);
+                await importWithSheet(selectedFile, data.sheets[0]);
+            } else {
+                setStep("select-sheet");
+            }
+        } catch {
+            setError("Error al leer el archivo Excel.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [importWithSheet]);
+
     const handleDrop = useCallback(async (e: React.DragEvent) => {
         e.preventDefault();
         setIsDragging(false);
         const droppedFile = e.dataTransfer.files[0];
         if (droppedFile) await detectSheets(droppedFile);
-    }, []);
+    }, [detectSheets]);
 
     /**
      * Handler para selección de archivo via input file.
@@ -200,74 +270,9 @@ export function ImportModal({ onImportSuccess }: ImportModalProps) {
      * 
      * @param selectedFile - Archivo Excel a analizar
      */
-    const detectSheets = async (selectedFile: File) => {
-        // Validar extensión
-        const validTypes = [".xlsx", ".xls"];
-        const isValid = validTypes.some((ext) => selectedFile.name.toLowerCase().endsWith(ext));
-
-        if (!isValid) {
-            setError("Formato inválido. Solo .xlsx, .xls");
-            return;
-        }
-
-        setIsLoading(true);
-        setError(null);
-        setFile(selectedFile);
-
-        try {
-            const data = await getExcelSheets(selectedFile);
-            setSheets(data.sheets);
-
-            if (data.sheets.length === 1) {
-                setSelectedSheet(data.sheets[0]);
-                await importWithSheet(selectedFile, data.sheets[0]);
-            } else {
-                setStep("select-sheet");
-            }
-        } catch (err) {
-            setError("Error al leer el archivo Excel.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     // =========================================================================
     // PASO 2/3: IMPORTACIÓN
     // =========================================================================
-
-    /**
-     * Importa los datos de la hoja seleccionada.
-     * 
-     * @param fileToImport - Archivo Excel
-     * @param sheet - Nombre de la hoja a importar
-     */
-    const importWithSheet = async (fileToImport: File, sheet: string) => {
-        setStep("importing");
-        setIsLoading(true);
-        setError(null);
-
-        try {
-            const data = await importExcel(fileToImport, sheet);
-
-            // Guardar resultado para mostrar en paso success
-            setResult({ filename: fileToImport.name, count: data.count });
-            setStep("success");
-
-            // Notificar al padre (para que refresque datos)
-            onImportSuccess(fileToImport.name, data.count);
-
-            // Auto-cerrar modal después de 2 segundos
-            setTimeout(() => {
-                handleOpenChange(false);
-            }, 2000);
-
-        } catch (err) {
-            setError("Error al importar el archivo.");
-            setStep("select-sheet"); // Volver a selección para reintentar
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     /**
      * Handler para click en una hoja de la lista.

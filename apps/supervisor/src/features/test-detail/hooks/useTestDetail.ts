@@ -9,43 +9,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { getTestById } from '@/lib/api';
 import { toast } from 'sonner';
 import { mapEntitiesToPdfData } from '../services/entityMapper';
-import type { TestPdfData } from '../services/dtoMapper';
-
-interface TestDetail {
-  id: string;
-  numeroProtocolo?: number;
-  bancoId?: number;
-  fecha?: string;
-  status: "PENDING" | "SIN_PROCESAR" | "EN_PROCESO" | "EN_BANCO" | "GENERADO" | "GENERATED" | "COMPLETED";
-  generalInfo: {
-    pedido: string;
-    posicion?: string;
-    cliente: string;
-    modeloBomba?: string;
-    ordenTrabajo?: string;
-    numeroBombas: number;
-    fecha?: string;
-    item?: string;
-  };
-  bomba?: any;
-  cliente?: any;
-  motor?: any;
-  fluido?: any;
-  fluidoH2O?: any;
-  detalles?: any;
-  hasPdf?: boolean;
-  pdfData?: TestPdfData;
-  testsToPerform?: any;
-  createdAt?: string;
-}
+import type { TestDetailFieldValue, TestDetailRecord } from "../types/testDetail";
 
 export interface UseTestDetailResult {
-  test: TestDetail | null;
+  test: TestDetailRecord | null;
   loading: boolean;
   error: string | null;
   refetch: () => Promise<void>;
-  updateTestData: (field: string, value: any) => void;
-  setTest: React.Dispatch<React.SetStateAction<TestDetail | null>>;
+  updateTestData: (field: string, value: TestDetailFieldValue) => void;
+  setTest: React.Dispatch<React.SetStateAction<TestDetailRecord | null>>;
 }
 
 /**
@@ -55,7 +27,7 @@ export interface UseTestDetailResult {
  * @returns Test data, loading state, and update functions
  */
 export function useTestDetail(testId: string): UseTestDetailResult {
-  const [test, setTest] = useState<TestDetail | null>(null);
+  const [test, setTest] = useState<TestDetailRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,7 +42,7 @@ export function useTestDetail(testId: string): UseTestDetailResult {
     const useMock = localStorage.getItem('USE_MOCK_DATA') === 'true';
 
     try {
-      let data;
+      let data: TestDetailRecord;
 
       if (useMock) {
         // Dynamic import to avoid bundling mock data in production if not needed, 
@@ -106,7 +78,7 @@ export function useTestDetail(testId: string): UseTestDetailResult {
       }
 
       setTest(data);
-    } catch (err) {
+    } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Failed to load test";
       setError(message);
       toast.error("No se pudo cargar la prueba");
@@ -123,7 +95,7 @@ export function useTestDetail(testId: string): UseTestDetailResult {
   /**
    * Updates a specific field in the test's pdfData or generalInfo
    */
-  const updateTestData = useCallback((field: string, value: any) => {
+  const updateTestData = useCallback((field: string, value: TestDetailFieldValue) => {
     setTest((prev) => {
       if (!prev) return null;
 

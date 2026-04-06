@@ -1,5 +1,3 @@
-import { useCallback } from "react";
-
 import type { MotorPlantilla } from "@/lib/api";
 
 import type { useConfigurationData } from "./use-configuration-data";
@@ -7,44 +5,42 @@ import type { useConfigurationData } from "./use-configuration-data";
 type ConfigurationData = ReturnType<typeof useConfigurationData>;
 
 export function useConfigurationActions(data: ConfigurationData) {
-  const handleSaveMotor = useCallback(async () => {
-    const savedMotor = await data.motores.saveMotor();
+  const { bancos, motores } = data;
+
+  const handleSaveMotor = async () => {
+    const savedMotor = await motores.saveMotor();
 
     if (savedMotor) {
-      data.bancos.syncMotorReference(savedMotor);
+      bancos.syncMotorReference(savedMotor);
     }
 
     return savedMotor;
-  }, [data.bancos, data.motores]);
+  };
 
-  const handleDeleteMotor = useCallback(async () => {
-    const deletedMotor = await data.motores.deleteSelectedMotor();
+  const handleDeleteMotor = async () => {
+    const deletedMotor = await motores.deleteSelectedMotor();
 
     if (deletedMotor) {
-      data.bancos.clearMotorReference(deletedMotor.id);
+      bancos.clearMotorReference(deletedMotor.id);
     }
 
     return deletedMotor;
-  }, [data.bancos, data.motores]);
+  };
 
-  const handleSaveBanco = useCallback(async () => {
-    return data.bancos.saveBanco();
-  }, [data.bancos]);
+  const handleSaveBanco = async () => {
+    return bancos.saveBanco();
+  };
 
-  const handleDeleteBanco = useCallback(async () => {
-    return data.bancos.deleteSelectedBanco();
-  }, [data.bancos]);
+  const handleDeleteBanco = async () => {
+    return bancos.deleteSelectedBanco();
+  };
 
-  const openMotorDialog = useCallback(
-    (motor?: MotorPlantilla) => data.motores.openMotorDialog(motor),
-    [data.motores],
-  );
+  const openMotorDialog = (motor?: MotorPlantilla) =>
+    motores.openMotorDialog(motor);
 
-  const openBancoDialog = useCallback(
-    (banco?: Parameters<typeof data.bancos.openBancoDialog>[0]) =>
-      data.bancos.openBancoDialog(banco),
-    [data.bancos],
-  );
+  const openBancoDialog = (
+    banco?: Parameters<typeof bancos.openBancoDialog>[0],
+  ) => bancos.openBancoDialog(banco);
 
   return {
     handleSaveMotor,
