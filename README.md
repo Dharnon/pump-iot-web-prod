@@ -10,6 +10,34 @@
 
 ---
 
+## What is this product?
+
+**Pump IoT Web** is an industrial web application designed to manage, execute, and certify hydraulic pump performance tests at the **Flowserve test bench facility**.
+
+### Objective
+
+The platform digitises the entire pump testing workflow — from receiving a test order to issuing a certified performance report — eliminating paper-based processes and providing real-time visibility into each test as it happens.
+
+### Who uses it?
+
+| Role | Responsibility |
+|------|---------------|
+| **Supervisor** | Receives incoming pump test orders, schedules them across test banks, reviews protocols, and manages users and configuration. |
+| **Operator** | Runs the physical test from a dedicated cockpit: controls the pump (motor speed, valve opening), monitors live telemetry, captures data points, and approves results. |
+
+### Key features
+
+- **Order inbox** – Supervisors receive and triage pump test orders (client, pump model, order ID).
+- **Test scheduling** – Assign jobs to one of several test banks (Bank A, B, C…) and queue them in priority order.
+- **Operator cockpit** – Real-time control panel to start/stop the motor, set speed and valve position, and watch live gauges (pressure, flow, temperature, power, NPSH).
+- **Live telemetry** – Continuous data stream from the physical bench via SignalR, displayed as sparklines and numeric readouts.
+- **Data capture** – Operators capture stabilised operating points that build the measured Q-H (flow vs. head) curve.
+- **Analytics** – Automatic comparison of the measured curve against the theoretical design curve, with pass / fail determination per ISO/IEC test protocol.
+- **PDF reports** – One-click generation of a signed test certificate that can be delivered to the client.
+- **User management** – Supervisors create, edit, and deactivate operator accounts and assign each operator to a specific test bank.
+
+---
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
