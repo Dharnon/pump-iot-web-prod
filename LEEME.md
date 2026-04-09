@@ -1,4 +1,34 @@
-# 🚀 Inicio Rápido - Pump IoT Web
+# Pump IoT Web Platform
+
+## ¿De qué va este proyecto?
+
+**Pump IoT Web** es una aplicación web industrial diseñada para gestionar, ejecutar y certificar ensayos de rendimiento de bombas hidráulicas en el **banco de pruebas de Flowserve**.
+
+### Objetivo
+
+La plataforma digitaliza todo el flujo de trabajo de prueba de bombas — desde la recepción de un pedido hasta la emisión del certificado de rendimiento — eliminando los procesos en papel y aportando visibilidad en tiempo real sobre cada ensayo.
+
+### ¿Quiénes la usan?
+
+| Rol | Responsabilidad |
+|-----|-----------------|
+| **Supervisor** | Recibe los pedidos de ensayo, los planifica en los bancos de prueba, revisa los protocolos y gestiona los usuarios y la configuración. |
+| **Operador** | Ejecuta el ensayo físico desde un cockpit dedicado: controla la bomba (velocidad del motor, apertura de válvula), monitoriza la telemetría en directo, captura puntos de operación y aprueba los resultados. |
+
+### Funcionalidades principales
+
+- **Bandeja de entrada (Inbox)** – Los supervisores reciben y gestionan los pedidos de ensayo (cliente, modelo de bomba, número de pedido).
+- **Planificación de ensayos** – Asignación de trabajos a los distintos bancos de prueba (Banco A, B, C…) con cola de prioridad.
+- **Cockpit del operador** – Panel de control en tiempo real para arrancar/parar el motor, ajustar velocidad y apertura de válvula, y visualizar medidores en vivo (presión, caudal, temperatura, potencia, NPSH).
+- **Telemetría en vivo** – Flujo de datos continuo desde el banco físico vía SignalR, mostrado como gráficas y lecturas numéricas.
+- **Captura de puntos** – Los operadores registran puntos de operación estabilizados que construyen la curva Q-H (caudal vs. altura) medida.
+- **Analítica** – Comparación automática de la curva medida frente a la curva de diseño teórica, con determinación de conformidad (OK/KO) según el protocolo de ensayo ISO/IEC.
+- **Informes PDF** – Generación con un solo clic del certificado de ensayo firmado, listo para entregar al cliente.
+- **Gestión de usuarios** – Los supervisores crean, editan y desactivan cuentas de operador y asignan a cada operador su banco de prueba.
+
+---
+
+## 🚀 Inicio Rápido
 
 ## Para Comenzar Inmediatamente
 
